@@ -1,3 +1,5 @@
+import 'package:edsuite/bootstrap.dart';
+import 'package:edsuite/core/app/edsuite_app.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:edsuite/utils/config.dart' as config;
@@ -5,14 +7,9 @@ import 'package:edsuite/utils/config.dart' as config;
 import 'screens/sales_manager/home_screen.dart';
 import 'screens/sales_manager/shift_management_screen.dart';
 import 'screens/sales_manager/niubiz_screen.dart';
-import 'screens/sales_manager/expense_screen.dart';
-import 'screens/sales_manager/vaults_screen.dart';
 import 'screens/sales_manager/scheduled_sales_screen.dart';
-import 'screens/sales_manager/sales_screen.dart';
 import 'screens/sales_manager/free_sales_screen.dart';
-import 'screens/sales_manager/invoice_screen.dart';
 import 'screens/sales_manager/cashkeeper_screen.dart';
-import 'screens/sales_manager/close_shift_screen.dart';
 
 import 'screens/self_service/welcome_screen.dart';
 import 'screens/self_service/dispenser_selection_screen.dart';
@@ -21,14 +18,12 @@ import 'screens/self_service/sale_type_screen.dart';
 import 'screens/self_service/customer_data_screen.dart';
 import 'screens/self_service/payment_method_screen.dart';
 
-import 'screens/validation_screen.dart';
+import 'features/pos/presentation/screens/validation_screen.dart';
 import 'services/auth_service.dart';
 import 'screens/pos_configuration_screen.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await config.initConfig();
-  runApp(MyApp());
+  bootstrap(() => const EdsuiteApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -89,7 +84,7 @@ class MyApp extends StatelessWidget {
           '/ventasLibres': (_) => const FreeSalesScreen(),
           '/configuracionPOS': (context) => const PosConfigurationScreen(),
         },
-        onGenerateRoute: (settings) {
+        /*  onGenerateRoute: (settings) {
           final args = settings.arguments as Map<String, dynamic>?;
 
           switch (settings.name) {
@@ -136,7 +131,7 @@ class MyApp extends StatelessWidget {
           }
 
           return null;
-        },
+        }, */
       ),
     );
   }

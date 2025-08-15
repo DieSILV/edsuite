@@ -6,15 +6,17 @@ import 'package:flutter/services.dart';
 import 'package:edsuite/utils/config.dart' as config;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class VaultsScreen extends StatefulWidget {
+class VaultsScreenParams {
   final int usuarioId;
   final int turnoId;
 
-  const VaultsScreen({
-    super.key,
-    required this.usuarioId,
-    required this.turnoId,
-  });
+  VaultsScreenParams({required this.usuarioId, required this.turnoId});
+}
+
+class VaultsScreen extends StatefulWidget {
+  final VaultsScreenParams params;
+
+  const VaultsScreen({super.key, required this.params});
 
   @override
   State<VaultsScreen> createState() => _VaultsScreenState();
@@ -39,7 +41,7 @@ class _VaultsScreenState extends State<VaultsScreen> {
     setState(() => isLoading = true);
     try {
       final res = await http.get(
-        Uri.parse('$baseUrl/bovedas/turno/${widget.turnoId}'),
+        Uri.parse('$baseUrl/bovedas/turno/${widget.params.turnoId}'),
       );
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
@@ -63,8 +65,8 @@ class _VaultsScreenState extends State<VaultsScreen> {
         Uri.parse('$baseUrl/bovedas'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'usuario_id': widget.usuarioId,
-          'turno_id': widget.turnoId,
+          'usuario_id': widget.params.usuarioId,
+          'turno_id': widget.params.turnoId,
           'monto': double.parse(monto),
           'motivo': motivo,
         }),

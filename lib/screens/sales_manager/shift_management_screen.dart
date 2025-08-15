@@ -185,7 +185,7 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
               final usuarioId = _usuario['id'];
               final turnoId = _turno['id'];
 
-              switch (item['label']) {
+              /* switch (item['label']) {
                 case 'Gastos':
                   Navigator.push(
                     context,
@@ -229,7 +229,7 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
                   break;
                 default:
                   _showAlert('Info', '${item['label']} no implementado.');
-              }
+              } */
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

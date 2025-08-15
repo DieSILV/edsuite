@@ -4,17 +4,21 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:edsuite/utils/config.dart' as config;
-import 'package:url_launcher/url_launcher.dart';
 
-class InvoiceScreen extends StatefulWidget {
+class InvoiceScreenParams {
   final Map<String, dynamic> transaccion;
   final List<int> availablePaymentMethodIds;
 
-  const InvoiceScreen({
-    super.key,
+  InvoiceScreenParams({
     required this.transaccion,
     required this.availablePaymentMethodIds,
   });
+}
+
+class InvoiceScreen extends StatefulWidget {
+  final InvoiceScreenParams params;
+
+  const InvoiceScreen({super.key, required this.params});
 
   @override
   State<InvoiceScreen> createState() => _InvoiceScreenState();
@@ -70,7 +74,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         setState(() {
           allPaymentMethods = data
               .map((e) => PaymentMethod.fromJson(e))
-              .where((pm) => widget.availablePaymentMethodIds.contains(pm.id))
+              .where(
+                (pm) => widget.params.availablePaymentMethodIds.contains(pm.id),
+              )
               .toList();
         });
       }
@@ -131,7 +137,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   bool get isFormValid {
     final total =
-        double.tryParse(widget.transaccion['amountTransaction'].toString()) ??
+        double.tryParse(
+          widget.params.transaccion['amountTransaction'].toString(),
+        ) ??
         0;
 
     final tienePagosValidos = pagos.every(
@@ -295,18 +303,20 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       }
     }
 
-    final trans = widget.transaccion;
-    debugPrint('TRANSACCION COMPLETA: ${jsonEncode(widget.transaccion)}');
+    final trans = widget.params.transaccion;
+    debugPrint(
+      'TRANSACCION COMPLETA: ${jsonEncode(widget.params.transaccion)}',
+    );
     final total = double.tryParse(trans['amountTransaction'].toString()) ?? 0;
 
-    final pago = pagos.first;
+    /* final pago = pagos.first;
     final refPago = niubizResult?['REF'] ?? "";
     final refIDU = niubizResult?['IDU'] ?? "";
     final refBAN = niubizResult?['BAN'] ?? "";
     final refTAR = niubizResult?['TAR'] ?? "";
     final refLOT = niubizResult?['LOT'] ?? "";
     final refSER = niubizResult?['SER'] ?? "";
-    final refCAP = niubizResult?['CAP'] ?? "";
+    final refCAP = niubizResult?['CAP'] ?? ""; */
 
     final payload = {
       "serie_documento": selectedTipoDoc == 'FACTURA' ? "F001" : "B001",
@@ -533,7 +543,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             alinearCampo('Doc. ID:', cliente?['numero'] ?? '-') +
             alinearCampo('Telefono:', cliente?['telefono'] ?? '-') +
             alinearCampo('Correo:', cliente?['correo'] ?? '-') +
-            alinearCampo('Placa:', placaController.text.trim() ?? '-') +
+            alinearCampo('Placa:', placaController.text.trim()) +
             '\n' +
             separador +
             'DETALLE DEL PRODUCTO\n' +
@@ -564,9 +574,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             'technotrade.nubox360.com/buscar \n \n \n \n';
 
         try {
-          final result = await _channel.invokeMethod('printTicket', {
-            "texto": texto,
-          });
+          await _channel.invokeMethod('printTicket', {"texto": texto});
           debugPrint("Impresión Niubiz exitosa");
         } catch (e) {
           _showMessage('🖨️ Error al imprimir con Niubiz: $e');
@@ -610,7 +618,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final trans = widget.transaccion;
+    final trans = widget.params.transaccion;
     final total = double.tryParse(trans['amountTransaction'].toString()) ?? 0;
 
     return Stack(
@@ -644,9 +652,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
         if (_isGenerating)
           Container(
-            color: Colors.white.withOpacity(
-              0.8,
-            ),
+            color: Colors.white.withOpacity(0.8),
             alignment: Alignment.center,
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -655,12 +661,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 SizedBox(height: 20),
                 Text(
                   'Generando...',
-                  style: TextStyle(
-                    color: Colors
-                        .blue
-                        .shade700,
-                    fontSize: 18,
-                  ),
+                  style: TextStyle(color: Colors.blue.shade700, fontSize: 18),
                 ),
               ],
             ),

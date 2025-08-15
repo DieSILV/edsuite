@@ -2,18 +2,19 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:edsuite/utils/config.dart' as config;
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
-class SalesScreen extends StatefulWidget {
+class SalesScreenParams {
   final int usuarioId;
   final int turnoId;
 
-  const SalesScreen({
-    super.key,
-    required this.usuarioId,
-    required this.turnoId,
-  });
+  SalesScreenParams({required this.usuarioId, required this.turnoId});
+}
+
+class SalesScreen extends StatefulWidget {
+  final SalesScreenParams params;
+
+  const SalesScreen({super.key, required this.params});
 
   @override
   State<SalesScreen> createState() => _SalesScreenState();
@@ -38,7 +39,7 @@ class _SalesScreenState extends State<SalesScreen> {
     setState(() => isLoading = true);
     try {
       final url = Uri.parse(
-        '$baseUrl/solicitudes/usuarioTurno?usuario_id=${widget.usuarioId}&turno_id=${widget.turnoId}',
+        '$baseUrl/solicitudes/usuarioTurno?usuario_id=${widget.params.usuarioId}&turno_id=${widget.params.turnoId}',
       );
       final res = await http.get(url);
       if (res.statusCode == 200) {
@@ -229,9 +230,7 @@ class _SalesScreenState extends State<SalesScreen> {
     print('------------------------');
 
     try {
-      final result = await _channel.invokeMethod('printTicket', {
-        "texto": texto,
-      });
+      await _channel.invokeMethod('printTicket', {"texto": texto});
 
       debugPrint("impresión: $texto");
     } catch (e) {

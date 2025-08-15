@@ -84,7 +84,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
   }
 
   void _irAFacturar(dynamic venta) {
-    Navigator.push(
+    /* Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => InvoiceScreen(
@@ -92,7 +92,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
           availablePaymentMethodIds: [1, 3],
         ),
       ),
-    );
+    ); */
   }
 
   void cerrarSesion() async {

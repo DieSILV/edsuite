@@ -5,15 +5,17 @@ import 'package:edsuite/utils/config.dart' as config;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 
-class CloseShiftScreen extends StatefulWidget {
+class CloseShiftScreenParams {
   final int usuarioId;
   final int turnoId;
 
-  const CloseShiftScreen({
-    super.key,
-    required this.usuarioId,
-    required this.turnoId,
-  });
+  CloseShiftScreenParams({required this.usuarioId, required this.turnoId});
+}
+
+class CloseShiftScreen extends StatefulWidget {
+  final CloseShiftScreenParams params;
+
+  const CloseShiftScreen({super.key, required this.params});
 
   @override
   State<CloseShiftScreen> createState() => _CloseShiftScreenState();
@@ -58,8 +60,8 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'usuario_id': widget.usuarioId,
-          'turno_id': widget.turnoId,
+          'usuario_id': widget.params.usuarioId,
+          'turno_id': widget.params.turnoId,
         }),
       );
 
@@ -96,8 +98,8 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'usuario_id': widget.usuarioId,
-          'turno_id': widget.turnoId,
+          'usuario_id': widget.params.usuarioId,
+          'turno_id': widget.params.turnoId,
         }),
       );
 

@@ -3,19 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:edsuite/utils/config.dart' as config;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ExpenseScreen extends StatefulWidget {
+class ExpenseScreenParams {
   final int usuarioId;
   final int turnoId;
 
-  const ExpenseScreen({
-    super.key,
-    required this.usuarioId,
-    required this.turnoId,
-  });
+  ExpenseScreenParams({required this.usuarioId, required this.turnoId});
+}
+
+class ExpenseScreen extends StatefulWidget {
+  final ExpenseScreenParams params;
+
+  const ExpenseScreen({super.key, required this.params});
 
   @override
   State<ExpenseScreen> createState() => _ExpenseScreenState();
@@ -40,7 +41,7 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
     setState(() => isLoading = true);
     try {
       final res = await http.get(
-        Uri.parse('$baseUrl/gastos/turno/${widget.turnoId}'),
+        Uri.parse('$baseUrl/gastos/turno/${widget.params.turnoId}'),
       );
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
@@ -64,38 +65,38 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
         Uri.parse('$baseUrl/gastos'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'usuario_id': widget.usuarioId,
-          'turno_id': widget.turnoId,
+          'usuario_id': widget.params.usuarioId,
+          'turno_id': widget.params.turnoId,
           'monto': double.parse(monto),
           'motivo': motivo,
         }),
       );
       if (res.statusCode == 200 || res.statusCode == 201) {
-//         final now = DateTime.now();
-//         final fechaStr =
-//             '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        //         final now = DateTime.now();
+        //         final fechaStr =
+        //             '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
-//         final texto =
-//             '''
-// *** GASTO ***
-// Motivo: ${motivo.toUpperCase()}
-// Monto: S/ ${double.parse(monto).toStringAsFixed(2)}
-// Turno: ${widget.turnoId}
-// Usuario: ${widget.usuarioId}
-// Fecha: $fechaStr
+        //         final texto =
+        //             '''
+        // *** GASTO ***
+        // Motivo: ${motivo.toUpperCase()}
+        // Monto: S/ ${double.parse(monto).toStringAsFixed(2)}
+        // Turno: ${widget.turnoId}
+        // Usuario: ${widget.usuarioId}
+        // Fecha: $fechaStr
 
-// GRACIAS
-// ''';
+        // GRACIAS
+        // ''';
 
-//         final encodedText = Uri.encodeComponent(texto);
+        //         final encodedText = Uri.encodeComponent(texto);
 
-//         final rawbtUri = Uri.parse('rawbt://print?text=$encodedText');
+        //         final rawbtUri = Uri.parse('rawbt://print?text=$encodedText');
 
-//         try {
-//           await launchUrl(rawbtUri, mode: LaunchMode.externalApplication);
-//         } catch (e) {
-//           mostrarAlerta('Error', 'No se pudo lanzar RawBT para imprimir.');
-//         }
+        //         try {
+        //           await launchUrl(rawbtUri, mode: LaunchMode.externalApplication);
+        //         } catch (e) {
+        //           mostrarAlerta('Error', 'No se pudo lanzar RawBT para imprimir.');
+        //         }
 
         setState(() {
           monto = '';
