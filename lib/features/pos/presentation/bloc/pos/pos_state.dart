@@ -5,9 +5,11 @@ enum PosStatus {
   loading,
   loadingBaseUrl,
   loadingCode,
+  loadingClear,
   success,
   successBaseUrl,
   successCode,
+  successClear,
   failed,
 }
 
@@ -20,6 +22,7 @@ class PosState extends Equatable {
     this.state,
     this.type = "",
     this.failure,
+    this.paymentMethodIds = const [],
   });
 
   const PosState.initial() : this(status: PosStatus.initial);
@@ -28,6 +31,7 @@ class PosState extends Equatable {
   final String baseUrl;
   final String posCode;
   final List<int> sideIds;
+  final List<int> paymentMethodIds;
   final int? state;
   final String type;
   final Failure? failure;
@@ -40,6 +44,7 @@ class PosState extends Equatable {
     int? state,
     String? type,
     Failure? failure,
+    List<int>? paymentMethodIds,
   }) {
     return PosState(
       status: status ?? this.status,
@@ -49,6 +54,7 @@ class PosState extends Equatable {
       sideIds: sideIds ?? this.sideIds,
       state: state ?? this.state,
       type: type ?? this.type,
+      paymentMethodIds: paymentMethodIds ?? this.paymentMethodIds,
     );
   }
 
@@ -74,6 +80,7 @@ class PosState extends Equatable {
     posCode,
     state,
     type,
+    paymentMethodIds,
     failure,
   ];
 }

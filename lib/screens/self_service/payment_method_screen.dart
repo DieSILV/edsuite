@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:edsuite/utils/config.dart' as pos_config;
+import '../../features/pos/data/data.dart';
+import '../../features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 import 'document_screen.dart';
 
 class PaymentMethodScreen extends StatefulWidget {
@@ -21,10 +25,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   static const Color white = Colors.white;
   static const Color orangeBCP = Color(0xFFF28C28);
 
-  Map<String, dynamic>? selectedMethod;
+  PaymentMethodModel? selectedMethod;
   bool isProcessing = false;
   bool isCashKeeperActive = false;
-  List<Map<String, dynamic>> methods = [];
+  List<PaymentMethodModel> methods = [];
   double amountToCharge = 0.0;
   double depositedAmount = 0.0;
 
@@ -46,11 +50,20 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   void initState() {
     super.initState();
     apiBase = '${pos_config.baseUrl}/apipts';
-    _loadPaymentMethods();
-    _loadAmountToCharge();
+    //_loadPaymentMethods();
     _initBlinkingAnimation();
     _startCountdown();
     _loadRemainingTime();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //final posBloc = context.read<PosBloc>().state;
+      final dispenserBloc = context.read<DispenserBloc>().state;
+      duration = Duration(seconds: dispenserBloc.remainingTime);
+      setState(() {});
+      context.read<DispenserBloc>().add(
+        GetPaymentMethodsDispenser(baseUrl: apiBase),
+      );
+      _loadAmountToCharge();
+    });
   }
 
   void _initBlinkingAnimation() {
@@ -103,7 +116,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     super.dispose();
   }
 
-  Future<void> _loadPaymentMethods() async {
+  /* Future<void> _loadPaymentMethods() async {
     final response = await http.get(Uri.parse('$apiBase/payment-methods'));
 
     if (response.statusCode == 200) {
@@ -119,13 +132,17 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
             .toList();
       });
     }
-  }
+  } */
 
   Future<void> _loadAmountToCharge() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saleType = prefs.getString('selectedSaleType') ?? 'SOLES';
-    final selectedSaleAmount = prefs.getDouble('selectedSaleAmount') ?? 0.0;
-    final selectedFuelPrice = prefs.getDouble('selectedFuelPrice') ?? 0.0;
+    //final prefs = await SharedPreferences.getInstance();
+    //final saleType = prefs.getString('selectedSaleType') ?? 'SOLES';
+    //final selectedSaleAmount = prefs.getDouble('selectedSaleAmount') ?? 0.0;
+    //final selectedFuelPrice = prefs.getDouble('selectedFuelPrice') ?? 0.0;
+    final dispenserState = context.read<DispenserBloc>().state;
+    final saleType = dispenserState.selectedSaleType;
+    final selectedSaleAmount = dispenserState.selectedSaleAmount!;
+    final selectedFuelPrice = dispenserState.selectedFuelPrice!;
 
     double total = saleType == 'GALONES'
         ? selectedSaleAmount * selectedFuelPrice
@@ -136,7 +153,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     });
   }
 
-  Future<void> _handleMethodSelection(Map<String, dynamic> method) async {
+  Future<void> _handleMethodSelection(PaymentMethodModel method) async {
     if (isCashKeeperActive) {
       _showError("Ya está en curso una operación con CashKeeper.");
       return;
@@ -144,7 +161,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
 
     setState(() => selectedMethod = method);
 
-    final type = method['type'];
+    final type = method.type;
 
     if (type == 'NIUBIZ_TARJETA') {
       await _startNiubizTransaction(useQr: false);
@@ -314,7 +331,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
       'response': result,
       'pos_code': deviceName,
       'device': 'AUTOSV',
-      
+
       'document': prefs.getString('document'),
       'plate': prefs.getString('plate'),
       'receiptType': prefs.getString('receiptType'),
@@ -331,9 +348,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
       'customerAddress': prefs.getString('customerAddress'),
       'customerPhone': prefs.getString('customerPhone'),
       'customerEmail': prefs.getString('customerEmail'),
-      'pos_info': prefs.getString(
-        'pos_info',
-      ),
+      'pos_info': prefs.getString('pos_info'),
     };
 
     try {
@@ -416,218 +431,239 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: darkBlue,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-              decoration: const BoxDecoration(
-                color: white,
-                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
-              ),
-              child: Column(
-                children: [
-                  const Icon(Icons.timer, color: darkBlue, size: 32),
-                  const SizedBox(width: 10),
-                  Text(
-                    formattedTime,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: darkBlue,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // const Text(
-                  //   'MÉTODO DE PAGO',
-                  //   style: TextStyle(
-                  //     fontSize: 26,
-                  //     fontWeight: FontWeight.bold,
-                  //     color: darkBlue,
-                  //   ),
-                  // ),
-                  // const SizedBox(height: 8),
-                  Text(
-                    'TOTAL A COBRAR: S/ ${amountToCharge.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: darkBlue,
-                    ),
-                  ),
-                  if (isCashKeeperActive)
+    final posBloc = context.watch<PosBloc>().state;
+    return BlocListener<DispenserBloc, DispenserState>(
+      listener: (context, state) {
+        switch (state.status) {
+          case DispenserStatus.successPaymentMethod:
+            methods = state.paymentMethodResponse!.filterByAllowedIds(
+              posBloc.paymentMethodIds,
+            );
+            break;
+          default:
+        }
+      },
+      child: Scaffold(
+        backgroundColor: darkBlue,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 24,
+                ),
+                decoration: const BoxDecoration(
+                  color: white,
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                ),
+                child: Column(
+                  children: [
+                    const Icon(Icons.timer, color: darkBlue, size: 32),
+                    const SizedBox(width: 10),
                     Text(
-                      'Depositado: S/ ${depositedAmount.toStringAsFixed(2)}',
+                      formattedTime,
                       style: const TextStyle(
-                        color: Colors.red,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                        color: darkBlue,
+                        letterSpacing: 1.5,
                       ),
                     ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
+                    const SizedBox(height: 8),
+                    // const Text(
+                    //   'MÉTODO DE PAGO',
+                    //   style: TextStyle(
+                    //     fontSize: 26,
+                    //     fontWeight: FontWeight.bold,
+                    //     color: darkBlue,
+                    //   ),
+                    // ),
+                    // const SizedBox(height: 8),
+                    Text(
+                      'TOTAL A COBRAR: S/ ${amountToCharge.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: darkBlue,
                       ),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // const Padding(
-                            //   // padding: EdgeInsets.symmetric(vertical: 16),
-                            //   // child: Text(
-                            //   //   'Escoja el método que desea pagar:',
-                            //   //   style: TextStyle(
-                            //   //     fontSize: 22,
-                            //   //     fontWeight: FontWeight.bold,
-                            //   //     color: Colors.white,
-                            //   //   ),
-                            //   //   textAlign: TextAlign.center,
-                            //   // ),
-                            // ),
-                            ...methods.isEmpty
-                                ? [
-                                    const CircularProgressIndicator(
-                                      color: white,
-                                    ),
-                                  ]
-                                : methods.map((m) {
-                                    final isSelected =
-                                        selectedMethod?['id'] == m['id'];
-                                    return GestureDetector(
-                                      onTap: isProcessing
-                                          ? null
-                                          : () => _handleMethodSelection(m),
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 10,
-                                        ),
-                                        padding: const EdgeInsets.all(16),
-                                        height: 160,
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          color: isSelected ? white : lightBlue,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                    ),
+                    if (isCashKeeperActive)
+                      Text(
+                        'Depositado: S/ ${depositedAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // const Padding(
+                              //   // padding: EdgeInsets.symmetric(vertical: 16),
+                              //   // child: Text(
+                              //   //   'Escoja el método que desea pagar:',
+                              //   //   style: TextStyle(
+                              //   //     fontSize: 22,
+                              //   //     fontWeight: FontWeight.bold,
+                              //   //     color: Colors.white,
+                              //   //   ),
+                              //   //   textAlign: TextAlign.center,
+                              //   // ),
+                              // ),
+                              ...methods.isEmpty
+                                  ? [
+                                      const CircularProgressIndicator(
+                                        color: white,
+                                      ),
+                                    ]
+                                  : methods.map((m) {
+                                      final isSelected =
+                                          selectedMethod?.id == m.id;
+                                      return GestureDetector(
+                                        onTap: isProcessing
+                                            ? null
+                                            : () => _handleMethodSelection(m),
+                                        child: Container(
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 10,
                                           ),
-                                          border: Border.all(
+                                          padding: const EdgeInsets.all(16),
+                                          height: 160,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
                                             color: isSelected
-                                                ? darkBlue
-                                                : Colors.transparent,
-                                          ),
-                                        ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              _iconFromType(m['type']),
-                                              size: 48,
-                                              color: darkBlue,
+                                                ? white
+                                                : lightBlue,
+                                            borderRadius: BorderRadius.circular(
+                                              12,
                                             ),
-                                            const SizedBox(height: 12),
-                                            Text(
-                                              m['name'],
-                                              style: const TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? darkBlue
+                                                  : Colors.transparent,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                _iconFromType(m.type),
+                                                size: 48,
                                                 color: darkBlue,
                                               ),
-                                            ),
-                                          ],
+                                              const SizedBox(height: 12),
+                                              Text(
+                                                m.name,
+                                                style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: darkBlue,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            FadeTransition(
-              opacity: blinkAnimation,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back, color: white, size: 32),
-                  label: const Text(
-                    'REGRESAR',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: orangeBCP,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 16,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 8,
-                  ),
-                ),
-              ),
-            ),
-
-            if (isProcessing)
-              Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(color: white),
-                      const SizedBox(height: 20),
-                      Text(
-                        isCashKeeperActive
-                            ? 'Esperando depósito...'
-                            : 'Procesando...',
-                        style: const TextStyle(
-                          color: white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      if (isCashKeeperActive)
-                        ElevatedButton.icon(
-                          onPressed: cancelDeposit,
-                          icon: const Icon(Icons.cancel),
-                          label: const Text("CANCELAR DEPÓSITO"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 14,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                                      );
+                                    }).toList(),
+                            ],
                           ),
                         ),
-                    ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              FadeTransition(
+                opacity: blinkAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back, color: white, size: 32),
+                    label: const Text(
+                      'REGRESAR',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: orangeBCP,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 8,
+                    ),
                   ),
                 ),
               ),
-          ],
+
+              if (isProcessing)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(color: white),
+                        const SizedBox(height: 20),
+                        Text(
+                          isCashKeeperActive
+                              ? 'Esperando depósito...'
+                              : 'Procesando...',
+                          style: const TextStyle(
+                            color: white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        if (isCashKeeperActive)
+                          ElevatedButton.icon(
+                            onPressed: cancelDeposit,
+                            icon: const Icon(Icons.cancel),
+                            label: const Text("CANCELAR DEPÓSITO"),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -648,7 +684,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     }
   }
 
-  String _descriptionFromType(String type) {
+  /* String _descriptionFromType(String type) {
     switch (type) {
       case 'EFECTIVO':
         return "Pago en efectivo directamente en caja.";
@@ -661,5 +697,5 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
       default:
         return "";
     }
-  }
+  } */
 }

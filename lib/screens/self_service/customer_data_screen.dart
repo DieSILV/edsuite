@@ -1,9 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
+import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
+import 'package:edsuite/screens/self_service/payment_method_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:edsuite/utils/config.dart' as config;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import '../../features/pos/presentation/bloc/pos/pos_bloc.dart';
 
 class CustomerDataScreen extends StatefulWidget {
   const CustomerDataScreen({super.key});
@@ -34,9 +37,15 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   @override
   void initState() {
     super.initState();
-    _startCountdown();
-    _initBlinkingAnimation();
-    _loadRemainingTime();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //final posBloc = context.read<PosBloc>().state;
+      final dispenserBloc = context.read<DispenserBloc>().state;
+      duration = Duration(seconds: dispenserBloc.remainingTime);
+      setState(() {});
+      _startCountdown();
+      _initBlinkingAnimation();
+    });
   }
 
   @override
@@ -72,24 +81,26 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   }
 
   Future<void> _saveRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds);
+    /*  final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('remainingTime', duration.inSeconds); */
+    context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
   }
 
-  Future<void> _loadRemainingTime() async {
+  /* Future<void> _loadRemainingTime() async {
     final prefs = await SharedPreferences.getInstance();
     final seconds = prefs.getInt('remainingTime') ?? 300;
     setState(() => duration = Duration(seconds: seconds));
   }
-
+ */
   Future<void> _clearPreferencesAndRedirect() async {
-    final prefs = await SharedPreferences.getInstance();
+    context.read<PosBloc>().add(ClearPosData());
+    /*  final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
     for (final key in prefs.getKeys()) {
       if (!keysToKeep.contains(key)) await prefs.remove(key);
     }
     if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
   }
 
   String get formattedTime {
@@ -98,7 +109,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     return "$minutes:$seconds";
   }
 
-  Future<void> fetchCustomerData(String numeroDoc) async {
+  /* Future<void> fetchCustomerData(String numeroDoc) async {
     try {
       final response = await http.post(
         Uri.parse("${config.baseUrl}/apipts/clientes/obtener"),
@@ -119,13 +130,19 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
       setState(() => customerData = null);
       _showError("Error al consultar cliente: $e");
     }
-  }
+  } */
 
-  void _onDocumentChanged() {
+  void _onDocumentChanged(String baseUrl) {
     if (receiptType == 'receipt' && dniController.text.length == 8) {
-      fetchCustomerData(dniController.text);
+      //fetchCustomerData(dniController.text);
+      context.read<DispenserBloc>().add(
+        GetDataClient(baseUrl: baseUrl, documento: dniController.text),
+      );
     } else if (receiptType == 'invoice' && rucController.text.length == 11) {
-      fetchCustomerData(rucController.text);
+      //fetchCustomerData(rucController.text);
+      context.read<DispenserBloc>().add(
+        GetDataClient(baseUrl: baseUrl, documento: rucController.text),
+      );
     } else {
       setState(() => customerData = null);
     }
@@ -144,8 +161,8 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   }
 
   Future<void> _continue() async {
-    final prefs = await SharedPreferences.getInstance();
-    final document = receiptType == "receipt"
+    //final prefs = await SharedPreferences.getInstance();
+    /* final document = receiptType == "receipt"
         ? dniController.text
         : receiptType == "invoice"
         ? rucController.text
@@ -153,9 +170,9 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
 
     await prefs.setString('receiptType', receiptType ?? '');
     await prefs.setString('document', document);
-    await prefs.setString('plate', plateController.text);
+    await prefs.setString('plate', plateController.text); */
 
-    if (customerData != null) {
+    /* if (customerData != null) {
       await prefs.setString('customerName', customerData!['nombre'] ?? '');
       await prefs.setString(
         'customerAddress',
@@ -163,9 +180,10 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
       );
       await prefs.setString('customerPhone', customerData!['telefono'] ?? '');
       await prefs.setString('customerEmail', customerData!['correo'] ?? '');
-    }
+    } */
 
-    Navigator.pushNamed(context, "/paymentMethod");
+    //Navigator.pushNamed(context, "/paymentMethod");
+    context.push("/paymentMethod");
   }
 
   void _showError(String message) {
@@ -176,206 +194,228 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    //final isTablet = MediaQuery.of(context).size.width > 600;
     List<bool> isSelectedList = [
       receiptType == 'invoice',
       receiptType == 'receipt',
       receiptType == 'none',
     ];
 
-    return Scaffold(
-      backgroundColor: Colors.blue.shade900,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Temporizador arriba
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              decoration: const BoxDecoration(
-                color: white,
-                boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.timer, color: darkBlue, size: 32),
-                  const SizedBox(width: 10),
-                  Text(
-                    formattedTime,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: darkBlue,
-                      letterSpacing: 1.5,
+    final posBloc = context.watch<PosBloc>();
+
+    return BlocListener<PosBloc, PosState>(
+      listener: (context, state) {
+        switch (state.status) {
+          case PosStatus.successClear:
+            context.go("/");
+            break;
+          case PosStatus.failed:
+            _showError(getErrorMessage(state.failure!));
+          default:
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.blue.shade900,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Temporizador arriba
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 24,
+                ),
+                decoration: const BoxDecoration(
+                  color: white,
+                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.timer, color: darkBlue, size: 32),
+                    const SizedBox(width: 10),
+                    Text(
+                      formattedTime,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: darkBlue,
+                        letterSpacing: 1.5,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Contenido principal
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height * 0.75,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'TIPO DE COMPROBANTE',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+              // Contenido principal
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height * 0.75,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'TIPO DE COMPROBANTE',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: white,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ToggleButtons(
+                            borderRadius: BorderRadius.circular(12),
+                            fillColor: white,
+                            selectedColor: darkBlue,
                             color: white,
+                            borderColor: white,
+                            isSelected: isSelectedList,
+                            onPressed: (index) {
+                              setState(() {
+                                receiptType = [
+                                  'invoice',
+                                  'receipt',
+                                  'none',
+                                ][index];
+                                dniController.clear();
+                                rucController.clear();
+                                customerData = null;
+                              });
+                            },
+                            children: const [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Text("Factura (RUC)"),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Text("Boleta (DNI)"),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                child: Text("Sin Doc."),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                        ToggleButtons(
-                          borderRadius: BorderRadius.circular(12),
-                          fillColor: white,
-                          selectedColor: darkBlue,
-                          color: white,
-                          borderColor: white,
-                          isSelected: isSelectedList,
-                          onPressed: (index) {
-                            setState(() {
-                              receiptType = [
-                                'invoice',
-                                'receipt',
-                                'none',
-                              ][index];
-                              dniController.clear();
-                              rucController.clear();
-                              customerData = null;
-                            });
-                          },
-                          children: const [
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12),
-                              child: Text("Factura (RUC)"),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12),
-                              child: Text("Boleta (DNI)"),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12),
-                              child: Text("Sin Doc."),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
-                        if (receiptType == 'receipt')
-                          _buildInputField(
-                            controller: dniController,
-                            label: 'Ingrese DNI',
-                            maxLength: 8,
-                            icon: Icons.badge,
-                            onChanged: (_) => _onDocumentChanged(),
-                          ),
-                        if (receiptType == 'invoice')
-                          _buildInputField(
-                            controller: rucController,
-                            label: 'Ingrese RUC',
-                            maxLength: 11,
-                            icon: Icons.apartment,
-                            onChanged: (_) => _onDocumentChanged(),
-                          ),
-                        const SizedBox(height: 12),
-
-                        if (customerData != null)
-                          Card(
-                            color: lightBlue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: const BorderSide(color: white),
+                          if (receiptType == 'receipt')
+                            _buildInputField(
+                              controller: dniController,
+                              label: 'Ingrese DNI',
+                              maxLength: 8,
+                              icon: Icons.badge,
+                              onChanged: (_) =>
+                                  _onDocumentChanged(posBloc.state.baseUrl),
                             ),
-                            child: ListTile(
-                              title: Text(
-                                customerData?['nombre'] ?? '',
-                                style: const TextStyle(
-                                  color: darkBlue,
-                                  fontWeight: FontWeight.bold,
+                          if (receiptType == 'invoice')
+                            _buildInputField(
+                              controller: rucController,
+                              label: 'Ingrese RUC',
+                              maxLength: 11,
+                              icon: Icons.apartment,
+                              onChanged: (_) =>
+                                  _onDocumentChanged(posBloc.state.baseUrl),
+                            ),
+                          const SizedBox(height: 12),
+
+                          if (customerData != null)
+                            Card(
+                              color: lightBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: const BorderSide(color: white),
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  customerData?['nombre'] ?? '',
+                                  style: const TextStyle(
+                                    color: darkBlue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  customerData?['direccion'] ?? '',
+                                  style: const TextStyle(color: darkBlue),
                                 ),
                               ),
-                              subtitle: Text(
-                                customerData?['direccion'] ?? '',
-                                style: const TextStyle(color: darkBlue),
-                              ),
                             ),
+                          const SizedBox(height: 20),
+                          _buildInputField(
+                            controller: plateController,
+                            label: 'Placa del vehículo',
+                            icon: Icons.directions_car,
+                            onChanged: (_) => setState(() {}),
+                            textCapitalization: TextCapitalization.characters,
                           ),
-                        const SizedBox(height: 20),
-                        _buildInputField(
-                          controller: plateController,
-                          label: 'Placa del vehículo',
-                          icon: Icons.directions_car,
-                          onChanged: (_) => setState(() {}),
-                          textCapitalization: TextCapitalization.characters,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            // Botón continuar
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: ElevatedButton.icon(
-                onPressed: isContinueEnabled ? _continue : null,
-                icon: const Icon(Icons.arrow_forward, color: white, size: 28),
-                label: const Text(
-                  'CONTINUAR',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isContinueEnabled ? darkBlue : Colors.grey,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 36,
-                    vertical: 16,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 6,
-                ),
-              ),
-            ),
-
-            // Botón regresar animado
-            FadeTransition(
-              opacity: blinkAnimation,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
+              // Botón continuar
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
                 child: ElevatedButton.icon(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back, color: white, size: 32),
+                  onPressed: isContinueEnabled ? _continue : null,
+                  icon: const Icon(Icons.arrow_forward, color: white, size: 28),
                   label: const Text(
-                    'REGRESAR',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    'CONTINUAR',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: orangeBCP,
+                    backgroundColor: isContinueEnabled ? darkBlue : Colors.grey,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
+                      horizontal: 36,
                       vertical: 16,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    elevation: 8,
+                    elevation: 6,
                   ),
                 ),
               ),
-            ),
-          ],
+
+              // Botón regresar animado
+              FadeTransition(
+                opacity: blinkAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back, color: white, size: 32),
+                    label: const Text(
+                      'REGRESAR',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: orangeBCP,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 8,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

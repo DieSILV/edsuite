@@ -27,21 +27,21 @@ class ColorsCustom {
   static const Color darkSuccess = Color(0xFF34D399);
   // ===== PRIMARY COLORS =====
   /// Primary blue - Primary buttons, headers, links
-  static const Color primaryBlue = Color(0xFF0023F4);
+  static const Color primaryBlue = Color(0xFF2196F3);
 
   /// Secondary green - Success, secondary buttons, active icons (verde más natural)
   static const Color secondaryGreen = Color(0xFF10B981);
 
   // ===== HOVER AND ACCENT COLORS =====
   /// Dark blue - Hover, dark blue accents
-  static const Color darkBlue = Color(0xFF0019B3);
+  static const Color darkBlue = Color(0xFF1976D2);
 
   /// Dark green - Hover on green buttons or indicators
   static const Color darkGreen = Color(0xFF059669);
 
   // ===== SOFT COLORS =====
   /// Light blue - Active element backgrounds, chips
-  static const Color lightBlue = Color(0xFF5C6CFF);
+  static const Color lightBlue = Color(0xFF64B5F6);
 
   /// Light green - Tag backgrounds, soft success
   static const Color lightGreen = Color(0xFF6EE7B7);

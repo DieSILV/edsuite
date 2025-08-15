@@ -1,5 +1,11 @@
+import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
+import 'package:edsuite/screens/self_service/dispenser_selection_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../features/pos/presentation/screens/sreens.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -76,7 +82,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
 
     if (result == true && context.mounted) {
-      Navigator.pushNamed(context, '/configuracionPOS');
+      final baseUrl = context.read<PosBloc>().state.baseUrl;
+
+      context.push(
+        '/configuracionPOS',
+        extra: PostConfigurationScreenArguments(baseUrl: baseUrl),
+      );
     }
   }
 
@@ -89,7 +100,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushReplacementNamed(context, '/dispenser'),
+      onTap: () {
+        context.pushReplacement('/dispenser');
+      },
       child: Scaffold(
         backgroundColor: Colors.blue.shade900,
         body: Column(

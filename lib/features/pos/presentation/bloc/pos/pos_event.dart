@@ -28,3 +28,7 @@ class SetPosCode extends PosEvent {
   @override
   List<Object> get props => [posCode];
 }
+
+class ClearPosData extends PosEvent {
+  const ClearPosData();
+}

@@ -1,2 +1,3 @@
 export 'repositories/pos_repository.dart';
-export 'models/pos_response_model.dart';
+export 'repositories/dispenser_repository.dart';
+export 'models/models.dart';

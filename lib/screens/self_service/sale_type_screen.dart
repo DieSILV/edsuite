@@ -1,9 +1,20 @@
 import 'dart:async';
+import 'package:edsuite/features/pos/data/models/pump_config_response_model.dart';
+import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+
+class SaleTypeScreenParams {
+  final int productIndex;
+
+  SaleTypeScreenParams({required this.productIndex});
+}
 
 class SaleTypeScreen extends StatefulWidget {
-  const SaleTypeScreen({super.key});
+  final SaleTypeScreenParams params;
+  const SaleTypeScreen({super.key, required this.params});
 
   @override
   State<SaleTypeScreen> createState() => _SaleTypeScreenState();
@@ -33,9 +44,25 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
   @override
   void initState() {
     super.initState();
-    _startCountdown();
-    _initBlinkingAnimation();
-    _loadRemainingTime();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final dispenserBloc = context.read<DispenserBloc>().state;
+      Product currentProduct = dispenserBloc.pumpConfigResponse!
+          .getProductsForPump(
+            dispenserBloc.selectedPump!,
+          )[widget.params.productIndex];
+
+      selectedFuel = currentProduct.name;
+      fuelGradeId = currentProduct.fuelGradeId;
+      nozzle = currentProduct.nozzle;
+      fuelPrice = currentProduct.price;
+
+      duration = Duration(seconds: dispenserBloc.remainingTime);
+      pump = dispenserBloc.selectedPump;
+      selectedSide = dispenserBloc.selectedSide;
+      setState(() {});
+      _startCountdown();
+      _initBlinkingAnimation();
+    });
   }
 
   @override
@@ -68,27 +95,30 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
   }
 
   Future<void> _saveRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds);
+    context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
+
+    /* final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('remainingTime', duration.inSeconds); */
   }
 
-  Future<void> _loadRemainingTime() async {
+  /* Future<void> _loadRemainingTime() async {
     final prefs = await SharedPreferences.getInstance();
     final seconds = prefs.getInt('remainingTime') ?? 300;
     setState(() => duration = Duration(seconds: seconds));
-  }
+  } */
 
   Future<void> _clearPreferencesAndRedirect() async {
-    final prefs = await SharedPreferences.getInstance();
+    context.read<PosBloc>().add(ClearPosData());
+    /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
     for (final key in prefs.getKeys()) {
       if (!keysToKeep.contains(key)) await prefs.remove(key);
     }
     if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
   }
 
-  @override
+  /*  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
@@ -100,15 +130,22 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
     fuelGradeId = args?['fuelGradeId'];
     nozzle = args?['nozzle'];
     fuelPrice = args?['fuelPrice'];
-  }
+  } */
 
   Future<void> _saveSaleInfo() async {
-    final prefs = await SharedPreferences.getInstance();
+    context.read<DispenserBloc>().add(
+      SetSelectedSaleTypeAndSaleAmount(
+        selectedSaleType: saleType!,
+        selectedSaleAmount: double.parse(_amountController.text),
+      ),
+    );
+
+    /* final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selectedSaleType', saleType!);
     await prefs.setDouble(
       'selectedSaleAmount',
       double.parse(_amountController.text),
-    );
+    ); */
   }
 
   String get formattedTime {
@@ -126,202 +163,234 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
-    return Scaffold(
-      backgroundColor: Colors.blue.shade900,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // TEMPORIZADOR HEADER
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              decoration: const BoxDecoration(
-                color: white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.timer, color: darkBlue, size: 32),
-                  const SizedBox(width: 10),
-                  Text(
-                    formattedTime,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: darkBlue,
-                      letterSpacing: 1.5,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PosBloc, PosState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case PosStatus.successClear:
+                context.go("/");
+                break;
+              default:
+            }
+          },
+        ),
+        BlocListener<DispenserBloc, DispenserState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case DispenserStatus.successSaleType:
+                context.push("/customerData");
+                break;
+              default:
+            }
+          },
+        ),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.blue.shade900,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // TEMPORIZADOR HEADER
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 24,
+                ),
+                decoration: const BoxDecoration(
+                  color: white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: SingleChildScrollView(
-                // padding: const EdgeInsets.all(24),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight:
-                        MediaQuery.of(context).size.height *
-                        0.8,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${selectedSide ?? '-'} - ${selectedFuel ?? 'PRODUCTO'}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isTablet ? 32 : 24,
-                            fontWeight: FontWeight.bold,
-                            color: white,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        // const SizedBox(height: 20),
-                        // _buildInfoTile('DISPENSADOR', '${pump ?? '-'}'),
-                        // _buildInfoTile('FUELGRADE ID', '${fuelGradeId ?? '-'}'),
-                        // _buildInfoTile('BOQUEREL (NOZZLE)', '${nozzle ?? '-'}'),
-                        if (fuelPrice != null)
-                          _buildInfoTile(
-                            'PRECIO X GALÓN',
-                            'S/ ${fuelPrice!.toStringAsFixed(2)}',
-                          ),
-                        const SizedBox(height: 30),
-                        const Text(
-                          '¿CÓMO DESEAS COMPRAR?',
-                          style: TextStyle(
-                            color: white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildOptionButton('SOLES'),
-                            _buildOptionButton('GALONES'),
-                          ],
-                        ),
-                        const SizedBox(height: 30),
-                        if (saleType != null)
-                          TextField(
-                            controller: _amountController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            onChanged: (_) => setState(() {}),
-                            style: const TextStyle(color: white),
-                            decoration: InputDecoration(
-                              labelText: 'Ingrese la cantidad en $saleType',
-                              labelStyle: const TextStyle(
-                                color: Colors.white70,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white24,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: white),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(color: white),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: ElevatedButton.icon(
-                onPressed: isContinueEnabled
-                    ? () async {
-                        await _saveSaleInfo();
-                        Navigator.pushNamed(
-                          context,
-                          '/customerData',
-                          arguments: {
-                            'side': selectedSide,
-                            'fuel': selectedFuel,
-                            'pump': pump,
-                            'fuelGradeId': fuelGradeId,
-                            'nozzle': nozzle,
-                            'fuelPrice': fuelPrice,
-                            'saleType': saleType,
-                            'amount': double.parse(_amountController.text),
-                          },
-                        );
-                      }
-                    : null,
-                icon: const Icon(Icons.arrow_forward, color: white, size: 28),
-                label: const Text(
-                  'CONTINUAR',
-                  style: TextStyle(
-                    color: white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isContinueEnabled ? darkBlue : Colors.grey,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 18,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 6,
-                ),
-              ),
-            ),
-
-            FadeTransition(
-              opacity: blinkAnimation,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, color: white, size: 32),
-                    label: const Text(
-                      'REGRESAR',
-                      style: TextStyle(
-                        color: white,
-                        fontSize: 26,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.timer, color: darkBlue, size: 32),
+                    const SizedBox(width: 10),
+                    Text(
+                      formattedTime,
+                      style: const TextStyle(
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
+                        color: darkBlue,
+                        letterSpacing: 1.5,
                       ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: orangeBCP,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 36,
-                        vertical: 18,
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  // padding: const EdgeInsets.all(24),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height * 0.8,
+                    ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '//${selectedSide ?? '-'} - ${selectedFuel ?? 'PRODUCTO'}',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: isTablet ? 32 : 24,
+                              fontWeight: FontWeight.bold,
+                              color: white,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                          // const SizedBox(height: 20),
+                          // _buildInfoTile('DISPENSADOR', '${pump ?? '-'}'),
+                          // _buildInfoTile('FUELGRADE ID', '${fuelGradeId ?? '-'}'),
+                          // _buildInfoTile('BOQUEREL (NOZZLE)', '${nozzle ?? '-'}'),
+                          if (fuelPrice != null)
+                            _buildInfoTile(
+                              'PRECIO X GALÓN',
+                              'S/ ${fuelPrice!.toStringAsFixed(2)}',
+                            ),
+                          const SizedBox(height: 30),
+                          const Text(
+                            '¿CÓMO DESEAS COMPRAR?',
+                            style: TextStyle(
+                              color: white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildOptionButton('SOLES'),
+                              _buildOptionButton('GALONES'),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+                          if (saleType != null)
+                            TextField(
+                              controller: _amountController,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              onChanged: (_) => setState(() {}),
+                              style: const TextStyle(color: white),
+                              decoration: InputDecoration(
+                                labelText: 'Ingrese la cantidad en ',
+                                labelStyle: const TextStyle(
+                                  color: Colors.white70,
+                                ),
+                                filled: true,
+                                fillColor: Colors.white24,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: white),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(color: white),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 8,
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: ElevatedButton.icon(
+                  onPressed: isContinueEnabled
+                      ? () async {
+                          await _saveSaleInfo();
+
+                          //await _saveSaleInfo();
+                          /* Navigator.pushNamed(
+                                  context,
+                                  '/customerData',
+                                  arguments: {
+                                    'side': selectedSide,
+                                    'fuel': selectedFuel,
+                                    'pump': pump,
+                                    'fuelGradeId': fuelGradeId,
+                                    'nozzle': nozzle,
+                                    'fuelPrice': fuelPrice,
+                                    'saleType': saleType,
+                                    'amount': double.parse(_amountController.text),
+                                  },
+                                ); */
+                        }
+                      : null,
+                  icon: const Icon(Icons.arrow_forward, color: white, size: 28),
+                  label: const Text(
+                    'CONTINUAR',
+                    style: TextStyle(
+                      color: white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isContinueEnabled ? darkBlue : Colors.grey,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 18,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 6,
+                  ),
+                ),
+              ),
+
+              FadeTransition(
+                opacity: blinkAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: white,
+                        size: 32,
+                      ),
+                      label: const Text(
+                        'REGRESAR',
+                        style: TextStyle(
+                          color: white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: orangeBCP,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 36,
+                          vertical: 18,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

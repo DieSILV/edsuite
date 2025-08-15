@@ -107,6 +107,77 @@ class AppTheme {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: ColorsCustom.darkSecondaryBackground,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: ColorsCustom.darkBorderDivider),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: ColorsCustom.darkBorderDivider),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: ColorsCustom.primaryBlue, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: ColorsCustom.darkError),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: ColorsCustom.darkError, width: 2),
+      ),
+      labelStyle: AppTextStyles.labelMedium(
+        color: ColorsCustom.darkSecondaryText,
+      ),
+      hintStyle: AppTextStyles.bodyMedium(
+        color: ColorsCustom.darkSecondaryText,
+      ),
+      errorStyle: AppTextStyles.error(),
+    ),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStateProperty.all(
+          ColorsCustom.darkSecondaryBackground,
+        ),
+        surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+        elevation: WidgetStateProperty.all(8),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: ColorsCustom.darkSecondaryBackground,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: ColorsCustom.darkBorderDivider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: ColorsCustom.darkBorderDivider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(
+            color: ColorsCustom.primaryBlue,
+            width: 2,
+          ),
+        ),
+      ),
+      textStyle: AppTextStyles.bodyMedium(color: ColorsCustom.darkPrimaryText),
+    ),
+
+    // Popup Menu Theme (para DropdownButton tradicional)
+    popupMenuTheme: PopupMenuThemeData(
+      color: ColorsCustom.darkSecondaryBackground,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 8,
+      textStyle: AppTextStyles.bodyMedium(color: ColorsCustom.darkPrimaryText),
+    ),
   );
   ThemeData getLightTheme() => ThemeData(
     useMaterial3: true,
@@ -320,6 +391,46 @@ class AppTheme {
       selectedColor: ColorsCustom.primaryBlue,
       labelStyle: AppTextStyles.labelSmall(color: ColorsCustom.primaryText),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+
+    // Dropdown Menu Theme
+    dropdownMenuTheme: DropdownMenuThemeData(
+      menuStyle: MenuStyle(
+        backgroundColor: WidgetStateProperty.all(Colors.white),
+        surfaceTintColor: WidgetStateProperty.all(Colors.transparent),
+        elevation: WidgetStateProperty.all(8),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: ColorsCustom.borderDivider),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: ColorsCustom.borderDivider),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(
+            color: ColorsCustom.primaryBlue,
+            width: 2,
+          ),
+        ),
+      ),
+      textStyle: AppTextStyles.bodyMedium(color: ColorsCustom.primaryText),
+    ),
+
+    // Popup Menu Theme (para DropdownButton tradicional)
+    popupMenuTheme: PopupMenuThemeData(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 8,
+      textStyle: AppTextStyles.bodyMedium(color: ColorsCustom.primaryText),
     ),
   );
 }

@@ -15,6 +15,28 @@ class PosBloc extends Bloc<PosEvent, PosState> {
     on<GetPosEntity>(_onGetPosEntity);
     on<SetBaseUrl>(_onSetBaseUrl);
     on<SetPosCode>(_onSetPosCode);
+    on<ClearPosData>(_onClearPosData);
+  }
+
+  Future<void> _onClearPosData(
+    ClearPosData event,
+    Emitter<PosState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: PosStatus.loadingClear));
+
+      final result = await _posUsecases.clearPosData();
+
+      if (result.isSuccess) {
+        emit(PosState(status: PosStatus.successClear));
+      } else {
+        emit(
+          state.copyWith(status: PosStatus.failed, failure: result.errorValue),
+        );
+      }
+    } catch (e) {
+      addError(e);
+    }
   }
 
   Future<void> _onGetPosEntity(
@@ -33,6 +55,7 @@ class PosBloc extends Bloc<PosEvent, PosState> {
             status: PosStatus.success,
             baseUrl: postEntity.baseUrl,
             sideIds: postEntity.sideIds,
+            paymentMethodIds: postEntity.paymentMethodIds,
             posCode: postEntity.posCode,
             state: postEntity.estado,
             type: postEntity.type,
@@ -81,8 +104,17 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       );
 
       if (result.isSuccess) {
+        final rsp = result.successValue!;
         emit(
-          state.copyWith(status: PosStatus.successCode, posCode: event.posCode),
+          state.copyWith(
+            status: PosStatus.successCode,
+            baseUrl: rsp.baseUrl,
+            sideIds: rsp.sideIds,
+            paymentMethodIds: rsp.paymentMethodIds,
+            posCode: rsp.posCode,
+            state: rsp.estado,
+            type: rsp.type,
+          ),
         );
       } else {
         emit(

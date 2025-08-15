@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
+import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:edsuite/utils/config.dart' as config;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../features/pos/presentation/bloc/pos/pos_bloc.dart';
 
 class DispenserSideScreen extends StatefulWidget {
   const DispenserSideScreen({super.key});
@@ -21,10 +21,10 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   String? selectedSide;
   int? selectedPump;
   Timer? pollingTimer;
-  List<Map<String, dynamic>> availablePumps = [];
+  //List<Map<String, dynamic>> availablePumps = [];
 
   late Timer countdownTimer;
-  Duration duration = const Duration(minutes: 5);
+  Duration duration = const Duration(minutes: 7);
 
   late AnimationController blinkController;
   late Animation<double> blinkAnimation;
@@ -32,11 +32,22 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   @override
   void initState() {
     super.initState();
-    _loadSelection();
+    /* _loadSelection();
     _loadRemainingTime();
     _startPolling();
     _startCountdown();
+    _initBlinkingAnimation(); */
     _initBlinkingAnimation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final posBloc = context.read<PosBloc>().state;
+      final dispenserBloc = context.read<DispenserBloc>().state;
+      selectedSide = dispenserBloc.selectedSide;
+      selectedPump = dispenserBloc.selectedPump;
+      duration = Duration(seconds: dispenserBloc.remainingTime);
+      setState(() {});
+      _startPolling(posBloc.baseUrl, posBloc.sideIds);
+      _startCountdown();
+    });
   }
 
   @override
@@ -70,20 +81,23 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   }
 
   Future<void> _saveRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds);
+    //final prefs = await SharedPreferences.getInstance();
+    //await prefs.setInt('remainingTime', duration.inSeconds);
+
+    context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
   }
 
-  Future<void> _loadRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seconds = prefs.getInt('remainingTime') ?? 300;
+  /* Future<void> _loadRemainingTime() async {
+    //final prefs = await SharedPreferences.getInstance();
+    final seconds = widget.args.remainingTime ?? 300;
     setState(() {
       duration = Duration(seconds: seconds);
     });
-  }
+  } */
 
   Future<void> _clearPreferencesAndRedirect() async {
-    final prefs = await SharedPreferences.getInstance();
+    context.read<PosBloc>().add(ClearPosData());
+    /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
 
     final allKeys = prefs.getKeys();
@@ -91,24 +105,28 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
       if (!keysToKeep.contains(key)) {
         await prefs.remove(key);
       }
-    }
+    } */
 
-    if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    //if (!mounted) return;
+    //Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 
-  void _startPolling() {
-    _loadAvailablePumps();
+  void _startPolling(String baseUrl, List<int> sideIds) {
+    context.read<DispenserBloc>().add(
+      GetStatusDispenser(baseUrl: baseUrl, sideIds: sideIds),
+    );
     pollingTimer = Timer.periodic(
       const Duration(seconds: 1),
-      (timer) => _loadAvailablePumps(),
+      (timer) => context.read<DispenserBloc>().add(
+        GetStatusDispenser(baseUrl: baseUrl, sideIds: sideIds),
+      ),
     );
   }
 
-  Future<void> _loadSelection() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedPump = prefs.getInt('selectedPump');
-    final savedSide = prefs.getString('selectedSide');
+  /* Future<void> _loadSelection() async {
+    //final prefs = await SharedPreferences.getInstance();
+    final savedPump = widget.args.pump;
+    final savedSide = widget.args.side;
 
     if (savedPump != null && savedSide != null) {
       setState(() {
@@ -117,23 +135,27 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
       });
     }
   }
-
+ */
   Future<void> _saveSelection(int pump, String side) async {
-    final prefs = await SharedPreferences.getInstance();
+    /* final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('selectedPump', pump);
-    await prefs.setString('selectedSide', side);
+    await prefs.setString('selectedSide', side); */
+
+    context.read<DispenserBloc>().add(SetSelectedPump(pump));
+    context.read<DispenserBloc>().add(SetSelectedSide(side));
   }
 
-  Future<void> _loadAvailablePumps() async {
-    final prefs = await SharedPreferences.getInstance();
-    final posInfoStr = prefs.getString('pos_info');
-    if (posInfoStr == null) return;
+  /* Future<void> _loadAvailablePumps() async {
+    //final prefs = await SharedPreferences.getInstance();
+    //final posInfoStr = prefs.getString('pos_info');
+    //if (posInfoStr == null) return;
 
-    final posInfo = json.decode(posInfoStr);
-    final List<dynamic> sideIds = posInfo['side_ids'] ?? [];
-    if (sideIds.isEmpty) return;
+    //final posInfo = json.decode(posInfoStr);
+    //final List<dynamic> sideIds = posInfo['side_ids'] ?? [];
+    /*  final sideIds = widget.args.sideIds;
+    if (sideIds.isEmpty) return; */
 
-    final response = await http.post(
+    /* final response = await http.post(
       Uri.parse('${config.baseUrl}/apipts/pts/status'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({"pts_pumps": sideIds}),
@@ -169,8 +191,8 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
       setState(() {
         availablePumps = newAvailable;
       });
-    }
-  }
+    } */
+  } */
 
   void _selectSide(String side, int pump) {
     setState(() {
@@ -178,11 +200,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
       selectedPump = pump;
     });
     _saveSelection(pump, side);
-    Navigator.pushNamed(
-      context,
-      '/dispenserProducts',
-      arguments: {'side': selectedSide, 'pump': selectedPump},
-    );
+    context.push('/dispenserProducts');
   }
 
   String get formattedTime {
@@ -195,133 +213,188 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
-    return Scaffold(
-      backgroundColor: Colors.blue.shade900,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.timer, color: darkBlue, size: 32),
-                  const SizedBox(width: 10),
-                  Text(
-                    formattedTime,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: darkBlue,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    final availablePumps = context
+        .watch<DispenserBloc>()
+        .state
+        .dispenserResponse
+        ?.availablePumps;
 
-            Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 20,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'TOCA UNA TARJETA PARA ELEGIR TU DISPENSADOR',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: isTablet ? 30 : 22,
-                          fontWeight: FontWeight.bold,
-                          color: white,
-                          letterSpacing: 1.2,
-                        ),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<DispenserBloc, DispenserState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case DispenserStatus.loadingStatus:
+
+                // Verificar si la bomba seleccionada sigue disponible
+                bool stillAvailable = selectedPump != null
+                    ? state.dispenserResponse!.isPumpAvailable(selectedPump!)
+                    : false;
+
+                if (!stillAvailable) {
+                  setState(() {
+                    selectedPump = null;
+                    selectedSide = null;
+                  });
+                }
+                break;
+              case DispenserStatus.successClear:
+                context.push("/");
+              default:
+            }
+          },
+        ),
+        BlocListener<PosBloc, PosState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case PosStatus.successClear:
+                context.go("/");
+                break;
+              default:
+            }
+          },
+        ),
+      ],
+      child: Scaffold(
+        backgroundColor: Colors.blue.shade900,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 24,
+                ),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.timer, color: darkBlue, size: 32),
+                    const SizedBox(width: 10),
+                    Text(
+                      formattedTime,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: darkBlue,
+                        letterSpacing: 1.5,
                       ),
-                      const SizedBox(height: 30),
-                      if (availablePumps.isEmpty)
-                        const Text(
-                          'No hay bombas activas.',
-                          style: TextStyle(fontSize: 18, color: Colors.white70),
-                        )
-                      else
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            bottom: 32,
-                          ), // da espacio para evitar overflow
-                          child: GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: availablePumps.length,
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: isTablet ? 2 : 1,
-                                  mainAxisSpacing: 30,
-                                  crossAxisSpacing: 30,
-                                  childAspectRatio: isTablet ? 2 : 1.8,
-                                ),
-                            itemBuilder: (context, index) {
-                              final pumpData = availablePumps[index];
-                              return _buildDispenserCard(
-                                pumpData['side'],
-                                pumpData['pump'],
-                                isTablet: isTablet,
-                              );
-                            },
+                    ),
+                  ],
+                ),
+              ),
+
+              Expanded(
+                child: Center(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'TOCA UNA TARJETA PARA ELEGIR TU DISPENSADOR',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: isTablet ? 30 : 22,
+                            fontWeight: FontWeight.bold,
+                            color: white,
+                            letterSpacing: 1.2,
                           ),
                         ),
-                    ],
+                        const SizedBox(height: 30),
+                        if (availablePumps != null && availablePumps.isEmpty)
+                          const Text(
+                            'No hay bombas activas.',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white70,
+                            ),
+                          )
+                        else
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: 32,
+                            ), // da espacio para evitar overflow
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: availablePumps!.length,
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: isTablet ? 2 : 1,
+                                    mainAxisSpacing: 30,
+                                    crossAxisSpacing: 30,
+                                    childAspectRatio: isTablet ? 2 : 1.8,
+                                  ),
+                              itemBuilder: (context, index) {
+                                final pumpData = availablePumps[index];
+                                return _buildDispenserCard(
+                                  /* pumpData['side'],
+                                      pumpData['pump'], */
+                                  pumpData.side,
+                                  pumpData.pump,
+                                  isTablet: isTablet,
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            FadeTransition(
-              opacity: blinkAnimation,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: _clearPreferencesAndRedirect,
-                    icon: const Icon(Icons.arrow_back, color: white, size: 32),
-                    label: const Text(
-                      'REGRESAR',
-                      style: TextStyle(
+              FadeTransition(
+                opacity: blinkAnimation,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: ElevatedButton.icon(
+                      onPressed: _clearPreferencesAndRedirect,
+                      icon: const Icon(
+                        Icons.arrow_back,
                         color: white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
+                        size: 32,
                       ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: orangeBCP,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 36,
-                        vertical: 18,
+                      label: const Text(
+                        'REGRESAR',
+                        style: TextStyle(
+                          color: white,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: orangeBCP,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 36,
+                          vertical: 18,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 8,
                       ),
-                      elevation: 8,
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

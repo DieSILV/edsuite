@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../../services/auth_service.dart';
 import 'package:edsuite/utils/config.dart' as config;
 
 class HomeScreen extends StatefulWidget {

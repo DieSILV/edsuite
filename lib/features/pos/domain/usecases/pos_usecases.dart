@@ -11,6 +11,16 @@ class PosUsecases {
     required this.posRepository,
   });
 
+  FutureResult<void> clearPosData() async {
+    try {
+      await keyValueStorageService.removeKey("base_url");
+      await keyValueStorageService.removeKey("pos_code");
+      return Success(null);
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
+
   FutureResult<PosEntity> getPosEntity() async {
     try {
       String? baseUrl = await keyValueStorageService.getValue<String>(
@@ -34,6 +44,7 @@ class PosUsecases {
             baseUrl: baseUrl,
             posCode: posCode,
             sideIds: response.sideIds,
+            paymentMethodIds: response.paymentMethodIds,
             estado: response.estado,
             type: response.type,
           );
@@ -65,7 +76,7 @@ class PosUsecases {
     }
   }
 
-  FutureResult<void> setPosCode({
+  FutureResult<PosEntity> setPosCode({
     required String baseUrl,
     required String posCode,
   }) async {
@@ -80,11 +91,29 @@ class PosUsecases {
 
         if (response.estado == 0) {
           await keyValueStorageService.removeKey("pos_code");
-          return Success(null);
+          return Success(
+            PosEntity(
+              baseUrl: baseUrl,
+              posCode: posCode,
+              sideIds: response.sideIds,
+              paymentMethodIds: response.paymentMethodIds,
+              estado: response.estado,
+              type: response.type,
+            ),
+          );
           //return Err(Failure(message: "Este POS está inactivo."));
         } else {
           await keyValueStorageService.setKeyValue<String>("pos_code", posCode);
-          return Success(null);
+          return Success(
+            PosEntity(
+              baseUrl: baseUrl,
+              posCode: posCode,
+              sideIds: response.sideIds,
+              paymentMethodIds: response.paymentMethodIds,
+              estado: response.estado,
+              type: response.type,
+            ),
+          );
         }
       } else {
         return Err(result.errorValue!);

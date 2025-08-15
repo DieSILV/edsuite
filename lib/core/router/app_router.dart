@@ -1,5 +1,5 @@
 import 'package:edsuite/core/config/constants/environment.dart';
-import 'package:edsuite/screens/pos_configuration_screen.dart';
+import 'package:edsuite/features/pos/presentation/screens/pos_configuration_screen.dart';
 import 'package:edsuite/screens/sales_manager/cashkeeper_screen.dart';
 import 'package:edsuite/screens/sales_manager/close_shift_screen.dart';
 import 'package:edsuite/screens/sales_manager/expense_screen.dart';
@@ -38,7 +38,9 @@ final appRouter = GoRouter(
     GoRoute(path: "/home", builder: (context, state) => const HomeScreen()),
     GoRoute(
       path: "/dispenser",
-      builder: (context, state) => const DispenserSideScreen(),
+      builder: (context, state) {
+        return DispenserSideScreen();
+      },
     ),
     GoRoute(
       path: "/dispenserProducts",
@@ -46,15 +48,22 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: "/saleType",
-      builder: (context, state) => const SaleTypeScreen(),
+      builder: (context, state) {
+        final params = state.extra as SaleTypeScreenParams;
+        return SaleTypeScreen(params: params);
+      },
     ),
     GoRoute(
       path: "/customerData",
-      builder: (context, state) => const CustomerDataScreen(),
+      builder: (context, state) {
+        return CustomerDataScreen();
+      },
     ),
     GoRoute(
       path: "/paymentMethod",
-      builder: (context, state) => const PaymentMethodScreen(),
+      builder: (context, state) {
+        return PaymentMethodScreen();
+      },
     ),
     GoRoute(
       path: "/gestionTurno",
@@ -75,7 +84,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: "/configuracionPOS",
-      builder: (context, state) => const PosConfigurationScreen(),
+      builder: (context, state) {
+        final args = state.extra as PostConfigurationScreenArguments;
+        return PosConfigurationScreen(args: args);
+      },
     ),
     GoRoute(
       path: "/expense",
