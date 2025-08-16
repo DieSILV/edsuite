@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
+import 'package:edsuite/features/pos/data/data.dart';
 import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/pos/presentation/bloc/pos/pos_bloc.dart';
+import '../bloc/pos/pos_bloc.dart';
 
 class DispenserSideScreen extends StatefulWidget {
   const DispenserSideScreen({super.key});
@@ -21,7 +24,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   String? selectedSide;
   int? selectedPump;
   Timer? pollingTimer;
-  //List<Map<String, dynamic>> availablePumps = [];
+  List<PumpAvailable> availablePumps = [];
 
   late Timer countdownTimer;
   Duration duration = const Duration(minutes: 7);
@@ -43,6 +46,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
       final dispenserBloc = context.read<DispenserBloc>().state;
       selectedSide = dispenserBloc.selectedSide;
       selectedPump = dispenserBloc.selectedPump;
+      availablePumps = [];
       duration = Duration(seconds: dispenserBloc.remainingTime);
       setState(() {});
       _startPolling(posBloc.baseUrl, posBloc.sideIds);
@@ -213,18 +217,12 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
-    final availablePumps = context
-        .watch<DispenserBloc>()
-        .state
-        .dispenserResponse
-        ?.availablePumps;
-
     return MultiBlocListener(
       listeners: [
         BlocListener<DispenserBloc, DispenserState>(
           listener: (context, state) {
             switch (state.status) {
-              case DispenserStatus.loadingStatus:
+              case DispenserStatus.successStatus:
 
                 // Verificar si la bomba seleccionada sigue disponible
                 bool stillAvailable = selectedPump != null
@@ -235,11 +233,18 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                   setState(() {
                     selectedPump = null;
                     selectedSide = null;
+                    availablePumps = state.dispenserResponse!.availablePumps;
                   });
                 }
                 break;
-              case DispenserStatus.successClear:
-                context.push("/");
+              case DispenserStatus.failed:
+                CustomDialog.showSnackbar(
+                  context,
+                  getErrorMessage(state.failure!),
+                  true,
+                );
+              /* case DispenserStatus.successClear:
+                context.push("/"); */
               default:
             }
           },
@@ -316,7 +321,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                           ),
                         ),
                         const SizedBox(height: 30),
-                        if (availablePumps != null && availablePumps.isEmpty)
+                        if (availablePumps.isEmpty)
                           const Text(
                             'No hay bombas activas.',
                             style: TextStyle(
@@ -332,7 +337,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                             child: GridView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: availablePumps!.length,
+                              itemCount: availablePumps.length,
                               gridDelegate:
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: isTablet ? 2 : 1,

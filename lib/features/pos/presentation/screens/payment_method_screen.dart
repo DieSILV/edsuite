@@ -1,15 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:edsuite/utils/config.dart' as pos_config;
-import '../../features/pos/data/data.dart';
-import '../../features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
-import 'document_screen.dart';
+import '../../../../core/core.dart';
+import '../../../niubiz/domain/domain.dart';
+import '../../data/data.dart';
+import '../bloc/dispenser/dispenser_bloc.dart';
+import '../../../../screens/self_service/document_screen.dart';
 
 class PaymentMethodScreen extends StatefulWidget {
   const PaymentMethodScreen({super.key});
@@ -51,9 +56,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     super.initState();
     apiBase = '${pos_config.baseUrl}/apipts';
     //_loadPaymentMethods();
-    _initBlinkingAnimation();
-    _startCountdown();
-    _loadRemainingTime();
+    //_loadRemainingTime();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       //final posBloc = context.read<PosBloc>().state;
       final dispenserBloc = context.read<DispenserBloc>().state;
@@ -63,6 +66,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
         GetPaymentMethodsDispenser(baseUrl: apiBase),
       );
       _loadAmountToCharge();
+      _startCountdown();
+      _initBlinkingAnimation();
     });
   }
 
@@ -89,24 +94,26 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   }
 
   Future<void> _saveRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds);
+    context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
+    /* final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('remainingTime', duration.inSeconds); */
   }
 
-  Future<void> _loadRemainingTime() async {
+  /* Future<void> _loadRemainingTime() async {
     final prefs = await SharedPreferences.getInstance();
     final seconds = prefs.getInt('remainingTime') ?? 300;
     setState(() => duration = Duration(seconds: seconds));
-  }
+  } */
 
   Future<void> _clearPreferencesAndRedirect() async {
-    final prefs = await SharedPreferences.getInstance();
+    context.read<PosBloc>().add(ClearPosData());
+    /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
     for (final key in prefs.getKeys()) {
       if (!keysToKeep.contains(key)) await prefs.remove(key);
     }
     if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
+    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
   }
 
   @override
@@ -155,7 +162,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
 
   Future<void> _handleMethodSelection(PaymentMethodModel method) async {
     if (isCashKeeperActive) {
-      _showError("Ya está en curso una operación con CashKeeper.");
+      CustomDialog.showSnackbar(
+        context,
+        "Ya está en curso una operación con CashKeeper.",
+        true,
+      );
       return;
     }
 
@@ -212,13 +223,13 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
             _goToComprobante(combinedData);
           }
         } else {
-          _showError('❌ Niubiz transaction failed (EXTOP=$extopValue).');
+          //_showError('❌ Niubiz transaction failed (EXTOP=$extopValue).');
         }
       } else {
-        _showError('No data received from Niubiz.');
+        //        _showError('No data received from Niubiz.');
       }
     } catch (e) {
-      _showError('Error in Niubiz transaction: $e');
+      //    _showError('Error in Niubiz transaction: $e');
     } finally {
       setState(() => isProcessing = false);
     }
@@ -282,7 +293,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
       }
     } catch (e) {
       await cancelDeposit();
-      _showError("❌ Error en CashKeeper: $e");
+      // _showError("❌ Error en CashKeeper: $e");
     } finally {
       setState(() {
         isProcessing = false;
@@ -299,9 +310,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
         body: jsonEncode({"command": r"$42|0|1#"}),
       );
       await http.post(Uri.parse('$apiBase/cashkeeper/limpiar'));
-      _showError("Depósito CashKeeper cancelado.");
+      //_showError("Depósito CashKeeper cancelado.");
     } catch (e) {
-      _showError("Error cancelando depósito: $e");
+      //_showError("Error cancelando depósito: $e");
     }
   }
 
@@ -314,11 +325,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     );
   }
 
-  void _showError(String message) {
+  /* void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
-  }
+  } */
 
   Future<void> _registerSuccessTransaction(Map result) async {
     final prefs = await SharedPreferences.getInstance();
@@ -359,10 +370,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
       );
 
       if (res.statusCode != 201) {
-        _showError('Error enviando transacción: ${res.body}');
+        //_showError('Error enviando transacción: ${res.body}');
       }
     } catch (e) {
-      _showError('Error HTTP: $e');
+      //_showError('Error HTTP: $e');
     }
   }
 
@@ -382,7 +393,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
         : "FullTank";
 
     if (pumpId == null || nozzle == null || dose == null || price == null) {
-      _showError('Datos incompletos para crear la transacción');
+      //_showError('Datos incompletos para crear la transacción');
       return null;
     }
 
@@ -416,15 +427,15 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
           print('✅ Transacción registrada con ID: $transactionId');
           return data;
         } else {
-          _showError('No se pudo registrar la transacción.');
+          //_showError('No se pudo registrar la transacción.');
           return null;
         }
       } else {
-        _showError('Error al crear transacción: ${response.body}');
+        //_showError('Error al crear transacción: ${response.body}');
         return null;
       }
     } catch (e) {
-      _showError('Error HTTP al crear transacción: $e');
+      //_showError('Error HTTP al crear transacción: $e');
       return null;
     }
   }
@@ -432,237 +443,273 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   @override
   Widget build(BuildContext context) {
     final posBloc = context.watch<PosBloc>().state;
-    return BlocListener<DispenserBloc, DispenserState>(
-      listener: (context, state) {
-        switch (state.status) {
-          case DispenserStatus.successPaymentMethod:
-            methods = state.paymentMethodResponse!.filterByAllowedIds(
-              posBloc.paymentMethodIds,
-            );
-            break;
-          default:
-        }
-      },
-      child: Scaffold(
-        backgroundColor: darkBlue,
-        body: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 24,
-                ),
-                decoration: const BoxDecoration(
-                  color: white,
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
-                ),
-                child: Column(
-                  children: [
-                    const Icon(Icons.timer, color: darkBlue, size: 32),
-                    const SizedBox(width: 10),
-                    Text(
-                      formattedTime,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: darkBlue,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    // const Text(
-                    //   'MÉTODO DE PAGO',
-                    //   style: TextStyle(
-                    //     fontSize: 26,
-                    //     fontWeight: FontWeight.bold,
-                    //     color: darkBlue,
-                    //   ),
-                    // ),
-                    // const SizedBox(height: 8),
-                    Text(
-                      'TOTAL A COBRAR: S/ ${amountToCharge.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: darkBlue,
-                      ),
-                    ),
-                    if (isCashKeeperActive)
+    return BlocProvider(
+      create: (context) =>
+          NiubizBloc(niubizUsecases: context.read<NiubizUsecases>()),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DispenserBloc, DispenserState>(
+            listener: (context, state) {
+              switch (state.status) {
+                case DispenserStatus.successPaymentMethod:
+                  methods = state.paymentMethodResponse!.filterByAllowedIds(
+                    posBloc.paymentMethodIds,
+                  );
+                  break;
+                case DispenserStatus.failed:
+                  CustomDialog.showSnackbar(
+                    context,
+                    getErrorMessage(state.failure!),
+                    true,
+                  );
+                default:
+              }
+            },
+          ),
+          BlocListener<PosBloc, PosState>(
+            listener: (context, state) {
+              switch (state.status) {
+                case PosStatus.successClear:
+                  context.go("/");
+                  break;
+                case PosStatus.failed:
+                  //_showError(getErrorMessage(state.failure!));
+                  CustomDialog.showSnackbar(
+                    context,
+                    getErrorMessage(state.failure!),
+                    true,
+                  );
+                default:
+              }
+            },
+          ),
+        ],
+        child: Scaffold(
+          backgroundColor: darkBlue,
+          body: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 24,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: white,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black26, blurRadius: 4),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.timer, color: darkBlue, size: 32),
+                      const SizedBox(width: 10),
                       Text(
-                        'Depositado: S/ ${depositedAmount.toStringAsFixed(2)}',
+                        formattedTime,
                         style: const TextStyle(
-                          color: Colors.red,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                          color: darkBlue,
+                          letterSpacing: 1.5,
                         ),
                       ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
+                      const SizedBox(height: 8),
+                      // const Text(
+                      //   'MÉTODO DE PAGO',
+                      //   style: TextStyle(
+                      //     fontSize: 26,
+                      //     fontWeight: FontWeight.bold,
+                      //     color: darkBlue,
+                      //   ),
+                      // ),
+                      // const SizedBox(height: 8),
+                      Text(
+                        'TOTAL A COBRAR: S/ //${amountToCharge.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: darkBlue,
                         ),
-                        child: IntrinsicHeight(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // const Padding(
-                              //   // padding: EdgeInsets.symmetric(vertical: 16),
-                              //   // child: Text(
-                              //   //   'Escoja el método que desea pagar:',
-                              //   //   style: TextStyle(
-                              //   //     fontSize: 22,
-                              //   //     fontWeight: FontWeight.bold,
-                              //   //     color: Colors.white,
-                              //   //   ),
-                              //   //   textAlign: TextAlign.center,
-                              //   // ),
-                              // ),
-                              ...methods.isEmpty
-                                  ? [
-                                      const CircularProgressIndicator(
-                                        color: white,
-                                      ),
-                                    ]
-                                  : methods.map((m) {
-                                      final isSelected =
-                                          selectedMethod?.id == m.id;
-                                      return GestureDetector(
-                                        onTap: isProcessing
-                                            ? null
-                                            : () => _handleMethodSelection(m),
-                                        child: Container(
-                                          margin: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          padding: const EdgeInsets.all(16),
-                                          height: 160,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            color: isSelected
-                                                ? white
-                                                : lightBlue,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                      ),
+                      if (isCashKeeperActive)
+                        Text(
+                          'Depositado: S/ ${depositedAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                Expanded(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: IntrinsicHeight(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                // const Padding(
+                                //   // padding: EdgeInsets.symmetric(vertical: 16),
+                                //   // child: Text(
+                                //   //   'Escoja el método que desea pagar:',
+                                //   //   style: TextStyle(
+                                //   //     fontSize: 22,
+                                //   //     fontWeight: FontWeight.bold,
+                                //   //     color: Colors.white,
+                                //   //   ),
+                                //   //   textAlign: TextAlign.center,
+                                //   // ),
+                                // ),
+                                ...methods.isEmpty
+                                    ? [
+                                        const CircularProgressIndicator(
+                                          color: white,
+                                        ),
+                                      ]
+                                    : methods.map((m) {
+                                        final isSelected =
+                                            selectedMethod?.id == m.id;
+                                        return GestureDetector(
+                                          onTap: isProcessing
+                                              ? null
+                                              : () => _handleMethodSelection(m),
+                                          child: Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 10,
                                             ),
-                                            border: Border.all(
+                                            padding: const EdgeInsets.all(16),
+                                            height: 160,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
                                               color: isSelected
-                                                  ? darkBlue
-                                                  : Colors.transparent,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(
-                                                _iconFromType(m.type),
-                                                size: 48,
-                                                color: darkBlue,
+                                                  ? white
+                                                  : lightBlue,
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: isSelected
+                                                    ? darkBlue
+                                                    : Colors.transparent,
                                               ),
-                                              const SizedBox(height: 12),
-                                              Text(
-                                                m.name,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                  _iconFromType(m.type),
+                                                  size: 48,
                                                   color: darkBlue,
                                                 ),
-                                              ),
-                                            ],
+                                                const SizedBox(height: 12),
+                                                Text(
+                                                  m.name,
+                                                  style: const TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: darkBlue,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                    }).toList(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-
-              FadeTransition(
-                opacity: blinkAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back, color: white, size: 32),
-                    label: const Text(
-                      'REGRESAR',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: orangeBCP,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      elevation: 8,
-                    ),
-                  ),
-                ),
-              ),
-
-              if (isProcessing)
-                Container(
-                  color: Colors.black.withValues(alpha: 0.5),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const CircularProgressIndicator(color: white),
-                        const SizedBox(height: 20),
-                        Text(
-                          isCashKeeperActive
-                              ? 'Esperando depósito...'
-                              : 'Procesando...',
-                          style: const TextStyle(
-                            color: white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        if (isCashKeeperActive)
-                          ElevatedButton.icon(
-                            onPressed: cancelDeposit,
-                            icon: const Icon(Icons.cancel),
-                            label: const Text("CANCELAR DEPÓSITO"),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 14,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                                        );
+                                      }).toList(),
+                              ],
                             ),
                           ),
-                      ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                FadeTransition(
+                  opacity: blinkAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: white,
+                        size: 32,
+                      ),
+                      label: const Text(
+                        'REGRESAR',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: orangeBCP,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: 8,
+                      ),
                     ),
                   ),
                 ),
-            ],
+
+                if (isProcessing)
+                  Container(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const CircularProgressIndicator(color: white),
+                          const SizedBox(height: 20),
+                          Text(
+                            isCashKeeperActive
+                                ? 'Esperando depósito...'
+                                : 'Procesando...',
+                            style: const TextStyle(
+                              color: white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          if (isCashKeeperActive)
+                            ElevatedButton.icon(
+                              onPressed: cancelDeposit,
+                              icon: const Icon(Icons.cancel),
+                              label: const Text("CANCELAR DEPÓSITO"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

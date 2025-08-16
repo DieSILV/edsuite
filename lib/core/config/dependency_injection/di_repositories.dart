@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:niubiz/niubiz.dart';
 import '../../../features/pos/data/data.dart';
 import '../../../features/pos/domain/domain.dart';
-import '../../../features/pos/domain/usecases/dispenser_usecases.dart';
 import '../../core.dart';
 
 List<RepositoryProvider> buildRepositories(Environment env) {
@@ -14,6 +14,10 @@ List<RepositoryProvider> buildRepositories(Environment env) {
     ),
     RepositoryProvider<IDispenserRepository>(
       create: (context) => DispenserRepository(),
+    ),
+    RepositoryProvider<INiubizRepository>(
+      create: (context) =>
+          NiubizRepositoryImpl(context.read<NiubizPlatformDataSource>()),
     ),
     //Usecases
     RepositoryProvider<PosUsecases>(

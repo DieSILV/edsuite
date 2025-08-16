@@ -4,7 +4,7 @@ import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import '../bloc/dispenser/dispenser_bloc.dart';
 
 class SaleTypeScreenParams {
   final int productIndex;

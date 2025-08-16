@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
-import 'package:edsuite/screens/self_service/sale_type_screen.dart';
+import 'package:edsuite/features/pos/presentation/screens/sale_type_screen.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/pos/data/data.dart';
-import '../../features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import '../../data/data.dart';
+import '../bloc/dispenser/dispenser_bloc.dart';
 
 class DispenserProductScreen extends StatefulWidget {
   const DispenserProductScreen({super.key});
@@ -112,11 +113,11 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
   } */
 
   /* a */
-  void _showError(String message) {
+  /* void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
-  }
+  } */
 
   void _selectFuel(int productIndex, Product product) async {
     /* final prefs = await SharedPreferences.getInstance();
@@ -220,7 +221,12 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
             switch (state.status) {
               case DispenserStatus.successPumpConfig:
                 if (state.pumpConfigResponse == null) {
-                  _showError("No se encontró configuración para esta bomba.");
+                  //_showError("No se encontró configuración para esta bomba.");
+                  CustomDialog.showSnackbar(
+                    context,
+                    "No se encontró configuración para esta bomba.",
+                    true,
+                  );
                   break;
                 }
                 setState(() {
@@ -231,7 +237,11 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
                 });
                 break;
               case DispenserStatus.failed:
-                _showError(getErrorMessage(state.failure!));
+                CustomDialog.showSnackbar(
+                  context,
+                  getErrorMessage(state.failure!),
+                  true,
+                );
                 break;
               default:
             }

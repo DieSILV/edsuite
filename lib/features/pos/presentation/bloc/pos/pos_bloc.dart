@@ -36,6 +36,12 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: PosStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -68,6 +74,12 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: PosStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -91,6 +103,12 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: PosStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -123,6 +141,12 @@ class PosBloc extends Bloc<PosEvent, PosState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: PosStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 }

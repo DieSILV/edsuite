@@ -39,6 +39,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       emit(state.copyWith(currentProduct: event.currentProduct));
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -71,6 +77,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -104,6 +116,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -136,6 +154,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -160,6 +184,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -193,6 +223,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -225,6 +261,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -256,6 +298,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -287,6 +335,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -318,6 +372,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -349,6 +409,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -382,6 +448,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 
@@ -413,6 +485,12 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
       }
     } catch (e) {
       addError(e);
+      emit(
+        state.copyWith(
+          status: DispenserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
     }
   }
 }
