@@ -10,7 +10,6 @@ enum DispenserStatus {
   loadingPumpConfig,
   loadingClear,
   loadingClient,
-  loadingPaymentMethod,
   loadingSaleType,
   loadingSaleAmount,
   success,
@@ -21,7 +20,6 @@ enum DispenserStatus {
   successPumpConfig,
   successClient,
   successClear,
-  successPaymentMethod,
   successSaleType,
   successSaleAmount,
   failed,
@@ -39,7 +37,7 @@ class DispenserState extends Equatable {
     this.selectedSaleAmount,
     this.remainingTime = 300,
     this.pumpConfigResponse,
-    this.paymentMethodResponse,
+
     this.currentProduct,
     this.failure,
   });
@@ -56,7 +54,7 @@ class DispenserState extends Equatable {
   final String? selectedSaleType;
   final double? selectedSaleAmount;
   final PumpConfigResponseModel? pumpConfigResponse;
-  final PaymentMethodResponseModel? paymentMethodResponse;
+
   final Product? currentProduct;
   final Failure? failure;
 
@@ -71,7 +69,7 @@ class DispenserState extends Equatable {
     String? selectedSaleType,
     double? selectedSaleAmount,
     PumpConfigResponseModel? pumpConfigResponse,
-    PaymentMethodResponseModel? paymentMethodResponse,
+
     Product? currentProduct,
     Failure? failure,
   }) {
@@ -86,8 +84,7 @@ class DispenserState extends Equatable {
       selectedSaleType: selectedSaleType ?? this.selectedSaleType,
       selectedSaleAmount: selectedSaleAmount ?? this.selectedSaleAmount,
       pumpConfigResponse: pumpConfigResponse ?? this.pumpConfigResponse,
-      paymentMethodResponse:
-          paymentMethodResponse ?? this.paymentMethodResponse,
+
       currentProduct: currentProduct ?? this.currentProduct,
       failure: failure ?? this.failure,
     );
@@ -105,7 +102,7 @@ class DispenserState extends Equatable {
     selectedSaleType,
     selectedSaleAmount,
     pumpConfigResponse,
-    paymentMethodResponse,
+
     currentProduct,
     failure,
   ];

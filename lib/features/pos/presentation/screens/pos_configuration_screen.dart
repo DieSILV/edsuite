@@ -100,73 +100,84 @@ class _PosConfigurationScreenState extends State<PosConfigurationScreen> {
           centerTitle: true,
           elevation: 0,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Ajustes de servidor',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: _selectedProtocol,
-                items: const [
-                  DropdownMenuItem(value: 'http', child: Text('HTTP')),
-                  DropdownMenuItem(value: 'https', child: Text('HTTPS')),
-                ],
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _selectedProtocol = value;
-                    });
-                  }
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Protocolo',
-                  border: OutlineInputBorder(),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Ajustes de servidor',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _selectedProtocol,
+                      items: const [
+                        DropdownMenuItem(value: 'http', child: Text('HTTP')),
+                        DropdownMenuItem(value: 'https', child: Text('HTTPS')),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          setState(() {
+                            _selectedProtocol = value;
+                          });
+                        }
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Protocolo',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _ipController,
+                      decoration: const InputDecoration(
+                        labelText: 'Dirección IP o dominio',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (_message != null)
+                      Text(
+                        _message!,
+                        style: TextStyle(
+                          color: _messageColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: _saveServerConfig,
+                      icon: const Icon(Icons.save, color: Colors.white),
+                      label: const Text(
+                        'Guardar configuración',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _ipController,
-                decoration: const InputDecoration(
-                  labelText: 'Dirección IP o dominio',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (_message != null)
-                Text(
-                  _message!,
-                  style: TextStyle(
-                    color: _messageColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: _saveServerConfig,
-                icon: const Icon(Icons.save, color: Colors.white),
-                label: const Text(
-                  'Guardar configuración',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              ElevatedButton.icon(
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: ElevatedButton.icon(
                 onPressed: _cerrarSesion,
                 icon: const Icon(Icons.logout, color: Colors.white),
                 label: const Text(
@@ -185,8 +196,8 @@ class _PosConfigurationScreenState extends State<PosConfigurationScreen> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

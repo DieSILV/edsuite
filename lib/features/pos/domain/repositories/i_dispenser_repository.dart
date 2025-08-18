@@ -14,7 +14,7 @@ abstract interface class IDispenserRepository {
     required String baseUrl,
     required String documento,
   });
-  FutureResult<PaymentMethodResponseModel> getPaymentMethods({
+  /* FutureResult<PaymentMethodResponseModel> getPaymentMethods({
     required String baseUrl,
-  });
+  }); */
 }

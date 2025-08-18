@@ -21,6 +21,8 @@ import 'package:edsuite/features/pos/presentation/screens/validation_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../screens/self_service/document_screen.dart';
+
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
 );
@@ -126,6 +128,14 @@ final appRouter = GoRouter(
         final params = state.extra as InvoiceScreenParams;
 
         return InvoiceScreen(params: params);
+      },
+    ),
+    GoRoute(
+      path: "/comprobante",
+      builder: (context, state) {
+        final params = state.extra as ComprobanteScreenParams;
+
+        return ComprobanteScreen(params: params);
       },
     ),
   ],

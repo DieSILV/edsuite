@@ -2,10 +2,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ComprobanteScreen extends StatefulWidget {
+class ComprobanteScreenParams {
   final Map<String, dynamic> transactionData;
 
-  const ComprobanteScreen({super.key, required this.transactionData});
+  ComprobanteScreenParams({required this.transactionData});
+}
+
+class ComprobanteScreen extends StatefulWidget {
+  final ComprobanteScreenParams params;
+
+  const ComprobanteScreen({super.key, required this.params});
 
   @override
   State<ComprobanteScreen> createState() => _ComprobanteScreenState();
@@ -56,7 +62,7 @@ class _ComprobanteScreenState extends State<ComprobanteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final comprobante = widget.transactionData;
+    //final comprobante = widget.params.transactionData;
 
     return Scaffold(
       backgroundColor: Colors.white,

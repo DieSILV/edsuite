@@ -1,6 +1,4 @@
-import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
-import 'package:edsuite/features/pos/presentation/screens/dispenser_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

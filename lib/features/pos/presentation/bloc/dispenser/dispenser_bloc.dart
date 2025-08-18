@@ -15,7 +15,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
   DispenserBloc({required DispenserUsecases dispenserUsecases})
     : _dispenserUsecases = dispenserUsecases,
       super(const DispenserState.initial()) {
-    on<GetDataDispenser>(_onGetDataDispenser);
+    // on<GetDataDispenser>(_onGetDataDispenser);
     on<SetSelectedPump>(_onSetSelectedPump);
     on<SetSelectedSide>(_onSetSelectedSide);
     on<SetRemainingTime>(_onSetRemainingTime);
@@ -24,7 +24,6 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     on<SetSelectedSaleAmount>(_onSetSelectedSaleAmount);
     on<GetStatusDispenser>(_onGetStatusDispenser);
     on<GetPumpConfigDispenser>(_onGetPumpConfigDispenser);
-    on<GetPaymentMethodsDispenser>(_onGetPaymentMethodsDispenser);
 
     on<SetCurrentProduct>(_onSetCurrentProduct);
     on<ClearDataDispenser>(_onClearDataDispenser);
@@ -36,44 +35,6 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
   ) async {
     try {
       emit(state.copyWith(currentProduct: event.currentProduct));
-    } catch (e) {
-      addError(e);
-      emit(
-        state.copyWith(
-          status: DispenserStatus.failed,
-          failure: Failure(message: e.toString()),
-        ),
-      );
-    }
-  }
-
-  Future<void> _onGetPaymentMethodsDispenser(
-    GetPaymentMethodsDispenser event,
-    Emitter<DispenserState> emit,
-  ) async {
-    try {
-      emit(state.copyWith(status: DispenserStatus.loadingPaymentMethod));
-
-      final result = await _dispenserUsecases.getPaymentMethods(
-        baseUrl: event.baseUrl,
-      );
-
-      if (result.isSuccess) {
-        final paymentMethods = result.successValue!;
-        emit(
-          state.copyWith(
-            status: DispenserStatus.successPaymentMethod,
-            paymentMethodResponse: paymentMethods,
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            status: DispenserStatus.failed,
-            failure: result.errorValue,
-          ),
-        );
-      }
     } catch (e) {
       addError(e);
       emit(
@@ -128,20 +89,21 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     Emitter<DispenserState> emit,
   ) async {
     try {
-      emit(state.copyWith(status: DispenserStatus.loadingClear));
-
-      final result = await _dispenserUsecases.clearData();
-
-      if (result.isSuccess) {
-        emit(DispenserState(status: DispenserStatus.successClear));
-      } else {
-        emit(
-          state.copyWith(
-            status: DispenserStatus.failed,
-            failure: result.errorValue,
-          ),
-        );
-      }
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successClear,
+          selectedSide: null,
+          selectedPump: null,
+          remainingTime: null,
+          selectedFuelPrice: null,
+          selectedSaleType: null,
+          selectedSaleAmount: null,
+          currentProduct: null,
+          clienteResponse: null,
+          dispenserResponse: null,
+          pumpConfigResponse: null,
+        ),
+      );
     } catch (e) {
       addError(e);
       emit(
@@ -192,7 +154,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     }
   }
 
-  Future<void> _onGetDataDispenser(
+  /* Future<void> _onGetDataDispenser(
     GetDataDispenser event,
     Emitter<DispenserState> emit,
   ) async {
@@ -228,7 +190,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
         ),
       );
     }
-  }
+  } */
 
   Future<void> _onSetSelectedPump(
     SetSelectedPump event,
@@ -237,7 +199,14 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     try {
       emit(state.copyWith(status: DispenserStatus.loadingPump));
 
-      final result = await _dispenserUsecases.setSelectedPump(
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successPump,
+          selectedPump: event.selectedPump,
+        ),
+      );
+
+      /* final result = await _dispenserUsecases.setSelectedPump(
         event.selectedPump,
       );
 
@@ -255,7 +224,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
             failure: result.errorValue,
           ),
         );
-      }
+      } */
     } catch (e) {
       addError(e);
       emit(
@@ -274,7 +243,14 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     try {
       emit(state.copyWith(status: DispenserStatus.loadingSide));
 
-      final result = await _dispenserUsecases.setSelectedSide(
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successSide,
+          selectedSide: event.selectedSide,
+        ),
+      );
+
+      /* final result = await _dispenserUsecases.setSelectedSide(
         event.selectedSide,
       );
 
@@ -292,7 +268,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
             failure: result.errorValue,
           ),
         );
-      }
+      } */
     } catch (e) {
       addError(e);
       emit(
@@ -311,7 +287,14 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     try {
       emit(state.copyWith(status: DispenserStatus.loadingTime));
 
-      final result = await _dispenserUsecases.setRemainingTime(
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successTime,
+          remainingTime: event.remainingTime,
+        ),
+      );
+
+      /* final result = await _dispenserUsecases.setRemainingTime(
         event.remainingTime,
       );
 
@@ -329,7 +312,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
             failure: result.errorValue,
           ),
         );
-      }
+      } */
     } catch (e) {
       addError(e);
       emit(
@@ -348,7 +331,14 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     try {
       emit(state.copyWith(status: DispenserStatus.loadingPumpConfig));
 
-      final result = await _dispenserUsecases.setSelectedFuelPrice(
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successPumpConfig,
+          selectedFuelPrice: event.selectedFuelPrice,
+        ),
+      );
+
+      /*  final result = await _dispenserUsecases.setSelectedFuelPrice(
         event.selectedFuelPrice,
       );
 
@@ -366,7 +356,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
             failure: result.errorValue,
           ),
         );
-      }
+      } */
     } catch (e) {
       addError(e);
       emit(
@@ -385,7 +375,15 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     try {
       emit(state.copyWith(status: DispenserStatus.loadingSaleType));
 
-      final result = await _dispenserUsecases.setSelectedSaleTypeAndAmount(
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successSaleType,
+          selectedSaleType: event.selectedSaleType,
+          selectedSaleAmount: event.selectedSaleAmount,
+        ),
+      );
+
+      /* final result = await _dispenserUsecases.setSelectedSaleTypeAndAmount(
         event.selectedSaleType,
         event.selectedSaleAmount,
       );
@@ -405,7 +403,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
             failure: result.errorValue,
           ),
         );
-      }
+      } */
     } catch (e) {
       addError(e);
       emit(
@@ -424,7 +422,14 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     try {
       emit(state.copyWith(status: DispenserStatus.loadingPumpConfig));
 
-      final result = await _dispenserUsecases.setSelectedSaleAmount(
+      emit(
+        state.copyWith(
+          status: DispenserStatus.successPumpConfig,
+          selectedSaleAmount: event.selectedSaleAmount,
+        ),
+      );
+
+      /* final result = await _dispenserUsecases.setSelectedSaleAmount(
         event.selectedSaleAmount,
       );
 
@@ -442,7 +447,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
             failure: result.errorValue,
           ),
         );
-      }
+      } */
     } catch (e) {
       addError(e);
       emit(

@@ -7,11 +7,6 @@ sealed class DispenserEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class GetPaymentMethodsDispenser extends DispenserEvent {
-  const GetPaymentMethodsDispenser({required this.baseUrl});
-  final String baseUrl;
-}
-
 class GetPumpConfigDispenser extends DispenserEvent {
   const GetPumpConfigDispenser({required this.baseUrl});
   final String baseUrl;
@@ -19,7 +14,7 @@ class GetPumpConfigDispenser extends DispenserEvent {
 
 class ClearDataDispenser extends DispenserEvent {}
 
-class GetDataDispenser extends DispenserEvent {}
+// class GetDataDispenser extends DispenserEvent {}
 
 class GetStatusDispenser extends DispenserEvent {
   const GetStatusDispenser({required this.baseUrl, required this.sideIds});

@@ -14,24 +14,6 @@ class DispenserUsecases {
     required this.dispenserRepository,
   });
 
-  FutureResult<PaymentMethodResponseModel> getPaymentMethods({
-    required String baseUrl,
-  }) async {
-    try {
-      final result = await dispenserRepository.getPaymentMethods(
-        baseUrl: baseUrl,
-      );
-
-      if (result.isSuccess) {
-        return Success(result.successValue!);
-      } else {
-        return Err(result.errorValue!);
-      }
-    } catch (e) {
-      return Err(Failure(message: e.toString()));
-    }
-  }
-
   FutureResult<ClienteModel> getCliente({
     required String baseUrl,
     required String documento,
@@ -68,7 +50,7 @@ class DispenserUsecases {
     }
   }
 
-  FutureResult<void> clearData() async {
+  /* FutureResult<void> clearData() async {
     try {
       await keyValueStorageService.removeKey("selected_side");
       await keyValueStorageService.removeKey("selected_pump");
@@ -81,7 +63,7 @@ class DispenserUsecases {
       return Err(Failure(message: e.toString()));
     }
   }
-
+ */
   FutureResult<DispenserResponseModel> getStatus({
     required String baseUrl,
     required List<int> sideIds,
@@ -102,7 +84,7 @@ class DispenserUsecases {
     }
   }
 
-  FutureResult<DispenserEntity> getDispenserData() async {
+  /* FutureResult<DispenserEntity> getDispenserData() async {
     try {
       final side = await keyValueStorageService.getValue<String>(
         "selected_side",
@@ -120,9 +102,9 @@ class DispenserUsecases {
     } catch (e) {
       return Err(Failure(message: e.toString()));
     }
-  }
+  } */
 
-  FutureResult<void> setRemainingTime(int time) async {
+  /* FutureResult<void> setRemainingTime(int time) async {
     try {
       await keyValueStorageService.setKeyValue<int>("remaining_time", time);
       return Success(null);
@@ -190,5 +172,5 @@ class DispenserUsecases {
     } catch (e) {
       return Err(Failure(message: e.toString()));
     }
-  }
+  } */
 }

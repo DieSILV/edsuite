@@ -27,7 +27,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   final rucController = TextEditingController();
   final plateController = TextEditingController();
 
-  Map<String, dynamic>? customerData;
+  //Map<String, dynamic>? customerData;
 
   Duration duration = const Duration(minutes: 5);
   late Timer countdownTimer;
@@ -37,6 +37,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   @override
   void initState() {
     super.initState();
+    _initBlinkingAnimation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       //final posBloc = context.read<PosBloc>().state;
@@ -44,7 +45,6 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
       duration = Duration(seconds: dispenserBloc.remainingTime);
       setState(() {});
       _startCountdown();
-      _initBlinkingAnimation();
     });
   }
 
@@ -93,7 +93,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   }
  */
   Future<void> _clearPreferencesAndRedirect() async {
-    context.read<PosBloc>().add(ClearPosData());
+    context.read<DispenserBloc>().add(ClearDataDispenser());
     /*  final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
     for (final key in prefs.getKeys()) {
@@ -144,18 +144,21 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
         GetDataCustomer(baseUrl: baseUrl, documento: rucController.text),
       );
     } else {
-      setState(() => customerData = null);
+      //setState(() => customerData = null);
     }
   }
 
   bool get isContinueEnabled {
+    final customerStatus = context.read<CustomerBloc>().state.status;
     if (plateController.text.trim().isEmpty) return false;
 
     if (receiptType == 'none') return true;
     if (receiptType == 'receipt') {
-      return dniController.text.length == 8 && customerData != null;
+      return dniController.text.length == 8 &&
+          customerStatus == CustomerStatus.success;
     } else if (receiptType == 'invoice') {
-      return rucController.text.length == 11 && customerData != null;
+      return rucController.text.length == 11 &&
+          customerStatus == CustomerStatus.success;
     }
     return false;
   }
@@ -183,6 +186,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     } */
 
     //Navigator.pushNamed(context, "/paymentMethod");
+    final customerState = context.read<CustomerBloc>().state;
     final document = receiptType == "receipt"
         ? dniController.text
         : receiptType == "invoice"
@@ -190,12 +194,12 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
         : "";
     context.read<CustomerBloc>().add(
       SetDataCustomer(
-        name: customerData?['nombre'] ?? '',
-        phone: customerData?['telefono'] ?? '',
-        address: customerData?['direccion'] ?? '',
+        name: customerState.name,
+        phone: customerState.phone,
+        address: customerState.address,
         document: document,
         plate: plateController.text,
-        email: customerData?['correo'] ?? '',
+        email: customerState.email,
         receiptType: receiptType ?? '',
       ),
     );
@@ -218,15 +222,26 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     ];
 
     final posBloc = context.watch<PosBloc>();
+    final customerState = context.watch<CustomerBloc>().state;
 
     return MultiBlocListener(
       listeners: [
+        BlocListener<DispenserBloc, DispenserState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case DispenserStatus.successClear:
+                context.go("/");
+                break;
+              default:
+            }
+          },
+        ),
         BlocListener<PosBloc, PosState>(
           listener: (context, state) {
             switch (state.status) {
-              case PosStatus.successClear:
+              /* case PosStatus.successClear:
                 context.go("/");
-                break;
+                break; */
               case PosStatus.failed:
                 _showError(getErrorMessage(state.failure!));
               default:
@@ -236,6 +251,8 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
         BlocListener<CustomerBloc, CustomerState>(
           listener: (context, state) {
             switch (state.status) {
+              case CustomerStatus.success:
+                break;
               case CustomerStatus.failed:
                 _showError(getErrorMessage(state.failure!));
               default:
@@ -314,7 +331,6 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                                 ][index];
                                 dniController.clear();
                                 rucController.clear();
-                                customerData = null;
                               });
                             },
                             children: const [
@@ -340,6 +356,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                               label: 'Ingrese DNI',
                               maxLength: 8,
                               icon: Icons.badge,
+                              keyboardType: TextInputType.number,
                               onChanged: (_) =>
                                   _onDocumentChanged(posBloc.state.baseUrl),
                             ),
@@ -354,7 +371,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                             ),
                           const SizedBox(height: 12),
 
-                          if (customerData != null)
+                          if (customerState.status == CustomerStatus.success)
                             Card(
                               color: lightBlue,
                               shape: RoundedRectangleBorder(
@@ -363,14 +380,14 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                               ),
                               child: ListTile(
                                 title: Text(
-                                  customerData?['nombre'] ?? '',
+                                  customerState.name,
                                   style: const TextStyle(
                                     color: darkBlue,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                                 subtitle: Text(
-                                  customerData?['direccion'] ?? '',
+                                  customerState.address,
                                   style: const TextStyle(color: darkBlue),
                                 ),
                               ),
@@ -456,6 +473,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     required IconData icon,
     required Function(String) onChanged,
     int? maxLength,
+    TextInputType? keyboardType,
     TextCapitalization textCapitalization = TextCapitalization.none,
   }) {
     return Padding(
@@ -464,7 +482,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
         controller: controller,
         maxLength: maxLength,
         textCapitalization: textCapitalization,
-        keyboardType: TextInputType.text,
+        keyboardType: keyboardType,
         onChanged: onChanged,
         style: const TextStyle(color: white, fontWeight: FontWeight.w600),
         decoration: InputDecoration(

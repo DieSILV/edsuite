@@ -33,6 +33,7 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
   @override
   void initState() {
     super.initState();
+    _initBlinkingAnimation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final posBloc = context.read<PosBloc>().state;
@@ -42,7 +43,6 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
       side = dispenserBloc.selectedSide;
       setState(() {});
       _startCountdown();
-      _initBlinkingAnimation();
       context.read<DispenserBloc>().add(
         GetPumpConfigDispenser(baseUrl: posBloc.baseUrl),
       );
@@ -91,7 +91,7 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
   }
  */
   Future<void> _clearPreferencesAndRedirect() async {
-    context.read<PosBloc>().add(ClearPosData());
+    context.read<DispenserBloc>().add(ClearDataDispenser());
     /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
     for (final key in prefs.getKeys()) {
@@ -231,6 +231,9 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
                     state.pumpConfigResponse!.getProductsForPump(pump!),
                   );
                 });
+                break;
+              case DispenserStatus.successClear:
+                context.go("/");
                 break;
               case DispenserStatus.failed:
                 CustomDialog.showSnackbar(

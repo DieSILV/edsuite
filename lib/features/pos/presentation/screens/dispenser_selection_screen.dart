@@ -100,7 +100,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   } */
 
   Future<void> _clearPreferencesAndRedirect() async {
-    context.read<PosBloc>().add(ClearPosData());
+    context.read<DispenserBloc>().add(ClearDataDispenser());
     /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
 
@@ -236,6 +236,9 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                     availablePumps = state.dispenserResponse!.availablePumps;
                   });
                 }
+                break;
+              case DispenserStatus.successClear:
+                context.go("/");
                 break;
               case DispenserStatus.failed:
                 CustomDialog.showSnackbar(

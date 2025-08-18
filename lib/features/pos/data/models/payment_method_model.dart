@@ -32,15 +32,21 @@ class PaymentMethodResponseModel {
   /// Factory constructor para cuando la API devuelve directamente una lista
   factory PaymentMethodResponseModel.fromList(List<dynamic> list) {
     try {
+      print('Parsing ${list.length} payment methods from list');
+
       final List<PaymentMethodModel> paymentMethods = list
           .where((method) => method != null)
           .map((method) {
             try {
-              return PaymentMethodModel.fromJson(
+              print('Parsing method: $method');
+              final parsedMethod = PaymentMethodModel.fromJson(
                 method as Map<String, dynamic>,
               );
+              print('Successfully parsed: ${parsedMethod.toString()}');
+              return parsedMethod;
             } catch (e) {
               print('Error parsing payment method: $e');
+              print('Failed method data: $method');
               return null;
             }
           })
@@ -48,9 +54,11 @@ class PaymentMethodResponseModel {
           .cast<PaymentMethodModel>()
           .toList();
 
+      print('Successfully parsed ${paymentMethods.length} payment methods');
       return PaymentMethodResponseModel(paymentMethods: paymentMethods);
     } catch (e) {
       print('Error parsing PaymentMethodResponseModel from list: $e');
+      print('List data: $list');
       return PaymentMethodResponseModel(paymentMethods: []);
     }
   }
@@ -138,7 +146,7 @@ class PaymentMethodModel {
 
   factory PaymentMethodModel.fromJson(Map<String, dynamic> json) {
     return PaymentMethodModel(
-      id: json['id'] ?? '',
+      id: (json['id'] ?? '').toString(),
       type: json['type'] ?? '',
       name: json['name'] ?? '',
     );

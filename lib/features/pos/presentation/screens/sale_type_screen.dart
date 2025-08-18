@@ -44,6 +44,8 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
   @override
   void initState() {
     super.initState();
+    _initBlinkingAnimation();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final dispenserBloc = context.read<DispenserBloc>().state;
       Product currentProduct = dispenserBloc.currentProduct!;
@@ -58,7 +60,6 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
       selectedSide = dispenserBloc.selectedSide;
       setState(() {});
       _startCountdown();
-      _initBlinkingAnimation();
     });
   }
 
@@ -105,7 +106,7 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
   } */
 
   Future<void> _clearPreferencesAndRedirect() async {
-    context.read<PosBloc>().add(ClearPosData());
+    context.read<DispenserBloc>().add(ClearDataDispenser());
     /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
     for (final key in prefs.getKeys()) {
@@ -177,6 +178,9 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
             switch (state.status) {
               case DispenserStatus.successSaleType:
                 context.push("/customerData");
+                break;
+              case DispenserStatus.successClear:
+                context.go("/");
                 break;
               default:
             }

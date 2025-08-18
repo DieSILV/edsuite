@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import '../../domain/entities/niubiz_transaction_result.dart';
 
-abstract class NiubizPlatformDataSource {
+abstract interface class NiubizPlatformDataSource {
   Future<NiubizTransactionResult> startTransaction({
     required String amount,
     required bool useQr,

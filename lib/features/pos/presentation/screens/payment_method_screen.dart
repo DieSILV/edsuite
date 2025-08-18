@@ -1,19 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
+import 'package:edsuite/features/pos/presentation/bloc/payment/payment_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:edsuite/utils/config.dart' as pos_config;
+import 'package:niubiz/niubiz.dart';
 import '../../../../core/core.dart';
 import '../../../niubiz/domain/domain.dart';
 import '../../data/data.dart';
-import '../bloc/customer/customer_bloc.dart';
 import '../bloc/dispenser/dispenser_bloc.dart';
 import '../../../../screens/self_service/document_screen.dart';
 
@@ -30,21 +26,19 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   static const Color lightBlue = Color(0xFFE0F0FF);
   static const Color white = Colors.white;
   static const Color orangeBCP = Color(0xFFF28C28);
-
   PaymentMethodModel? selectedMethod;
-  bool isProcessing = false;
   bool isCashKeeperActive = false;
+  bool isProcessingCashKeeper = false; // Variable local de carga
+  bool isCancellingDeposit = false; // Bandera para evitar bucles en cancelación
   List<PaymentMethodModel> methods = [];
   double amountToCharge = 0.0;
   double depositedAmount = 0.0;
-
-  static const platform = MethodChannel('com.edsuite.niubiz/channel');
-  late final String apiBase;
-
   Duration duration = const Duration(minutes: 5);
   late Timer countdownTimer;
   late AnimationController blinkController;
   late Animation<double> blinkAnimation;
+  Timer? _cashKeeperTimer;
+  Map<String, dynamic>? _pendingPaymentData;
 
   String get formattedTime {
     final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
@@ -55,20 +49,18 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   @override
   void initState() {
     super.initState();
-    apiBase = '${pos_config.baseUrl}/apipts';
-    //_loadPaymentMethods();
-    //_loadRemainingTime();
+    _initBlinkingAnimation();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      //final posBloc = context.read<PosBloc>().state;
+      final posBloc = context.read<PosBloc>().state;
       final dispenserBloc = context.read<DispenserBloc>().state;
       duration = Duration(seconds: dispenserBloc.remainingTime);
       setState(() {});
-      context.read<DispenserBloc>().add(
-        GetPaymentMethodsDispenser(baseUrl: apiBase),
+      context.read<PaymentBloc>().add(
+        GetPaymentMethodsDispenser(baseUrl: posBloc.baseUrl),
       );
       _loadAmountToCharge();
       _startCountdown();
-      _initBlinkingAnimation();
     });
   }
 
@@ -96,61 +88,31 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
 
   Future<void> _saveRemainingTime() async {
     context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
-    /* final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds); */
   }
 
-  /* Future<void> _loadRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seconds = prefs.getInt('remainingTime') ?? 300;
-    setState(() => duration = Duration(seconds: seconds));
-  } */
-
   Future<void> _clearPreferencesAndRedirect() async {
-    context.read<PosBloc>().add(ClearPosData());
-    /* final prefs = await SharedPreferences.getInstance();
-    final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
-    for (final key in prefs.getKeys()) {
-      if (!keysToKeep.contains(key)) await prefs.remove(key);
-    }
-    if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
+    context.read<DispenserBloc>().add(ClearDataDispenser());
   }
 
   @override
   void dispose() {
     countdownTimer.cancel();
+    _cashKeeperTimer?.cancel();
     blinkController.dispose();
+    selectedMethod = null;
+    _pendingPaymentData = null;
+    // Resetear todas las banderas
+    isCashKeeperActive = false;
+    isProcessingCashKeeper = false;
+    isCancellingDeposit = false;
     super.dispose();
   }
 
-  /* Future<void> _loadPaymentMethods() async {
-    final response = await http.get(Uri.parse('$apiBase/payment-methods'));
-
-    if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      final prefs = await SharedPreferences.getInstance();
-      final posInfo = jsonDecode(prefs.getString('pos_info') ?? '{}');
-      final List idsAllowed = posInfo['payment_method_ids'] ?? [];
-
-      setState(() {
-        methods = data
-            .where((m) => idsAllowed.contains(m['id']))
-            .cast<Map<String, dynamic>>()
-            .toList();
-      });
-    }
-  } */
-
   Future<void> _loadAmountToCharge() async {
-    //final prefs = await SharedPreferences.getInstance();
-    //final saleType = prefs.getString('selectedSaleType') ?? 'SOLES';
-    //final selectedSaleAmount = prefs.getDouble('selectedSaleAmount') ?? 0.0;
-    //final selectedFuelPrice = prefs.getDouble('selectedFuelPrice') ?? 0.0;
     final dispenserState = context.read<DispenserBloc>().state;
     final saleType = dispenserState.selectedSaleType;
     final selectedSaleAmount = dispenserState.selectedSaleAmount!;
-    final selectedFuelPrice = dispenserState.selectedFuelPrice!;
+    final selectedFuelPrice = dispenserState.currentProduct!.price;
 
     double total = saleType == 'GALONES'
         ? selectedSaleAmount * selectedFuelPrice
@@ -162,7 +124,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   }
 
   Future<void> _handleMethodSelection(PaymentMethodModel method) async {
-    if (isCashKeeperActive) {
+    if (isProcessingCashKeeper) {
       CustomDialog.showSnackbar(
         context,
         "Ya está en curso una operación con CashKeeper.",
@@ -185,306 +147,288 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   }
 
   Future<void> _startNiubizTransaction({required bool useQr}) async {
-    setState(() => isProcessing = true);
     final montoCentavos = (amountToCharge * 100).round();
 
-    try {
-      final result = await platform.invokeMethod<Map>('startTransaction', {
-        'monto': montoCentavos.toString(),
-        'useQR': useQr,
-      });
-
-      if (result != null && result.isNotEmpty) {
-        String extopValue = '';
-        Map<String, dynamic> niubizData = {};
-
-        result.forEach((key, value) {
-          if (value is String && value.contains('=') && value.contains('&')) {
-            final subParts = value.split('&');
-            for (var part in subParts) {
-              final kv = part.split('=');
-              if (kv.length == 2) {
-                final subKey = kv[0].trim();
-                final subValue = kv[1].trim();
-                niubizData[subKey] = subValue;
-                if (subKey == 'EXTOP') extopValue = subValue;
-              }
-            }
-          } else {
-            niubizData[key] = value;
-          }
-        });
-
-        if (extopValue == '00') {
-          await _registerSuccessTransaction(niubizData);
-          final transactionBackendData = await _createTransaction();
-
-          if (transactionBackendData != null) {
-            final combinedData = {...niubizData, ...transactionBackendData};
-            _goToComprobante(combinedData);
-          }
-        } else {
-          //_showError('❌ Niubiz transaction failed (EXTOP=$extopValue).');
-        }
-      } else {
-        //        _showError('No data received from Niubiz.');
-      }
-    } catch (e) {
-      //    _showError('Error in Niubiz transaction: $e');
-    } finally {
-      setState(() => isProcessing = false);
-    }
+    context.read<NiubizBloc>().add(
+      StartTransactionEvent(amount: montoCentavos.toString(), useQr: useQr),
+    );
   }
 
   Future<void> _startCashKeeperDeposit() async {
+    final posBloc = context.read<PosBloc>().state;
+
     setState(() {
-      isProcessing = true;
       isCashKeeperActive = true;
+      isProcessingCashKeeper = true; // Activar indicador local
       depositedAmount = 0.0;
     });
 
     final int montoCentavos = (amountToCharge * 100).round();
-
-    try {
-      await http.post(
-        Uri.parse('$apiBase/cashkeeper/comando'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"command": "\$42|${montoCentavos}|1#"}),
-      );
-
-      double deposited = 0.0;
-
-      while (deposited < amountToCharge) {
-        await Future.delayed(const Duration(seconds: 1));
-        if (!isCashKeeperActive) return;
-
-        final response = await http.get(
-          Uri.parse('$apiBase/cashkeeper/depositado'),
-        );
-
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
-          deposited = double.tryParse(data['depositado'].toString()) ?? 0.0;
-
-          setState(() {
-            depositedAmount = deposited;
-          });
-
-          if (deposited >= amountToCharge) {
-            await http.post(Uri.parse('$apiBase/cashkeeper/limpiar'));
-
-            final Map<String, dynamic> cashData = {
-              'metodo_pago': 'EFECTIVO',
-              'monto': amountToCharge.toStringAsFixed(2),
-              'fecha_hora': DateTime.now().toIso8601String(),
-            };
-
-            final transactionBackendData = await _createTransaction();
-
-            if (transactionBackendData != null) {
-              final combinedData = {...cashData, ...transactionBackendData};
-              _goToComprobante(combinedData);
-            }
-
-            break;
-          }
-        } else {
-          throw Exception("Error al leer depósito desde CashKeeper.");
-        }
-      }
-    } catch (e) {
-      await cancelDeposit();
-      // _showError("❌ Error en CashKeeper: $e");
-    } finally {
-      setState(() {
-        isProcessing = false;
-        isCashKeeperActive = false;
-      });
-    }
+    context.read<PaymentBloc>().add(
+      CashKeeperCommandEvent(baseUrl: posBloc.baseUrl, amount: montoCentavos),
+    );
   }
 
   Future<void> cancelDeposit() async {
-    try {
-      await http.post(
-        Uri.parse('$apiBase/cashkeeper/comando'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"command": r"$42|0|1#"}),
-      );
-      await http.post(Uri.parse('$apiBase/cashkeeper/limpiar'));
-      //_showError("Depósito CashKeeper cancelado.");
-    } catch (e) {
-      //_showError("Error cancelando depósito: $e");
-    }
+    // Evitar múltiples llamadas simultáneas
+    if (isCancellingDeposit) return;
+
+    setState(() {
+      isCancellingDeposit = true;
+    });
+
+    final posBloc = context.read<PosBloc>().state;
+    context.read<PaymentBloc>().add(
+      CashKeeperCancelAndCleanCommandEvent(baseUrl: posBloc.baseUrl),
+    );
   }
 
-  void _goToComprobante(Map<String, dynamic> finalData) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ComprobanteScreen(transactionData: finalData),
+  Future<void> _registerSuccessTransaction(
+    String paymentMethod,
+    Map<String, dynamic> result,
+  ) async {
+    final posBloc = context.read<PosBloc>().state;
+    final montoCentavos = (amountToCharge * 100).round();
+    String method = paymentMethod;
+    String poscode = posBloc.posCode;
+    String amount = montoCentavos.toStringAsFixed(2);
+
+    context.read<PaymentBloc>().add(
+      RegisterSuccessTransacEvent(
+        baseUrl: posBloc.baseUrl,
+        method: method,
+        poscode: poscode,
+        amount: amount,
+        result: result,
       ),
     );
   }
 
-  /* void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  } */
+  void _createTransaction() {
+    final posBloc = context.read<PosBloc>().state;
 
-  Future<void> _registerSuccessTransaction(Map result) async {
-    final customerState = context.read<CustomerBloc>().state;
     final dispenserState = context.read<DispenserBloc>().state;
-    final posBloc = context.read<PosBloc>();
-    String document = customerState.document;
-    String plate = customerState.plate;
-    String receiptType = customerState.receiptType;
-    int selectedFuelGradeId = dispenserState.currentProduct?.fuelGradeId ?? 0;
-    String selectedFuelName = dispenserState.currentProduct?.name ?? '';
-    double selectedFuelPrice = dispenserState.currentProduct?.price ?? 0.0;
-    int selectedNozzle = dispenserState.currentProduct?.nozzle ?? 0;
-    int selectedPump = dispenserState.selectedPump ?? 0;
-    double selectedSaleAmount = dispenserState.selectedSaleAmount ?? 0.0;
-    String selectedSaleType = dispenserState.selectedSaleType ?? '';
-    int remainingTime = dispenserState.remainingTime;
-    String selectedSide = dispenserState.selectedSide ?? '';
-    String customerName = customerState.name;
-    String customerAddress = customerState.address;
-    String customerPhone = customerState.phone;
-    String customerEmail = customerState.email;
-    String posInfo =
-        dispenserState.dispenserResponse?.toJson().toString() ?? '';
-
-    /* final prefs = await SharedPreferences.getInstance();
-    final deviceName = prefs.getString('pos_code');
-
-    final url = Uri.parse('$apiBase/success-transactions');
-
-    final body = {
-      'method': result['IQR'] == '1' ? 'QR' : 'CARD',
-      'response': result,
-      'pos_code': deviceName,
-      'device': 'AUTOSV',
-
-      'document': prefs.getString('document'),
-      'plate': prefs.getString('plate'),
-      'receiptType': prefs.getString('receiptType'),
-      'selectedFuelGradeId': prefs.getInt('selectedFuelGradeId'),
-      'selectedFuelName': prefs.getString('selectedFuelName'),
-      'selectedFuelPrice': prefs.getDouble('selectedFuelPrice'),
-      'selectedNozzle': prefs.getInt('selectedNozzle'),
-      'selectedPump': prefs.getInt('selectedPump'),
-      'selectedSaleAmount': prefs.getDouble('selectedSaleAmount'),
-      'selectedSaleType': prefs.getString('selectedSaleType'),
-      'remainingTime': prefs.getInt('remainingTime'),
-      'selectedSide': prefs.getString('selectedSide'),
-      'customerName': prefs.getString('customerName'),
-      'customerAddress': prefs.getString('customerAddress'),
-      'customerPhone': prefs.getString('customerPhone'),
-      'customerEmail': prefs.getString('customerEmail'),
-      'pos_info': prefs.getString('pos_info'),
-    };
-
-    try {
-      final res = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
-
-      if (res.statusCode != 201) {
-        //_showError('Error enviando transacción: ${res.body}');
-      }
-    } catch (e) {
-      //_showError('Error HTTP: $e');
-    } */
-  }
-
-  Future<Map<String, dynamic>?> _createTransaction() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final pumpId = prefs.getInt('selectedPump');
-    final nozzle = prefs.getInt('selectedNozzle');
-    final presetTypeString = prefs.getString('selectedSaleType');
-    final dose = prefs.getDouble('selectedSaleAmount');
-    final price = prefs.getDouble('selectedFuelPrice');
-
+    int pumpId = dispenserState.selectedPump ?? 0;
+    int nozzle = dispenserState.currentProduct?.nozzle ?? 0;
+    String presetTypeString = dispenserState.selectedSaleType ?? '';
+    double dose = dispenserState.selectedSaleAmount ?? 0.0;
+    double price = dispenserState.currentProduct?.price ?? 0.0;
     final presetType = presetTypeString == "SOLES"
         ? "Amount"
         : presetTypeString == "GALONES"
         ? "Volume"
         : "FullTank";
 
-    if (pumpId == null || nozzle == null || dose == null || price == null) {
-      //_showError('Datos incompletos para crear la transacción');
-      return null;
+    context.read<PaymentBloc>().add(
+      AuthorizePaymentDispenser(
+        baseUrl: posBloc.baseUrl,
+        pumpId: pumpId,
+        nozzle: nozzle,
+        presetType: presetType,
+        dose: dose,
+        price: price,
+      ),
+    );
+  }
+
+  void _startCashKeeperDepositPolling() {
+    final posBloc = context.read<PosBloc>().state;
+
+    _cashKeeperTimer?.cancel();
+    _cashKeeperTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!isCashKeeperActive) {
+        timer.cancel();
+        return;
+      }
+
+      // Solicitar estado del depósito
+      context.read<PaymentBloc>().add(
+        CashKeeperDepositEvent(baseUrl: posBloc.baseUrl),
+      );
+    });
+  }
+
+  void _handleCashKeeperDepositResponse(PaymentState state) {
+    final depositedAmount =
+        context
+            .read<PaymentBloc>()
+            .state
+            .cashKeeperDepositResponse
+            ?.depositado ??
+        0.0;
+
+    setState(() {
+      this.depositedAmount = depositedAmount;
+    });
+
+    if (depositedAmount >= amountToCharge) {
+      _cashKeeperTimer?.cancel();
+      _completeCashKeeperTransaction();
     }
+  }
 
-    final url = Uri.parse('$apiBase/pts/authorize');
+  void _completeCashKeeperTransaction() {
+    // Limpiar CashKeeper y completar transacción
+    final posBloc = context.read<PosBloc>().state;
 
-    final body = {
-      'pumpId': pumpId,
-      'nozzle': nozzle,
-      'presetType': presetType,
-      'dose': presetType != "FullTank" ? dose : null,
-      'price': presetType != "FullTank" ? price : null,
-      'usuario_id': null,
-      'turno_id': null,
+    // Preparar datos de CashKeeper para combinar después
+    _pendingPaymentData = {
+      'metodo_pago': 'EFECTIVO',
+      'monto': amountToCharge.toStringAsFixed(2),
+      'fecha_hora': DateTime.now().toIso8601String(),
+      'depositado': depositedAmount.toStringAsFixed(2),
     };
 
-    body.removeWhere((key, value) => value == null);
+    context.read<PaymentBloc>().add(
+      CashKeeperCleanEvent(baseUrl: posBloc.baseUrl),
+    );
 
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
+    _createTransaction();
+  }
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final transactionId = data['id_transaccion'];
-        final registrado = data['registrado'];
+  void _handleSuccessAuthorize(PaymentState state) {
+    final transactionBackendData = state.authorizeResponse!.toJson();
+    Map<String, dynamic> combinedData;
 
-        if (registrado == true && transactionId != null) {
-          print('✅ Transacción registrada con ID: $transactionId');
-          return data;
-        } else {
-          //_showError('No se pudo registrar la transacción.');
-          return null;
-        }
-      } else {
-        //_showError('Error al crear transacción: ${response.body}');
-        return null;
-      }
-    } catch (e) {
-      //_showError('Error HTTP al crear transacción: $e');
-      return null;
+    // Usar selectedMethod?.type en lugar de _currentPaymentType
+    if (selectedMethod?.type == 'CASHKEEPER') {
+      // Para CashKeeper, combinar datos de efectivo con backend
+      combinedData = {..._pendingPaymentData ?? {}, ...transactionBackendData};
+    } else {
+      // Para Niubiz, combinar datos de Niubiz con backend
+      final niubizData = context
+          .read<NiubizBloc>()
+          .state
+          .transactionResult!
+          .toJson();
+      combinedData = {...niubizData, ...transactionBackendData};
     }
+
+    // Limpiar datos temporales
+    selectedMethod = null;
+    _pendingPaymentData = null;
+
+    // Ir a comprobante
+    context.pushReplacement(
+      "/comprobante",
+      extra: ComprobanteScreenParams(transactionData: combinedData),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final posBloc = context.watch<PosBloc>().state;
+    //final niubizStatus = context.watch<NiubizBloc>().state.status;
     return BlocProvider(
       create: (context) =>
           NiubizBloc(niubizUsecases: context.read<NiubizUsecases>()),
       child: MultiBlocListener(
         listeners: [
-          BlocListener<DispenserBloc, DispenserState>(
+          BlocListener<NiubizBloc, NiubizState>(
             listener: (context, state) {
               switch (state.status) {
-                case DispenserStatus.successPaymentMethod:
+                case NiubizStatus.successTransaction:
+                  NiubizTransactionResult result = state.transactionResult!;
+                  if (result.isSuccess) {
+                    // Los datos ya están parseados en result.rawData
+                    String paymentMethod = result.paymentMethod;
+                    _registerSuccessTransaction(paymentMethod, result.rawData);
+                  } else {
+                    // Manejar transacción fallida o cancelada
+                    CustomDialog.showSnackbar(
+                      context,
+                      'Transacción Niubiz fallida (EXTOP=${result.extOp})',
+                      true,
+                    );
+                  }
+                  break;
+                default:
+              }
+            },
+          ),
+          BlocListener<PaymentBloc, PaymentState>(
+            listener: (context, state) {
+              switch (state.status) {
+                case PaymentStatus.successPaymentMethod:
                   methods = state.paymentMethodResponse!.filterByAllowedIds(
                     posBloc.paymentMethodIds,
                   );
                   break;
+                case PaymentStatus.successTransaction:
+                  _createTransaction();
+                  break;
+                case PaymentStatus.successAuthorize:
+                  _handleSuccessAuthorize(state);
+                  /* final niubizData = context
+                      .read<NiubizBloc>()
+                      .state
+                      .transactionResult!
+                      .toJson();
+                  final transactionBackendData = state.authorizeResponse!
+                      .toJson();
+                  final combinedData = {
+                    ...niubizData,
+                    ...transactionBackendData,
+                  };
+                  context.pushReplacement(
+                    "/comprobante",
+                    extra: ComprobanteScreenParams(
+                      transactionData: combinedData,
+                    ),
+                  ); */
+                  break;
+                case PaymentStatus.successCashKeeperCommand:
+                  _startCashKeeperDepositPolling();
+                  break;
+                case PaymentStatus.successCashKeeperDeposit:
+                  _handleCashKeeperDepositResponse(state);
+                  break;
+                case PaymentStatus.successCashKeeperClean:
+                  setState(() {
+                    isCashKeeperActive = false;
+                    isProcessingCashKeeper =
+                        false; // Desactivar indicador local
+                    isCancellingDeposit =
+                        false; // Resetear bandera de cancelación
+                  });
+                  break;
+                case PaymentStatus.failed:
+                  CustomDialog.showSnackbar(
+                    context,
+                    getErrorMessage(state.failure!),
+                    true,
+                  );
+
+                  // Solo ejecutar cancelDeposit si hay una operación CashKeeper activa
+                  // y no se está cancelando ya
+                  if (isCashKeeperActive && !isCancellingDeposit) {
+                    cancelDeposit();
+                  } else {
+                    // Si no hay operación activa, solo resetear estados
+                    setState(() {
+                      isProcessingCashKeeper = false;
+                      isCashKeeperActive = false;
+                      isCancellingDeposit = false;
+                    });
+                  }
+                  break;
+                default:
+              }
+            },
+          ),
+          BlocListener<DispenserBloc, DispenserState>(
+            listener: (context, state) {
+              switch (state.status) {
                 case DispenserStatus.failed:
                   CustomDialog.showSnackbar(
                     context,
                     getErrorMessage(state.failure!),
                     true,
                   );
+                  break;
+                case DispenserStatus.successClear:
+                  context.go("/");
+                  break;
                 default:
               }
             },
@@ -603,7 +547,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                                         final isSelected =
                                             selectedMethod?.id == m.id;
                                         return GestureDetector(
-                                          onTap: isProcessing
+                                          onTap: isProcessingCashKeeper
                                               ? null
                                               : () => _handleMethodSelection(m),
                                           child: Container(
@@ -690,7 +634,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                   ),
                 ),
 
-                if (isProcessing)
+                if (isProcessingCashKeeper)
                   Container(
                     color: Colors.black.withValues(alpha: 0.5),
                     child: Center(
