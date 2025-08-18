@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
-import 'package:edsuite/features/pos/presentation/screens/sale_type_screen.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,13 +128,10 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
     await prefs.setInt('selectedFuelGradeId', product['fuelGradeId']);
     await prefs.setInt('selectedNozzle', product['nozzle']); */
     context.read<DispenserBloc>().add(SetCurrentProduct(product));
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (!mounted) return;
-      context.push(
-        "/saleType",
-        extra: SaleTypeScreenParams(productIndex: productIndex),
-      );
-    });
+    context.push(
+      "/saleType",
+      // extra: SaleTypeScreenParams(productIndex: productIndex),
+    );
     /* Navigator.pushNamed(
       context,
       '/saleType',

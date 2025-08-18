@@ -215,9 +215,21 @@ class NozzleModel {
   });
 
   factory NozzleModel.fromJson(Map<String, dynamic> json) {
+    // Parsing robusto del price que puede venir como string "S/ 15.50" o double
+    double parsedPrice = 0.0;
+    final priceValue = json['price'];
+
+    if (priceValue is String) {
+      // Remover "S/ " y cualquier espacio, luego convertir a double
+      final cleanPrice = priceValue.replaceAll('S/ ', '').trim();
+      parsedPrice = double.tryParse(cleanPrice) ?? 0.0;
+    } else if (priceValue is num) {
+      parsedPrice = priceValue.toDouble();
+    }
+
     return NozzleModel(
       fuelGradeName: json['fuelGradeName'] ?? '',
-      price: (json['price'] ?? 0.0).toDouble(),
+      price: parsedPrice,
       fuelGradeId: json['fuelGradeId'] ?? 0,
       nozzle: json['nozzle'] ?? 0,
     );

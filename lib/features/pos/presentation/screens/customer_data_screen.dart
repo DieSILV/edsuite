@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
+import 'package:edsuite/features/pos/presentation/bloc/customer/customer_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -134,13 +135,13 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   void _onDocumentChanged(String baseUrl) {
     if (receiptType == 'receipt' && dniController.text.length == 8) {
       //fetchCustomerData(dniController.text);
-      context.read<DispenserBloc>().add(
-        GetDataClient(baseUrl: baseUrl, documento: dniController.text),
+      context.read<CustomerBloc>().add(
+        GetDataCustomer(baseUrl: baseUrl, documento: dniController.text),
       );
     } else if (receiptType == 'invoice' && rucController.text.length == 11) {
       //fetchCustomerData(rucController.text);
-      context.read<DispenserBloc>().add(
-        GetDataClient(baseUrl: baseUrl, documento: rucController.text),
+      context.read<CustomerBloc>().add(
+        GetDataCustomer(baseUrl: baseUrl, documento: rucController.text),
       );
     } else {
       setState(() => customerData = null);
@@ -182,6 +183,22 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     } */
 
     //Navigator.pushNamed(context, "/paymentMethod");
+    final document = receiptType == "receipt"
+        ? dniController.text
+        : receiptType == "invoice"
+        ? rucController.text
+        : "";
+    context.read<CustomerBloc>().add(
+      SetDataCustomer(
+        name: customerData?['nombre'] ?? '',
+        phone: customerData?['telefono'] ?? '',
+        address: customerData?['direccion'] ?? '',
+        document: document,
+        plate: plateController.text,
+        email: customerData?['correo'] ?? '',
+        receiptType: receiptType ?? '',
+      ),
+    );
     context.push("/paymentMethod");
   }
 
@@ -202,17 +219,30 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
 
     final posBloc = context.watch<PosBloc>();
 
-    return BlocListener<PosBloc, PosState>(
-      listener: (context, state) {
-        switch (state.status) {
-          case PosStatus.successClear:
-            context.go("/");
-            break;
-          case PosStatus.failed:
-            _showError(getErrorMessage(state.failure!));
-          default:
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PosBloc, PosState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case PosStatus.successClear:
+                context.go("/");
+                break;
+              case PosStatus.failed:
+                _showError(getErrorMessage(state.failure!));
+              default:
+            }
+          },
+        ),
+        BlocListener<CustomerBloc, CustomerState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case CustomerStatus.failed:
+                _showError(getErrorMessage(state.failure!));
+              default:
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: Colors.blue.shade900,
         body: SafeArea(

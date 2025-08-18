@@ -24,7 +24,6 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     on<SetSelectedSaleAmount>(_onSetSelectedSaleAmount);
     on<GetStatusDispenser>(_onGetStatusDispenser);
     on<GetPumpConfigDispenser>(_onGetPumpConfigDispenser);
-    on<GetDataClient>(_onGetDataClient);
     on<GetPaymentMethodsDispenser>(_onGetPaymentMethodsDispenser);
 
     on<SetCurrentProduct>(_onSetCurrentProduct);
@@ -65,45 +64,6 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
           state.copyWith(
             status: DispenserStatus.successPaymentMethod,
             paymentMethodResponse: paymentMethods,
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            status: DispenserStatus.failed,
-            failure: result.errorValue,
-          ),
-        );
-      }
-    } catch (e) {
-      addError(e);
-      emit(
-        state.copyWith(
-          status: DispenserStatus.failed,
-          failure: Failure(message: e.toString()),
-        ),
-      );
-    }
-  }
-
-  Future<void> _onGetDataClient(
-    GetDataClient event,
-    Emitter<DispenserState> emit,
-  ) async {
-    try {
-      emit(state.copyWith(status: DispenserStatus.loadingClient));
-
-      final result = await _dispenserUsecases.getCliente(
-        baseUrl: event.baseUrl,
-        documento: event.documento,
-      );
-
-      if (result.isSuccess) {
-        final cliente = result.successValue!;
-        emit(
-          state.copyWith(
-            status: DispenserStatus.successClient,
-            clienteResponse: cliente,
           ),
         );
       } else {

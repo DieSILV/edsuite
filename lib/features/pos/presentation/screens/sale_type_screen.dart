@@ -6,15 +6,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../bloc/dispenser/dispenser_bloc.dart';
 
-class SaleTypeScreenParams {
+/* class SaleTypeScreenParams {
   final int productIndex;
 
   SaleTypeScreenParams({required this.productIndex});
-}
+} */
 
 class SaleTypeScreen extends StatefulWidget {
-  final SaleTypeScreenParams params;
-  const SaleTypeScreen({super.key, required this.params});
+  //final SaleTypeScreenParams params;
+  const SaleTypeScreen({super.key});
 
   @override
   State<SaleTypeScreen> createState() => _SaleTypeScreenState();
@@ -46,10 +46,7 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final dispenserBloc = context.read<DispenserBloc>().state;
-      Product currentProduct = dispenserBloc.pumpConfigResponse!
-          .getProductsForPump(
-            dispenserBloc.selectedPump!,
-          )[widget.params.productIndex];
+      Product currentProduct = dispenserBloc.currentProduct!;
 
       selectedFuel = currentProduct.name;
       fuelGradeId = currentProduct.fuelGradeId;

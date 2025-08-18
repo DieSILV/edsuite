@@ -49,8 +49,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: "/saleType",
       builder: (context, state) {
-        final params = state.extra as SaleTypeScreenParams;
-        return SaleTypeScreen(params: params);
+        return SaleTypeScreen();
       },
     ),
     GoRoute(

@@ -13,6 +13,7 @@ import 'package:edsuite/utils/config.dart' as pos_config;
 import '../../../../core/core.dart';
 import '../../../niubiz/domain/domain.dart';
 import '../../data/data.dart';
+import '../bloc/customer/customer_bloc.dart';
 import '../bloc/dispenser/dispenser_bloc.dart';
 import '../../../../screens/self_service/document_screen.dart';
 
@@ -332,7 +333,29 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
   } */
 
   Future<void> _registerSuccessTransaction(Map result) async {
-    final prefs = await SharedPreferences.getInstance();
+    final customerState = context.read<CustomerBloc>().state;
+    final dispenserState = context.read<DispenserBloc>().state;
+    final posBloc = context.read<PosBloc>();
+    String document = customerState.document;
+    String plate = customerState.plate;
+    String receiptType = customerState.receiptType;
+    int selectedFuelGradeId = dispenserState.currentProduct?.fuelGradeId ?? 0;
+    String selectedFuelName = dispenserState.currentProduct?.name ?? '';
+    double selectedFuelPrice = dispenserState.currentProduct?.price ?? 0.0;
+    int selectedNozzle = dispenserState.currentProduct?.nozzle ?? 0;
+    int selectedPump = dispenserState.selectedPump ?? 0;
+    double selectedSaleAmount = dispenserState.selectedSaleAmount ?? 0.0;
+    String selectedSaleType = dispenserState.selectedSaleType ?? '';
+    int remainingTime = dispenserState.remainingTime;
+    String selectedSide = dispenserState.selectedSide ?? '';
+    String customerName = customerState.name;
+    String customerAddress = customerState.address;
+    String customerPhone = customerState.phone;
+    String customerEmail = customerState.email;
+    String posInfo =
+        dispenserState.dispenserResponse?.toJson().toString() ?? '';
+
+    /* final prefs = await SharedPreferences.getInstance();
     final deviceName = prefs.getString('pos_code');
 
     final url = Uri.parse('$apiBase/success-transactions');
@@ -374,7 +397,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
       }
     } catch (e) {
       //_showError('Error HTTP: $e');
-    }
+    } */
   }
 
   Future<Map<String, dynamic>?> _createTransaction() async {

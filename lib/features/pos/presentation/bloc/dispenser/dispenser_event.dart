@@ -19,12 +19,6 @@ class GetPumpConfigDispenser extends DispenserEvent {
 
 class ClearDataDispenser extends DispenserEvent {}
 
-class GetDataClient extends DispenserEvent {
-  const GetDataClient({required this.baseUrl, required this.documento});
-  final String baseUrl;
-  final String documento;
-}
-
 class GetDataDispenser extends DispenserEvent {}
 
 class GetStatusDispenser extends DispenserEvent {
