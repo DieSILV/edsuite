@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../bloc/dispenser/dispenser_bloc.dart';
-import '../bloc/pos/pos_bloc.dart';
+import '../../../pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import '../../../pos/presentation/bloc/pos/pos_bloc.dart';
 
 class CustomerDataScreen extends StatefulWidget {
   const CustomerDataScreen({super.key});
@@ -27,8 +27,6 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   final rucController = TextEditingController();
   final plateController = TextEditingController();
 
-  //Map<String, dynamic>? customerData;
-
   Duration duration = const Duration(minutes: 5);
   late Timer countdownTimer;
   late AnimationController blinkController;
@@ -40,7 +38,6 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     _initBlinkingAnimation();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      //final posBloc = context.read<PosBloc>().state;
       final dispenserBloc = context.read<DispenserBloc>().state;
       duration = Duration(seconds: dispenserBloc.remainingTime);
       setState(() {});
@@ -81,26 +78,11 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   }
 
   Future<void> _saveRemainingTime() async {
-    /*  final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds); */
     context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
   }
 
-  /* Future<void> _loadRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seconds = prefs.getInt('remainingTime') ?? 300;
-    setState(() => duration = Duration(seconds: seconds));
-  }
- */
   Future<void> _clearPreferencesAndRedirect() async {
     context.read<DispenserBloc>().add(ClearDataDispenser());
-    /*  final prefs = await SharedPreferences.getInstance();
-    final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
-    for (final key in prefs.getKeys()) {
-      if (!keysToKeep.contains(key)) await prefs.remove(key);
-    }
-    if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
   }
 
   String get formattedTime {
@@ -109,43 +91,16 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
     return "$minutes:$seconds";
   }
 
-  /* Future<void> fetchCustomerData(String numeroDoc) async {
-    try {
-      final response = await http.post(
-        Uri.parse("${config.baseUrl}/apipts/clientes/obtener"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"numero_doc": numeroDoc}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          customerData = data;
-        });
-      } else {
-        setState(() => customerData = null);
-        _showError("No se encontró información para el documento ingresado.");
-      }
-    } catch (e) {
-      setState(() => customerData = null);
-      _showError("Error al consultar cliente: $e");
-    }
-  } */
-
   void _onDocumentChanged(String baseUrl) {
     if (receiptType == 'receipt' && dniController.text.length == 8) {
-      //fetchCustomerData(dniController.text);
       context.read<CustomerBloc>().add(
         GetDataCustomer(baseUrl: baseUrl, documento: dniController.text),
       );
     } else if (receiptType == 'invoice' && rucController.text.length == 11) {
-      //fetchCustomerData(rucController.text);
       context.read<CustomerBloc>().add(
         GetDataCustomer(baseUrl: baseUrl, documento: rucController.text),
       );
-    } else {
-      //setState(() => customerData = null);
-    }
+    } else {}
   }
 
   bool get isContinueEnabled {
@@ -164,28 +119,6 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
   }
 
   Future<void> _continue() async {
-    //final prefs = await SharedPreferences.getInstance();
-    /* final document = receiptType == "receipt"
-        ? dniController.text
-        : receiptType == "invoice"
-        ? rucController.text
-        : "";
-
-    await prefs.setString('receiptType', receiptType ?? '');
-    await prefs.setString('document', document);
-    await prefs.setString('plate', plateController.text); */
-
-    /* if (customerData != null) {
-      await prefs.setString('customerName', customerData!['nombre'] ?? '');
-      await prefs.setString(
-        'customerAddress',
-        customerData!['direccion'] ?? '',
-      );
-      await prefs.setString('customerPhone', customerData!['telefono'] ?? '');
-      await prefs.setString('customerEmail', customerData!['correo'] ?? '');
-    } */
-
-    //Navigator.pushNamed(context, "/paymentMethod");
     final customerState = context.read<CustomerBloc>().state;
     final document = receiptType == "receipt"
         ? dniController.text
@@ -214,7 +147,6 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
 
   @override
   Widget build(BuildContext context) {
-    //final isTablet = MediaQuery.of(context).size.width > 600;
     List<bool> isSelectedList = [
       receiptType == 'invoice',
       receiptType == 'receipt',
@@ -239,11 +171,8 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
         BlocListener<PosBloc, PosState>(
           listener: (context, state) {
             switch (state.status) {
-              /* case PosStatus.successClear:
-                context.go("/");
-                break; */
               case PosStatus.failed:
-                _showError(getErrorMessage(state.failure!));
+                _showError(getErrorMessage(state.failure!, context));
               default:
             }
           },
@@ -254,7 +183,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
               case CustomerStatus.success:
                 break;
               case CustomerStatus.failed:
-                _showError(getErrorMessage(state.failure!));
+                _showError(getErrorMessage(state.failure!, context));
               default:
             }
           },

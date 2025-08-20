@@ -4,16 +4,9 @@ import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../bloc/dispenser/dispenser_bloc.dart';
-
-/* class SaleTypeScreenParams {
-  final int productIndex;
-
-  SaleTypeScreenParams({required this.productIndex});
-} */
+import '../../../pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 
 class SaleTypeScreen extends StatefulWidget {
-  //final SaleTypeScreenParams params;
   const SaleTypeScreen({super.key});
 
   @override
@@ -94,41 +87,11 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
 
   Future<void> _saveRemainingTime() async {
     context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
-
-    /* final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds); */
   }
-
-  /* Future<void> _loadRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seconds = prefs.getInt('remainingTime') ?? 300;
-    setState(() => duration = Duration(seconds: seconds));
-  } */
 
   Future<void> _clearPreferencesAndRedirect() async {
     context.read<DispenserBloc>().add(ClearDataDispenser());
-    /* final prefs = await SharedPreferences.getInstance();
-    final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
-    for (final key in prefs.getKeys()) {
-      if (!keysToKeep.contains(key)) await prefs.remove(key);
-    }
-    if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
   }
-
-  /*  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-    selectedSide = args?['side'];
-    selectedFuel = args?['fuel'];
-    pump = args?['pump'];
-    fuelGradeId = args?['fuelGradeId'];
-    nozzle = args?['nozzle'];
-    fuelPrice = args?['fuelPrice'];
-  } */
 
   Future<void> _saveSaleInfo() async {
     context.read<DispenserBloc>().add(
@@ -137,13 +100,6 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
         selectedSaleAmount: double.parse(_amountController.text),
       ),
     );
-
-    /* final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedSaleType', saleType!);
-    await prefs.setDouble(
-      'selectedSaleAmount',
-      double.parse(_amountController.text),
-    ); */
   }
 
   String get formattedTime {
@@ -229,7 +185,6 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
 
               Expanded(
                 child: SingleChildScrollView(
-                  // padding: const EdgeInsets.all(24),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
                       minHeight: MediaQuery.of(context).size.height * 0.8,
@@ -248,10 +203,7 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                               letterSpacing: 1.2,
                             ),
                           ),
-                          // const SizedBox(height: 20),
-                          // _buildInfoTile('DISPENSADOR', '${pump ?? '-'}'),
-                          // _buildInfoTile('FUELGRADE ID', '${fuelGradeId ?? '-'}'),
-                          // _buildInfoTile('BOQUEREL (NOZZLE)', '${nozzle ?? '-'}'),
+
                           if (fuelPrice != null)
                             _buildInfoTile(
                               'PRECIO X GALÓN',
@@ -314,22 +266,6 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                   onPressed: isContinueEnabled
                       ? () async {
                           await _saveSaleInfo();
-
-                          //await _saveSaleInfo();
-                          /* Navigator.pushNamed(
-                                  context,
-                                  '/customerData',
-                                  arguments: {
-                                    'side': selectedSide,
-                                    'fuel': selectedFuel,
-                                    'pump': pump,
-                                    'fuelGradeId': fuelGradeId,
-                                    'nozzle': nozzle,
-                                    'fuelPrice': fuelPrice,
-                                    'saleType': saleType,
-                                    'amount': double.parse(_amountController.text),
-                                  },
-                                ); */
                         }
                       : null,
                   icon: const Icon(Icons.arrow_forward, color: white, size: 28),

@@ -67,6 +67,8 @@ class FailureTypeHelper {
         return FailureType.requestEntityTooLarge;
       case 500:
         return FailureType.internalServerError;
+      case 502:
+        return FailureType.serverNotAvailable;
       case 503:
         return FailureType.serviceUnavailable;
       default:

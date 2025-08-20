@@ -1,0 +1,63 @@
+{
+  "posConfigurationTitle": "CONFIGURACIÓN DE POS",
+  "serverConfigurationTitle": "Configuración del servidor",
+  "activationCodeTitle": "Código de activación",
+  "activationCodeHint": "Código de activación",
+  "ipOrDomainHint": "IP o dominio",
+  "validateServerButton": "Validar servidor",
+  "validateCodeButton": "Validar código",
+  "enterServerError": "Debes ingresar la IP o dominio del servidor",
+  "configureServerFirstError": "Primero configura el servidor.",
+  "enterActivationCodeError": "Por favor, ingresa el código de activación.",
+  "posDeactivatedError": "Este POS ha sido desactivado.",
+  "posInactiveError": "Este POS está inactivo.",
+  "unknownPosTypeError": "Tipo de POS desconocido.",
+  "connectionSuccessMessage": "Conexión exitosa. Ahora puedes ingresar el código.",
+  "errorUnhandled": "Error desconocido",
+  "errorBadRequest": "Servidor: Ocurrió un error al procesar la solicitud",
+  "errorConflict": "Servidor: Conflicto en la solicitud",
+  "errorForbidden": "Servidor: Acceso no autorizado",
+  "errorInternalServerError": "Servidor: Error en el servidor al procesar la solicitud",
+  "errorInternetConnection": "Servidor: Fallo en la conexión a internet",
+  "errorLocalizationError": "Servidor: Error al obtener la localización",
+  "errorNotFound": "Servidor: Contenido no encontrado",
+  "errorRequestEntityTooLarge": "Servidor: Solicitud demasiado grande",
+  "errorServiceUnavailable": "Servidor temporalmente fuera de servicio",
+  "errorTimeout": "Error de conexión: Tiempo de espera agotado",
+  "errorUnauthorized": "No autorizado",
+  "errorNotResults": "No hay resultados",
+  "errorSessionExpired": "Sesión expirada",
+  "errorRateLimitExceeded": "Límite de solicitudes excedido",
+  "errorServerNotAvailable": "Servidor no disponible",
+  "user_code_empty": "El código de usuario no puede estar vacío",
+  "controlCenterTitle": "CENTRO DE CONTROL",
+  "selectOptionToContinue": "Seleccione una opción para continuar",
+  "rfidOrCodeInstruction": "Acerque su RFID o ingrese el código",
+  "accessCodeLabel": "Código de acceso",
+  "welcomeUser": "¡Bienvenido {userName}!",
+  "@welcomeUser": {
+    "description": "Mensaje de bienvenida con nombre del usuario",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Juan Pérez"
+      }
+    }
+  },
+  "defaultUserName": "Usuario",
+  "closeSession": "Cerrar Sesión",
+  "personalLabel": "Personal: {name}",
+  "@personalLabel": {
+    "description": "Etiqueta que muestra el nombre del personal",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Juan Pérez"
+      }
+    }
+  },
+  "manageOption": "Gestionar",
+  "sellOption": "Vender", 
+  "invoiceOption": "Facturar",
+  "marketOption": "Market"
+}

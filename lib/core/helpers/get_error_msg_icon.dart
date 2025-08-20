@@ -1,40 +1,41 @@
+import 'package:edsuite/core/extensions/extensions.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 
-String getErrorMessage(Failure error) {
+String getErrorMessage(Failure error, BuildContext context) {
   switch (error.failureType) {
     case FailureType.unhandled:
-      return "Error desconocido";
+      return context.l10n.errorUnhandled;
     case FailureType.badRequest:
-      return "Servidor: Ocurrió un error al procesar la solicitud";
+      return context.l10n.errorBadRequest;
     case FailureType.conflict:
-      return "Servidor: Conflicto en la solicitud";
+      return context.l10n.errorConflict;
     case FailureType.forbidden:
-      return "Servidor: Acceso no autorizado";
+      return context.l10n.errorForbidden;
     case FailureType.internalServerError:
-      return "Servidor: Error en el servidor al procesar la solicitud";
+      return context.l10n.errorInternalServerError;
     case FailureType.internetConnection:
-      return "Servidor: Fallo en la conexión a internet";
+      return context.l10n.errorInternetConnection;
     case FailureType.localizationError:
-      return "Servidor: Error al obtener la localización";
+      return context.l10n.errorLocalizationError;
     case FailureType.notFound:
-      return "Servidor: Contenido no encontrado";
+      return context.l10n.errorNotFound;
     case FailureType.requestEntityTooLarge:
-      return "Servidor: Solicitud demasiado grande";
+      return context.l10n.errorRequestEntityTooLarge;
     case FailureType.serviceUnavailable:
-      return "Servidor temporalmente fuera de servicio";
+      return context.l10n.errorServiceUnavailable;
     case FailureType.timeout:
-      return "Error de conexión: Tiempo de espera agotado";
+      return context.l10n.errorTimeout;
     case FailureType.unauthorized:
-      return "No autorizado";
+      return context.l10n.errorUnauthorized;
     case FailureType.notResults:
-      return "No hay resultados";
+      return context.l10n.errorNotResults;
     case FailureType.sessionExpired:
-      return "Sesión expirada";
+      return context.l10n.errorSessionExpired;
     case FailureType.rateLimitExceeded:
-      return "Límite de solicitudes excedido";
+      return context.l10n.errorRateLimitExceeded;
     case FailureType.serverNotAvailable:
-      return "Servidor no disponible";
+      return context.l10n.errorServerNotAvailable;
   }
 }
 

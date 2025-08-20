@@ -5,8 +5,8 @@ import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/data.dart';
-import '../bloc/dispenser/dispenser_bloc.dart';
+import '../../../pos/data/data.dart';
+import '../../../pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 
 class DispenserProductScreen extends StatefulWidget {
   const DispenserProductScreen({super.key});
@@ -80,69 +80,15 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
 
   Future<void> _saveRemainingTime() async {
     context.read<DispenserBloc>().add(SetRemainingTime(duration.inSeconds));
-    /* final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('remainingTime', duration.inSeconds); */
   }
 
-  /* Future<void> _loadRemainingTime() async {
-    final prefs = await SharedPreferences.getInstance();
-    final seconds = prefs.getInt('remainingTime') ?? 300;
-    setState(() => duration = Duration(seconds: seconds));
-  }
- */
   Future<void> _clearPreferencesAndRedirect() async {
     context.read<DispenserBloc>().add(ClearDataDispenser());
-    /* final prefs = await SharedPreferences.getInstance();
-    final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
-    for (final key in prefs.getKeys()) {
-      if (!keysToKeep.contains(key)) await prefs.remove(key);
-    }
-    if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false); */
   }
 
-  /* @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    side = args?['side'];
-    pump = args?['pump'];
-    if (pump != null) _loadPumpProducts();
-  } */
-
-  /* a */
-  /* void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
-  } */
-
   void _selectFuel(int productIndex, Product product) async {
-    /* final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedFuelName', product['name']);
-    await prefs.setDouble(
-      'selectedFuelPrice',
-      double.parse(product['price'].replaceAll('S/ ', '')),
-    );
-    await prefs.setInt('selectedFuelGradeId', product['fuelGradeId']);
-    await prefs.setInt('selectedNozzle', product['nozzle']); */
     context.read<DispenserBloc>().add(SetCurrentProduct(product));
-    context.push(
-      "/saleType",
-      // extra: SaleTypeScreenParams(productIndex: productIndex),
-    );
-    /* Navigator.pushNamed(
-      context,
-      '/saleType',
-      arguments: {
-        'side': side,
-        'pump': pump,
-        'fuel': product['name'],
-        'fuelGradeId': product['fuelGradeId'],
-        'nozzle': product['nozzle'],
-      },
-    ); */
+    context.push("/saleType");
   }
 
   String get formattedTime {
@@ -217,7 +163,6 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
             switch (state.status) {
               case DispenserStatus.successPumpConfig:
                 if (state.pumpConfigResponse == null) {
-                  //_showError("No se encontró configuración para esta bomba.");
                   CustomDialog.showSnackbar(
                     context,
                     "No se encontró configuración para esta bomba.",
@@ -238,7 +183,7 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
               case DispenserStatus.failed:
                 CustomDialog.showSnackbar(
                   context,
-                  getErrorMessage(state.failure!),
+                  getErrorMessage(state.failure!, context),
                   true,
                 );
                 break;

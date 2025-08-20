@@ -1,8 +1,15 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:edsuite/bootstrap.dart';
 import 'package:edsuite/core/app/edsuite_app.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
-  bootstrap(() => const EdsuiteApp());
+  bootstrap(
+    () => DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => const EdsuiteApp(),
+    ),
+  );
 }
 /* 
 class MyApp extends StatelessWidget {

@@ -1,0 +1,63 @@
+{
+  "posConfigurationTitle": "POS CONFIGURATION",
+  "serverConfigurationTitle": "Server configuration",
+  "activationCodeTitle": "Activation code",
+  "activationCodeHint": "Activation code",
+  "ipOrDomainHint": "IP or domain",
+  "validateServerButton": "Validate server",
+  "validateCodeButton": "Validate code",
+  "enterServerError": "You must enter the server IP or domain",
+  "configureServerFirstError": "Configure the server first.",
+  "enterActivationCodeError": "Please enter the activation code.",
+  "posDeactivatedError": "This POS has been deactivated.",
+  "posInactiveError": "This POS is inactive.",
+  "unknownPosTypeError": "Unknown POS type.",
+  "connectionSuccessMessage": "Successful connection. Now you can enter the code.",
+  "errorUnhandled": "Unknown error",
+  "errorBadRequest": "Server: An error occurred while processing the request",
+  "errorConflict": "Server: Request conflict",
+  "errorForbidden": "Server: Unauthorized access",
+  "errorInternalServerError": "Server: Server error while processing the request",
+  "errorInternetConnection": "Server: Internet connection failure",
+  "errorLocalizationError": "Server: Error getting location",
+  "errorNotFound": "Server: Content not found",
+  "errorRequestEntityTooLarge": "Server: Request too large",
+  "errorServiceUnavailable": "Server temporarily out of service",
+  "errorTimeout": "Connection error: Timeout",
+  "errorUnauthorized": "Unauthorized",
+  "errorNotResults": "No results",
+  "errorSessionExpired": "Session expired",
+  "errorRateLimitExceeded": "Request limit exceeded",
+  "errorServerNotAvailable": "Server not available",
+  "user_code_empty": "User code cannot be empty",
+  "controlCenterTitle": "CONTROL CENTER",
+  "selectOptionToContinue": "Select an option to continue",
+  "rfidOrCodeInstruction": "Approach your RFID or enter the code",
+  "accessCodeLabel": "Access code",
+  "welcomeUser": "Welcome {userName}!",
+  "@welcomeUser": {
+    "description": "Welcome message with user name",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+  "defaultUserName": "User",
+  "closeSession": "Sign Out",
+  "personalLabel": "Staff: {name}",
+  "@personalLabel": {
+    "description": "Label showing staff member name",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+  "manageOption": "Manage",
+  "sellOption": "Sell",
+  "invoiceOption": "Invoice", 
+  "marketOption": "Market"
+}

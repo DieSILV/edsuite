@@ -16,7 +16,7 @@ class PosRepository implements IPosRepository {
     try {
       final response = await http
           .post(
-            Uri.parse('$baseUrl/apipts/pos-identifiers/resolve'),
+            Uri.parse('$baseUrl/pos-identifiers/resolve'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({"code": code}),
           )
@@ -28,6 +28,13 @@ class PosRepository implements IPosRepository {
         );
 
         return Success(posResponse);
+      } else if (response.statusCode == 503) {
+        return Err(
+          Failure(
+            statusCode: response.statusCode,
+            message: 'Server temporarily unavailable',
+          ),
+        );
       } else {
         return Err(Failure(statusCode: response.statusCode));
       }
@@ -35,7 +42,7 @@ class PosRepository implements IPosRepository {
       return Err(Failure(message: 'Timeout: ${e.message}', statusCode: 408));
     } on SocketException catch (e) {
       return Err(
-        Failure(message: 'Connection error: ${e.message}', statusCode: 503),
+        Failure(message: 'No route to host: ${e.message}', statusCode: 502),
       );
     } on HttpException catch (e) {
       return Err(Failure(message: 'HTTP error: ${e.message}', statusCode: 500));
@@ -48,11 +55,18 @@ class PosRepository implements IPosRepository {
   FutureResult<void> pingServer({required String baseUrl}) async {
     try {
       final response = await http
-          .get(Uri.parse('$baseUrl/apipts/status/ping'))
+          .get(Uri.parse('$baseUrl/status/ping'))
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         return Success(null);
+      } else if (response.statusCode == 503) {
+        return Err(
+          Failure(
+            statusCode: response.statusCode,
+            message: 'Server temporarily unavailable',
+          ),
+        );
       } else {
         return Err(Failure(statusCode: response.statusCode));
       }
@@ -60,7 +74,7 @@ class PosRepository implements IPosRepository {
       return Err(Failure(message: 'Timeout: ${e.message}', statusCode: 408));
     } on SocketException catch (e) {
       return Err(
-        Failure(message: 'Connection error: ${e.message}', statusCode: 503),
+        Failure(message: 'No route to host: ${e.message}', statusCode: 502),
       );
     } on HttpException catch (e) {
       return Err(Failure(message: 'HTTP error: ${e.message}', statusCode: 500));

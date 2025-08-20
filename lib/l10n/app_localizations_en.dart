@@ -1,0 +1,146 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get posConfigurationTitle => 'POS CONFIGURATION';
+
+  @override
+  String get serverConfigurationTitle => 'Server configuration';
+
+  @override
+  String get activationCodeTitle => 'Activation code';
+
+  @override
+  String get activationCodeHint => 'Activation code';
+
+  @override
+  String get ipOrDomainHint => 'IP or domain';
+
+  @override
+  String get validateServerButton => 'Validate server';
+
+  @override
+  String get validateCodeButton => 'Validate code';
+
+  @override
+  String get enterServerError => 'You must enter the server IP or domain';
+
+  @override
+  String get configureServerFirstError => 'Configure the server first.';
+
+  @override
+  String get enterActivationCodeError => 'Please enter the activation code.';
+
+  @override
+  String get posDeactivatedError => 'This POS has been deactivated.';
+
+  @override
+  String get posInactiveError => 'This POS is inactive.';
+
+  @override
+  String get unknownPosTypeError => 'Unknown POS type.';
+
+  @override
+  String get connectionSuccessMessage =>
+      'Successful connection. Now you can enter the code.';
+
+  @override
+  String get errorUnhandled => 'Unknown error';
+
+  @override
+  String get errorBadRequest =>
+      'Server: An error occurred while processing the request';
+
+  @override
+  String get errorConflict => 'Server: Request conflict';
+
+  @override
+  String get errorForbidden => 'Server: Unauthorized access';
+
+  @override
+  String get errorInternalServerError =>
+      'Server: Server error while processing the request';
+
+  @override
+  String get errorInternetConnection => 'Server: Internet connection failure';
+
+  @override
+  String get errorLocalizationError => 'Server: Error getting location';
+
+  @override
+  String get errorNotFound => 'Server: Content not found';
+
+  @override
+  String get errorRequestEntityTooLarge => 'Server: Request too large';
+
+  @override
+  String get errorServiceUnavailable => 'Server temporarily out of service';
+
+  @override
+  String get errorTimeout => 'Connection error: Timeout';
+
+  @override
+  String get errorUnauthorized => 'Unauthorized';
+
+  @override
+  String get errorNotResults => 'No results';
+
+  @override
+  String get errorSessionExpired => 'Session expired';
+
+  @override
+  String get errorRateLimitExceeded => 'Request limit exceeded';
+
+  @override
+  String get errorServerNotAvailable => 'Server not available';
+
+  @override
+  String get user_code_empty => 'User code cannot be empty';
+
+  @override
+  String get controlCenterTitle => 'CONTROL CENTER';
+
+  @override
+  String get selectOptionToContinue => 'Select an option to continue';
+
+  @override
+  String get rfidOrCodeInstruction => 'Approach your RFID or enter the code';
+
+  @override
+  String get accessCodeLabel => 'Access code';
+
+  @override
+  String welcomeUser(String userName) {
+    return 'Welcome $userName!';
+  }
+
+  @override
+  String get defaultUserName => 'User';
+
+  @override
+  String get closeSession => 'Sign Out';
+
+  @override
+  String personalLabel(String name) {
+    return 'Staff: $name';
+  }
+
+  @override
+  String get manageOption => 'Manage';
+
+  @override
+  String get sellOption => 'Sell';
+
+  @override
+  String get invoiceOption => 'Invoice';
+
+  @override
+  String get marketOption => 'Market';
+}

@@ -1,27 +1,21 @@
 import 'package:edsuite/core/config/constants/environment.dart';
-import 'package:edsuite/features/pos/presentation/screens/pos_configuration_screen.dart';
 import 'package:edsuite/screens/sales_manager/cashkeeper_screen.dart';
 import 'package:edsuite/screens/sales_manager/close_shift_screen.dart';
 import 'package:edsuite/screens/sales_manager/expense_screen.dart';
 import 'package:edsuite/screens/sales_manager/free_sales_screen.dart';
-import 'package:edsuite/screens/sales_manager/home_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/home_screen.dart';
 import 'package:edsuite/screens/sales_manager/invoice_screen.dart';
 import 'package:edsuite/screens/sales_manager/niubiz_screen.dart';
 import 'package:edsuite/screens/sales_manager/sales_screen.dart';
 import 'package:edsuite/screens/sales_manager/scheduled_sales_screen.dart';
 import 'package:edsuite/screens/sales_manager/shift_management_screen.dart';
 import 'package:edsuite/screens/sales_manager/vaults_screen.dart';
-import 'package:edsuite/features/pos/presentation/screens/customer_data_screen.dart';
-import 'package:edsuite/features/pos/presentation/screens/dispenser_product_screen.dart';
-import 'package:edsuite/features/pos/presentation/screens/dispenser_selection_screen.dart';
-import 'package:edsuite/features/pos/presentation/screens/payment_method_screen.dart';
-import 'package:edsuite/features/pos/presentation/screens/sale_type_screen.dart';
-import 'package:edsuite/features/pos/presentation/screens/welcome_screen.dart';
+
 import 'package:edsuite/features/pos/presentation/screens/validation_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../screens/self_service/document_screen.dart';
+import '../../features/auto_service/presentation/presentation.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',

@@ -9,9 +9,9 @@ import 'package:go_router/go_router.dart';
 import 'package:niubiz/niubiz.dart';
 import '../../../../core/core.dart';
 import '../../../niubiz/domain/domain.dart';
-import '../../data/data.dart';
-import '../bloc/dispenser/dispenser_bloc.dart';
-import '../../../../screens/self_service/document_screen.dart';
+import '../../../pos/data/data.dart';
+import '../../../pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import 'comprobante_screen.dart';
 
 class PaymentMethodScreen extends StatefulWidget {
   const PaymentMethodScreen({super.key});
@@ -359,23 +359,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                   break;
                 case PaymentStatus.successAuthorize:
                   _handleSuccessAuthorize(state);
-                  /* final niubizData = context
-                      .read<NiubizBloc>()
-                      .state
-                      .transactionResult!
-                      .toJson();
-                  final transactionBackendData = state.authorizeResponse!
-                      .toJson();
-                  final combinedData = {
-                    ...niubizData,
-                    ...transactionBackendData,
-                  };
-                  context.pushReplacement(
-                    "/comprobante",
-                    extra: ComprobanteScreenParams(
-                      transactionData: combinedData,
-                    ),
-                  ); */
+
                   break;
                 case PaymentStatus.successCashKeeperCommand:
                   _startCashKeeperDepositPolling();
@@ -386,16 +370,14 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                 case PaymentStatus.successCashKeeperClean:
                   setState(() {
                     isCashKeeperActive = false;
-                    isProcessingCashKeeper =
-                        false; // Desactivar indicador local
-                    isCancellingDeposit =
-                        false; // Resetear bandera de cancelación
+                    isProcessingCashKeeper = false;
+                    isCancellingDeposit = false;
                   });
                   break;
                 case PaymentStatus.failed:
                   CustomDialog.showSnackbar(
                     context,
-                    getErrorMessage(state.failure!),
+                    getErrorMessage(state.failure!, context),
                     true,
                   );
 
@@ -422,7 +404,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                 case DispenserStatus.failed:
                   CustomDialog.showSnackbar(
                     context,
-                    getErrorMessage(state.failure!),
+                    getErrorMessage(state.failure!, context),
                     true,
                   );
                   break;
@@ -440,10 +422,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                   context.go("/");
                   break;
                 case PosStatus.failed:
-                  //_showError(getErrorMessage(state.failure!));
                   CustomDialog.showSnackbar(
                     context,
-                    getErrorMessage(state.failure!),
+                    getErrorMessage(state.failure!, context),
                     true,
                   );
                 default:
@@ -482,15 +463,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // const Text(
-                      //   'MÉTODO DE PAGO',
-                      //   style: TextStyle(
-                      //     fontSize: 26,
-                      //     fontWeight: FontWeight.bold,
-                      //     color: darkBlue,
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 8),
+
                       Text(
                         'TOTAL A COBRAR: S/ //${amountToCharge.toStringAsFixed(2)}',
                         style: const TextStyle(
@@ -525,18 +498,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                // const Padding(
-                                //   // padding: EdgeInsets.symmetric(vertical: 16),
-                                //   // child: Text(
-                                //   //   'Escoja el método que desea pagar:',
-                                //   //   style: TextStyle(
-                                //   //     fontSize: 22,
-                                //   //     fontWeight: FontWeight.bold,
-                                //   //     color: Colors.white,
-                                //   //   ),
-                                //   //   textAlign: TextAlign.center,
-                                //   // ),
-                                // ),
                                 ...methods.isEmpty
                                     ? [
                                         const CircularProgressIndicator(

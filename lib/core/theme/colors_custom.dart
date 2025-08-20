@@ -48,7 +48,7 @@ class ColorsCustom {
 
   // ===== BACKGROUNDS =====
   /// Primary background - General app background
-  static const Color primaryBackground = Color(0xFFF9FAFB);
+  static const Color primaryBackground = Color(0xFFF1F9FF);
 
   /// Secondary background - Cards, internal sections
   static const Color secondaryBackground = Color(0xFFEDEDED);

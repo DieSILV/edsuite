@@ -6,7 +6,7 @@ import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../bloc/pos/pos_bloc.dart';
+import '../../../pos/presentation/bloc/pos/pos_bloc.dart';
 
 class DispenserSideScreen extends StatefulWidget {
   const DispenserSideScreen({super.key});
@@ -243,7 +243,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
               case DispenserStatus.failed:
                 CustomDialog.showSnackbar(
                   context,
-                  getErrorMessage(state.failure!),
+                  getErrorMessage(state.failure!, context),
                   true,
                 );
               /* case DispenserStatus.successClear:
