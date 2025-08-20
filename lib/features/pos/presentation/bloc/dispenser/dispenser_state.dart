@@ -12,6 +12,8 @@ enum DispenserStatus {
   loadingClient,
   loadingSaleType,
   loadingSaleAmount,
+  loadingInformation,
+  loadingInitialization, // Nuevo estado para proceso unificado
   success,
   successPump,
   successSide,
@@ -22,6 +24,9 @@ enum DispenserStatus {
   successClear,
   successSaleType,
   successSaleAmount,
+  successInformation,
+  successInitialization, // Nuevo estado para proceso unificado completado
+  polling, // Nuevo estado para cuando está haciendo polling después de inicializar
   failed,
 }
 
@@ -37,12 +42,21 @@ class DispenserState extends Equatable {
     this.selectedSaleAmount,
     this.remainingTime = 300,
     this.pumpConfigResponse,
-
+    this.informationResponse,
     this.currentProduct,
     this.failure,
+    this.transaccionesAutorizadas = const {},
+    this.isInitialized = false,
+    this.isPolling = false,
   });
 
-  const DispenserState.initial() : this(status: DispenserStatus.initial);
+  const DispenserState.initial()
+    : this(
+        status: DispenserStatus.initial,
+        transaccionesAutorizadas: const {},
+        isInitialized: false,
+        isPolling: false,
+      );
 
   final DispenserStatus status;
   final DispenserResponseModel? dispenserResponse;
@@ -54,9 +68,12 @@ class DispenserState extends Equatable {
   final String? selectedSaleType;
   final double? selectedSaleAmount;
   final PumpConfigResponseModel? pumpConfigResponse;
-
+  final InformationResponse? informationResponse;
   final Product? currentProduct;
   final Failure? failure;
+  final Map<int, int> transaccionesAutorizadas;
+  final bool isInitialized;
+  final bool isPolling;
 
   DispenserState copyWith({
     DispenserStatus? status,
@@ -69,9 +86,12 @@ class DispenserState extends Equatable {
     String? selectedSaleType,
     double? selectedSaleAmount,
     PumpConfigResponseModel? pumpConfigResponse,
-
+    InformationResponse? informationResponse,
     Product? currentProduct,
     Failure? failure,
+    Map<int, int>? transaccionesAutorizadas,
+    bool? isInitialized,
+    bool? isPolling,
   }) {
     return DispenserState(
       status: status ?? this.status,
@@ -84,9 +104,13 @@ class DispenserState extends Equatable {
       selectedSaleType: selectedSaleType ?? this.selectedSaleType,
       selectedSaleAmount: selectedSaleAmount ?? this.selectedSaleAmount,
       pumpConfigResponse: pumpConfigResponse ?? this.pumpConfigResponse,
-
+      informationResponse: informationResponse ?? this.informationResponse,
       currentProduct: currentProduct ?? this.currentProduct,
       failure: failure ?? this.failure,
+      transaccionesAutorizadas:
+          transaccionesAutorizadas ?? this.transaccionesAutorizadas,
+      isInitialized: isInitialized ?? this.isInitialized,
+      isPolling: isPolling ?? this.isPolling,
     );
   }
 
@@ -102,8 +126,11 @@ class DispenserState extends Equatable {
     selectedSaleType,
     selectedSaleAmount,
     pumpConfigResponse,
-
+    informationResponse,
     currentProduct,
     failure,
+    transaccionesAutorizadas,
+    isInitialized,
+    isPolling,
   ];
 }

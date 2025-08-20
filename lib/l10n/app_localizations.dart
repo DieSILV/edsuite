@@ -355,6 +355,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Market'**
   String get marketOption;
+
+  /// Message shown when the user has no open shift
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have an open shift currently.'**
+  String get noOpenShift;
+
+  /// Title for the shift management screen
+  ///
+  /// In en, this message translates to:
+  /// **'Shift Management'**
+  String get shiftManagementTitle;
+
+  /// Greeting with the user's name
+  ///
+  /// In en, this message translates to:
+  /// **'👋 Hello, {userName}'**
+  String greetingMessage(String userName);
+
+  /// Shows the active shift date
+  ///
+  /// In en, this message translates to:
+  /// **'Active shift: {date}'**
+  String activeShiftLabel(String date);
+
+  /// Shows the initial amount of the shift
+  ///
+  /// In en, this message translates to:
+  /// **'Initial amount: S/ {amount}'**
+  String initialAmountLabel(String amount);
+
+  /// Option to view sales
+  ///
+  /// In en, this message translates to:
+  /// **'View Sales'**
+  String get viewSalesOption;
+
+  /// Option to access the vault
+  ///
+  /// In en, this message translates to:
+  /// **'Vault'**
+  String get vaultOption;
+
+  /// Option to register or view expenses
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get expensesOption;
+
+  /// Option to close the shift
+  ///
+  /// In en, this message translates to:
+  /// **'Close Shift'**
+  String get closeShiftOption;
+
+  /// Option for Niubiz integration
+  ///
+  /// In en, this message translates to:
+  /// **'Niubiz'**
+  String get niubizOption;
+
+  /// Message when date is missing
+  ///
+  /// In en, this message translates to:
+  /// **'Date not available'**
+  String get dateUnavailable;
+
+  /// Message when date is invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid date'**
+  String get dateInvalid;
 }
 
 class _AppLocalizationsDelegate

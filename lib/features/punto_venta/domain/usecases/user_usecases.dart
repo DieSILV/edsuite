@@ -3,7 +3,6 @@ import 'package:edsuite_common/edsuite_common.dart';
 import 'dart:convert';
 
 import '../../data/data.dart';
-import '../../data/models/turno_model.dart';
 import '../domain.dart';
 
 class UserUsecases {
@@ -14,6 +13,29 @@ class UserUsecases {
     required this.userRepository,
     required this.keyValueStorageService,
   });
+
+  FutureResult<TransactionModel> getSolicitudesLibres({
+    required String baseUrl,
+    required String userId,
+    required String turnoId,
+  }) async {
+    try {
+      final result = await userRepository.getSolicitudesLibres(
+        baseUrl: baseUrl,
+        userId: userId,
+        turnoId: turnoId,
+      );
+
+      if (result.isSuccess) {
+        final transactionModel = result.successValue!;
+        return Success(transactionModel);
+      } else {
+        return Err(result.errorValue!);
+      }
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
 
   FutureResult<UserModel> getDataByCode({
     required String baseUrl,

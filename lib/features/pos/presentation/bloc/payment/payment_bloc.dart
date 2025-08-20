@@ -17,6 +17,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     on<GetPaymentMethodsDispenser>(_onGetPaymentMethodsDispenser);
     on<RegisterSuccessTransacEvent>(_onRegisterSuccessTransacEvent);
     on<AuthorizePaymentDispenser>(_onAuthorizePaymentDispenser);
+    on<CancelPaymentDispenser>(_onCancelPaymentDispenser);
     on<CashKeeperCommandEvent>(_onCashKeeperCommandEvent);
     on<CashKeeperCancelCommandEvent>(_onCashKeeperCancelCommandEvent);
     on<CashKeeperCancelAndCleanCommandEvent>(
@@ -40,7 +41,9 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
         nozzle: event.nozzle,
         presetType: event.presetType,
         dose: event.dose,
-        price: event.price,
+        price: event.price ?? 0.0,
+        usuarioId: event.usuarioId ?? "",
+        turnoId: event.turnoId ?? "",
       );
 
       if (result.isSuccess) {
@@ -50,6 +53,40 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
             authorizeResponse: result.successValue,
           ),
         );
+      } else {
+        emit(
+          state.copyWith(
+            status: PaymentStatus.failed,
+            failure: result.errorValue,
+          ),
+        );
+      }
+    } catch (e) {
+      addError(e);
+      emit(
+        state.copyWith(
+          status: PaymentStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
+    }
+  }
+
+  Future<void> _onCancelPaymentDispenser(
+    CancelPaymentDispenser event,
+    Emitter<PaymentState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: PaymentStatus.loadingCancelPayment));
+
+      final result = await _paymentUsecases.cancelPayment(
+        baseUrl: event.baseUrl,
+        pumpId: event.pumpId,
+        transaction: event.transaction,
+      );
+
+      if (result.isSuccess) {
+        emit(state.copyWith(status: PaymentStatus.successCancelPayment));
       } else {
         emit(
           state.copyWith(

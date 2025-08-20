@@ -1,4 +1,5 @@
 import 'package:edsuite/core/extensions/context_extensions.dart';
+import 'package:edsuite/core/widgets/language_selector.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:edsuite/features/punto_venta/presentation/validators/user_validator.dart';
 import 'package:edsuite_common/edsuite_common.dart';
@@ -243,6 +244,8 @@ class _LoginViewState extends State<LoginView> {
                     color: Colors.white70,
                   ),
                 ),
+                const SizedBox(height: 12),
+                LanguageSelector(),
               ],
             ),
           ),

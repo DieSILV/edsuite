@@ -11,6 +11,21 @@ class ClearDataEvent extends UserEvent {
   const ClearDataEvent();
 }
 
+class GetTransactionDataEvent extends UserEvent {
+  const GetTransactionDataEvent({
+    required this.baseUrl,
+    required this.userId,
+    required this.turnoId,
+  });
+
+  final String baseUrl;
+  final String userId;
+  final String turnoId;
+
+  @override
+  List<Object> get props => [baseUrl, userId, turnoId];
+}
+
 class GetUserDataEvent extends UserEvent {
   const GetUserDataEvent({required this.baseUrl, required this.code});
 

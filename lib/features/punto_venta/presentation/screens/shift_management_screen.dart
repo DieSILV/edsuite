@@ -1,91 +1,46 @@
-import 'dart:convert';
+import 'package:edsuite/core/extensions/context_extensions.dart';
+import 'package:edsuite/features/punto_venta/data/data.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'vaults_screen.dart';
-import 'expense_screen.dart';
-import 'niubiz_screen.dart';
 
-class ShiftManagementScreen extends StatefulWidget {
+import '../bloc/user/user_bloc.dart';
+
+class ShiftManagementScreen extends StatelessWidget {
   const ShiftManagementScreen({super.key});
 
-  @override
-  State<ShiftManagementScreen> createState() => _ShiftManagementScreenState();
-}
-
-class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
-  dynamic _usuario;
-  dynamic _turno;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUsuarioYTurno();
-  }
-
-  Future<void> _loadUsuarioYTurno() async {
-    setState(() => _isLoading = true);
-
-    final prefs = await SharedPreferences.getInstance();
-    final storedUser = prefs.getString('usuario');
-    final storedTurno = prefs.getString('turno');
-
-    if (storedUser != null && storedTurno != null) {
-      final userData = json.decode(storedUser);
-      final turnoData = json.decode(storedTurno);
-
-      setState(() {
-        _usuario = userData;
-        _turno = turnoData;
-      });
-    } else {
-      setState(() {
-        _usuario = null;
-        _turno = null;
-      });
-    }
-
-    setState(() => _isLoading = false);
-  }
-
-  void cerrarSesion() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('usuario');
-    await prefs.remove('codigo');
-    await prefs.remove('turno');
-
-    if (!context.mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+  void cerrarSesion(BuildContext context) async {
+    context.read<UserBloc>().add(const LogoutEvent());
+    context.go("/");
   }
 
   @override
   Widget build(BuildContext context) {
+    final userState = context.watch<UserBloc>().state;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      //backgroundColor: Colors.white,
       body: Column(
         children: [
-          _buildAppBar(),
+          _buildAppBar(context),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: SafeArea(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _usuario == null
-                    ? const Center(
-                        child: Text(
-                          'Error: Usuario no disponible',
-                          style: TextStyle(color: Colors.red),
-                        ),
+                child: userState.turnoData != null
+                    ? _buildOpenShiftView(
+                        context,
+                        userState.userData!,
+                        userState.turnoData!,
                       )
-                    : _turno != null
-                    ? _buildOpenShiftView()
-                    : const Center(
+                    : Center(
                         child: Text(
-                          'No tienes un turno abierto actualmente.',
-                          style: TextStyle(fontSize: 16, color: Colors.black54),
+                          context.l10n.noOpenShift,
+                          style: context.theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.black54,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -97,45 +52,44 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: ElevatedButton.icon(
-          onPressed: cerrarSesion,
+          onPressed: () => cerrarSesion(context),
           icon: const Icon(Icons.logout),
-          label: const Text('Cerrar Sesión'),
+          label: Text(
+            context.l10n.closeSession,
+            style: context.theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white,
+            ),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.redAccent,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(vertical: 14),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            textStyle: context.theme.textTheme.bodyMedium,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      decoration: const BoxDecoration(
-        color: Color(0xFF2196F3),
+      decoration: BoxDecoration(
+        color: context.theme.primaryColor,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
       ),
       child: Row(
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
+            onPressed: () => context.pop(),
           ),
           const SizedBox(width: 12),
-          const Text(
-            'Gestión de Turno',
-            style: TextStyle(
-              fontFamily: 'Poppins',
+          Text(
+            context.l10n.shiftManagementTitle,
+            style: context.theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -143,30 +97,57 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
     );
   }
 
-  Widget _buildOpenShiftView() {
+  Widget _buildOpenShiftView(
+    BuildContext context,
+    UserModel user,
+    TurnoModel turno,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('👋 Hola, ${_usuario['name']}', style: _welcomeTextStyle),
+        Text(
+          context.l10n.greetingMessage(
+            user.name ?? context.l10n.defaultUserName,
+          ),
+          style: context.theme.textTheme.titleLarge,
+        ),
         const SizedBox(height: 8),
         Text(
-          'Turno activo: ${_formatDate(_turno['fecha_llegada'])}',
-          style: _textStyle,
+          context.l10n.activeShiftLabel(
+            _formatDate(turno.fechaLlegada, context),
+          ),
+          style: context.theme.textTheme.bodyLarge,
         ),
-        Text('Monto inicial: S/ ${_turno['monto_llegada']}', style: _textStyle),
+        Text(
+          context.l10n.initialAmountLabel(turno.montoLlegada ?? 'n/a'),
+          style: context.theme.textTheme.bodyLarge,
+        ),
         const SizedBox(height: 30),
-        Expanded(child: _buildShiftOptions()),
+        Expanded(child: _buildShiftOptions(context, user, turno)),
       ],
     );
   }
 
-  Widget _buildShiftOptions() {
+  Widget _buildShiftOptions(
+    BuildContext context,
+    UserModel user,
+    TurnoModel turno,
+  ) {
     final opciones = [
-      {'icon': FontAwesomeIcons.receipt, 'label': 'Ver Ventas'},
-      {'icon': FontAwesomeIcons.vault, 'label': 'Bóveda'},
-      {'icon': FontAwesomeIcons.moneyBillWave, 'label': 'Gastos'},
-      {'icon': FontAwesomeIcons.powerOff, 'label': 'Cerrar Turno'},
-      {'icon': FontAwesomeIcons.solidCreditCard, 'label': 'Niubiz'},
+      {'icon': FontAwesomeIcons.receipt, 'label': context.l10n.viewSalesOption},
+      {'icon': FontAwesomeIcons.vault, 'label': context.l10n.vaultOption},
+      {
+        'icon': FontAwesomeIcons.moneyBillWave,
+        'label': context.l10n.expensesOption,
+      },
+      {
+        'icon': FontAwesomeIcons.powerOff,
+        'label': context.l10n.closeShiftOption,
+      },
+      {
+        'icon': FontAwesomeIcons.solidCreditCard,
+        'label': context.l10n.niubizOption,
+      },
     ];
 
     return GridView.count(
@@ -182,9 +163,6 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: () {
-              final usuarioId = _usuario['id'];
-              final turnoId = _turno['id'];
-
               /* switch (item['label']) {
                 case 'Gastos':
                   Navigator.push(
@@ -236,13 +214,13 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
               children: [
                 FaIcon(
                   item['icon'] as IconData,
-                  color: const Color(0xFF2196F3),
+                  color: context.theme.primaryColor,
                   size: 30,
                 ),
                 const SizedBox(height: 10),
                 Text(
                   item['label'] as String,
-                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                  style: context.theme.textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -253,29 +231,30 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
     );
   }
 
-  void _showAlert(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(dynamic fechaUtc) {
-    if (fechaUtc == null || (fechaUtc is String && fechaUtc.isEmpty)) {
-      return 'Fecha no disponible';
+  String _formatDate(dynamic fechaUtc, BuildContext context) {
+    if (fechaUtc == null) {
+      return context.l10n.dateUnavailable;
     }
 
     try {
-      final fecha = DateTime.parse(fechaUtc).toLocal();
+      DateTime fecha;
+
+      // Si ya es un DateTime, usarlo directamente
+      if (fechaUtc is DateTime) {
+        fecha = fechaUtc.toLocal();
+      }
+      // Si es un String, parsearlo
+      else if (fechaUtc is String) {
+        if (fechaUtc.isEmpty) {
+          return context.l10n.dateUnavailable;
+        }
+        fecha = DateTime.parse(fechaUtc).toLocal();
+      }
+      // Si es otro tipo, intentar convertirlo a String y parsearlo
+      else {
+        fecha = DateTime.parse(fechaUtc.toString()).toLocal();
+      }
+
       final dia = '${fecha.day}'.padLeft(2, '0');
       final mes = '${fecha.month}'.padLeft(2, '0');
       final anio = fecha.year;
@@ -283,16 +262,7 @@ class _ShiftManagementScreenState extends State<ShiftManagementScreen> {
       final minuto = '${fecha.minute}'.padLeft(2, '0');
       return '$dia/$mes/$anio $hora:$minuto';
     } catch (e) {
-      return 'Fecha inválida';
+      return context.l10n.dateInvalid;
     }
   }
-
-  TextStyle get _welcomeTextStyle => const TextStyle(
-    fontSize: 20,
-    color: Colors.black87,
-    fontWeight: FontWeight.bold,
-  );
-
-  TextStyle get _textStyle =>
-      const TextStyle(fontSize: 16, color: Colors.black87);
 }

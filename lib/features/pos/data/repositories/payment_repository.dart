@@ -91,6 +91,8 @@ class PaymentRepository implements IPaymentRepository {
     required String presetType,
     required double dose,
     required double price,
+    required String? usuarioId,
+    required String? turnoId,
   }) async {
     try {
       final url = Uri.parse('$baseUrl/apipts/pts/authorize');
@@ -101,8 +103,8 @@ class PaymentRepository implements IPaymentRepository {
         'presetType': presetType,
         'dose': presetType != "FullTank" ? dose : null,
         'price': presetType != "FullTank" ? price : null,
-        'usuario_id': null,
-        'turno_id': null,
+        'usuario_id': usuarioId,
+        'turno_id': turnoId,
       };
 
       body.removeWhere((key, value) => value == null);
@@ -239,6 +241,45 @@ class PaymentRepository implements IPaymentRepository {
       } else {
         return Err(Failure(statusCode: response.statusCode));
       }
+    } on TimeoutException catch (e) {
+      return Err(Failure(message: 'Timeout: ${e.message}', statusCode: 408));
+    } on SocketException catch (e) {
+      return Err(
+        Failure(message: 'Connection error: ${e.message}', statusCode: 503),
+      );
+    } on HttpException catch (e) {
+      return Err(Failure(message: 'HTTP error: ${e.message}', statusCode: 500));
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
+
+  @override
+  FutureResult<void> cancelPayment({
+    required String baseUrl,
+    required String pumpId,
+    required String transaction,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/apipts/pts/cancel'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({"pumpId": pumpId, "transaction": transaction}),
+      );
+
+      if (response.statusCode == 200) {
+        return Success(null);
+      } else {
+        return Err(Failure(statusCode: response.statusCode));
+      }
+    } on TimeoutException catch (e) {
+      return Err(Failure(message: 'Timeout: ${e.message}', statusCode: 408));
+    } on SocketException catch (e) {
+      return Err(
+        Failure(message: 'Connection error: ${e.message}', statusCode: 503),
+      );
+    } on HttpException catch (e) {
+      return Err(Failure(message: 'HTTP error: ${e.message}', statusCode: 500));
     } catch (e) {
       return Err(Failure(message: e.toString()));
     }

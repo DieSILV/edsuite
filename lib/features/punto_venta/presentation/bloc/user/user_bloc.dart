@@ -1,11 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:edsuite/features/punto_venta/data/data.dart';
-import 'package:edsuite/features/punto_venta/data/models/turno_model.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:equatable/equatable.dart';
-
 import '../../../domain/domain.dart';
-
 part 'user_event.dart';
 part 'user_state.dart';
 
@@ -16,6 +13,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     : _userUsecases = userUsecases,
       super(const UserState.initial()) {
     on<ClearDataEvent>(_onClearDataCustomer);
+    on<GetTransactionDataEvent>(_onGetTransactionData);
     on<GetUserDataEvent>(_onGetDataByCode);
     on<CreateTurnoEvent>(_onCreateTurno);
     on<GetLastTurnoEvent>(_onGetLastTurno);
@@ -29,6 +27,42 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     Emitter<UserState> emit,
   ) async {
     emit(const UserState.initial());
+  }
+
+  Future<void> _onGetTransactionData(
+    GetTransactionDataEvent event,
+    Emitter<UserState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: UserStatus.loadingTransactionData));
+
+      final result = await _userUsecases.getSolicitudesLibres(
+        baseUrl: event.baseUrl,
+        userId: event.userId,
+        turnoId: event.turnoId,
+      );
+
+      if (result.isSuccess) {
+        emit(
+          state.copyWith(
+            status: UserStatus.successTransactionData,
+            transactionData: result.successValue,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(status: UserStatus.failed, failure: result.errorValue),
+        );
+      }
+    } catch (e) {
+      addError(e);
+      emit(
+        state.copyWith(
+          status: UserStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
+    }
   }
 
   Future<void> _onGetDataByCode(
@@ -180,7 +214,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
           emit(
             state.copyWith(
               status: UserStatus.failed,
-              failure: Failure(message: 'Monto de apertura requerido'),
+              failure: Failure(code: "OPENING_AMOUNT_REQUIRED"),
             ),
           );
           return;

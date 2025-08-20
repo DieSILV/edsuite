@@ -59,5 +59,82 @@
   "manageOption": "Manage",
   "sellOption": "Sell",
   "invoiceOption": "Invoice", 
-  "marketOption": "Market"
+  "marketOption": "Market",
+  "noOpenShift": "You don't have an open shift currently.",
+  "@noOpenShift": {
+    "description": "Message shown when the user has no open shift"
+  },
+  
+  "shiftManagementTitle": "Shift Management",
+  "@shiftManagementTitle": {
+    "description": "Title for the shift management screen"
+  },
+
+  "greetingMessage": "👋 Hello, {userName}",
+  "@greetingMessage": {
+    "description": "Greeting with the user's name",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "John Doe"
+      }
+    }
+  },
+
+  "activeShiftLabel": "Active shift: {date}",
+  "@activeShiftLabel": {
+    "description": "Shows the active shift date",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "08/20/2025 2:30 PM"
+      }
+    }
+  },
+
+  "initialAmountLabel": "Initial amount: S/ {amount}",
+  "@initialAmountLabel": {
+    "description": "Shows the initial amount of the shift",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "250.00"
+      }
+    }
+  },
+
+  "viewSalesOption": "View Sales",
+  "@viewSalesOption": {
+    "description": "Option to view sales"
+  },
+
+  "vaultOption": "Vault",
+  "@vaultOption": {
+    "description": "Option to access the vault"
+  },
+
+  "expensesOption": "Expenses",
+  "@expensesOption": {
+    "description": "Option to register or view expenses"
+  },
+
+  "closeShiftOption": "Close Shift",
+  "@closeShiftOption": {
+    "description": "Option to close the shift"
+  },
+
+  "niubizOption": "Niubiz",
+  "@niubizOption": {
+    "description": "Option for Niubiz integration"
+  },
+
+  "dateUnavailable": "Date not available",
+  "@dateUnavailable": {
+    "description": "Message when date is missing"
+  },
+
+  "dateInvalid": "Invalid date",
+  "@dateInvalid": {
+    "description": "Message when date is invalid"
+  }
 }

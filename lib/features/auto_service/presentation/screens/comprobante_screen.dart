@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ComprobanteScreenParams {
@@ -46,18 +47,7 @@ class _ComprobanteScreenState extends State<ComprobanteScreen> {
   }
 
   Future<void> _nuevaVenta() async {
-    final prefs = await SharedPreferences.getInstance();
-    final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
-
-    final allKeys = prefs.getKeys();
-    for (final key in allKeys) {
-      if (!keysToKeep.contains(key)) {
-        await prefs.remove(key);
-      }
-    }
-
-    if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    context.go("/");
   }
 
   @override

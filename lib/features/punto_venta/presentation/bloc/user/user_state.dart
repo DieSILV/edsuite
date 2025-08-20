@@ -6,9 +6,11 @@ enum UserStatus {
   loadingCreateTurno,
   loadingLastTurno,
   loginInProgress,
+  loadingTransactionData,
   successUserData,
   successCreateTurno,
   successLastTurno,
+  successTransactionData,
   loginSuccess,
   failed,
 }
@@ -18,6 +20,7 @@ class UserState extends Equatable {
     required this.status,
     this.userData,
     this.turnoData,
+    this.transactionData,
     this.visaBatchClosed = false,
     this.failure,
   });
@@ -27,6 +30,7 @@ class UserState extends Equatable {
   final UserStatus status;
   final UserModel? userData;
   final TurnoModel? turnoData;
+  final TransactionModel? transactionData;
   final bool visaBatchClosed;
   final Failure? failure;
 
@@ -34,6 +38,7 @@ class UserState extends Equatable {
     UserStatus? status,
     UserModel? userData,
     TurnoModel? turnoData,
+    TransactionModel? transactionData,
     bool? visaBatchClosed,
     Failure? failure,
   }) {
@@ -41,6 +46,7 @@ class UserState extends Equatable {
       status: status ?? this.status,
       userData: userData ?? this.userData,
       turnoData: turnoData ?? this.turnoData,
+      transactionData: transactionData ?? this.transactionData,
       visaBatchClosed: visaBatchClosed ?? this.visaBatchClosed,
       failure: failure ?? this.failure,
     );
@@ -51,6 +57,7 @@ class UserState extends Equatable {
     status,
     userData,
     turnoData,
+    transactionData,
     visaBatchClosed,
     failure,
   ];

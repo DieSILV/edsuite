@@ -36,6 +36,8 @@ String getErrorMessage(Failure error, BuildContext context) {
       return context.l10n.errorRateLimitExceeded;
     case FailureType.serverNotAvailable:
       return context.l10n.errorServerNotAvailable;
+    case FailureType.openingAmountRequired:
+      return 'Monto apertura requerido';
   }
 }
 
@@ -73,5 +75,7 @@ IconData getErrorIcon(Failure error) {
       return Icons.access_time;
     case FailureType.serverNotAvailable:
       return Icons.cloud_off;
+    case FailureType.openingAmountRequired:
+      return Icons.money_off;
   }
 }

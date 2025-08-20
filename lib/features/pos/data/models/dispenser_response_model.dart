@@ -88,26 +88,86 @@ class StatusModel {
   final String? state;
   final int nozzleUp;
   final double volume;
+  final int? nozzle;
+  final String? request;
+  final double? amount;
+  final String? fuelGradeName;
+  final String? lastFuelGradeName;
+  final double? lastAmount;
+  final double? lastVolume;
+  final int? transaction;
 
-  StatusModel({this.state, required this.nozzleUp, required this.volume});
+  StatusModel({
+    this.state,
+    required this.nozzleUp,
+    required this.volume,
+    this.nozzle,
+    this.request,
+    this.amount,
+    this.fuelGradeName,
+    this.lastFuelGradeName,
+    this.lastAmount,
+    this.lastVolume,
+    this.transaction,
+  });
 
   factory StatusModel.fromJson(Map<String, dynamic> json) {
     return StatusModel(
       state: json['State'],
       nozzleUp: json['NozzleUp'] ?? 0,
       volume: (json['Volume'] ?? 0.0).toDouble(),
+      nozzle: json['Nozzle'],
+      request: json['Request'],
+      amount: (json['Amount'] as num?)?.toDouble(),
+      fuelGradeName: json['FuelGradeName'],
+      lastFuelGradeName: json['LastFuelGradeName'],
+      lastAmount: (json['LastAmount'] as num?)?.toDouble(),
+      lastVolume: (json['LastVolume'] as num?)?.toDouble(),
+      transaction: json['Transaction'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'State': state, 'NozzleUp': nozzleUp, 'Volume': volume};
+    return {
+      'State': state,
+      'NozzleUp': nozzleUp,
+      'Volume': volume,
+      'Nozzle': nozzle,
+      'Request': request,
+      'Amount': amount,
+      'FuelGradeName': fuelGradeName,
+      'LastFuelGradeName': lastFuelGradeName,
+      'LastAmount': lastAmount,
+      'LastVolume': lastVolume,
+      'Transaction': transaction,
+    };
   }
 
-  StatusModel copyWith({String? state, int? nozzleUp, double? volume}) {
+  StatusModel copyWith({
+    String? state,
+    int? nozzleUp,
+    double? volume,
+    int? nozzle,
+    String? request,
+    double? amount,
+    String? fuelGradeName,
+    String? lastFuelGradeName,
+    double? lastAmount,
+    double? lastVolume,
+    int? transaction,
+  }) {
     return StatusModel(
       state: state ?? this.state,
       nozzleUp: nozzleUp ?? this.nozzleUp,
       volume: volume ?? this.volume,
+      nozzle: nozzle ?? this.nozzle,
+      request: request ?? this.request,
+      amount: amount ?? this.amount,
+      fuelGradeName: fuelGradeName ?? this.fuelGradeName,
+      lastFuelGradeName: lastFuelGradeName ?? this.lastFuelGradeName,
+      lastAmount: lastAmount ?? this.lastAmount,
+      lastVolume: lastVolume ?? this.lastVolume,
+      transaction: transaction ?? this.transaction,
     );
   }
 }

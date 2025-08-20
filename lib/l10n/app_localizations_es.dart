@@ -148,4 +148,46 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get marketOption => 'Market';
+
+  @override
+  String get noOpenShift => 'No tienes un turno abierto actualmente.';
+
+  @override
+  String get shiftManagementTitle => 'Gestión de Turno';
+
+  @override
+  String greetingMessage(String userName) {
+    return '👋 Hola, $userName';
+  }
+
+  @override
+  String activeShiftLabel(String date) {
+    return 'Turno activo: $date';
+  }
+
+  @override
+  String initialAmountLabel(String amount) {
+    return 'Monto inicial: S/ $amount';
+  }
+
+  @override
+  String get viewSalesOption => 'Ver Ventas';
+
+  @override
+  String get vaultOption => 'Bóveda';
+
+  @override
+  String get expensesOption => 'Gastos';
+
+  @override
+  String get closeShiftOption => 'Cerrar Turno';
+
+  @override
+  String get niubizOption => 'Niubiz';
+
+  @override
+  String get dateUnavailable => 'Fecha no disponible';
+
+  @override
+  String get dateInvalid => 'Fecha inválida';
 }

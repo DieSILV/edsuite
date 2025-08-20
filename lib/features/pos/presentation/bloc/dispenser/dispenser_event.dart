@@ -7,6 +7,58 @@ sealed class DispenserEvent extends Equatable {
   List<Object> get props => [];
 }
 
+class GetInformationDispenser extends DispenserEvent {
+  const GetInformationDispenser({
+    required this.baseUrl,
+    required this.pumpId,
+    required this.transactionId,
+  });
+  final String baseUrl;
+  final String pumpId;
+  final String transactionId;
+}
+
+/// Evento unificado que maneja todo el proceso de inicialización y polling
+class InitializeDispenserSystem extends DispenserEvent {
+  const InitializeDispenserSystem({
+    required this.baseUrl,
+    required this.sideIds,
+  });
+  final String baseUrl;
+  final List<int> sideIds;
+
+  @override
+  List<Object> get props => [baseUrl, sideIds];
+}
+
+/// Evento para procesar transacciones autorizadas
+class ProcessAuthorizedTransactions extends DispenserEvent {
+  const ProcessAuthorizedTransactions({
+    required this.baseUrl,
+    required this.transaccionesAutorizadas,
+  });
+  final String baseUrl;
+  final Map<int, int> transaccionesAutorizadas;
+
+  @override
+  List<Object> get props => [baseUrl, transaccionesAutorizadas];
+}
+
+/// Evento para iniciar/detener el timer de polling
+class StartStopPollingTimer extends DispenserEvent {
+  const StartStopPollingTimer({
+    required this.start,
+    this.baseUrl,
+    this.sideIds,
+  });
+  final bool start;
+  final String? baseUrl;
+  final List<int>? sideIds;
+
+  @override
+  List<Object> get props => [start, baseUrl ?? '', sideIds ?? []];
+}
+
 class GetPumpConfigDispenser extends DispenserEvent {
   const GetPumpConfigDispenser({required this.baseUrl});
   final String baseUrl;

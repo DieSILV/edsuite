@@ -1,9 +1,5 @@
-import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import 'pos_configuration_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -80,12 +76,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
 
     if (result == true && context.mounted) {
-      final baseUrl = context.read<PosBloc>().state.baseUrl;
-
-      context.push(
-        '/configuracionPOS',
-        extra: PostConfigurationScreenArguments(baseUrl: baseUrl),
-      );
+      context.push('/configuracionPOS');
     }
   }
 

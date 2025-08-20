@@ -15,6 +15,7 @@ enum FailureType {
   sessionExpired,
   rateLimitExceeded,
   serverNotAvailable,
+  openingAmountRequired,
 }
 
 class Failure implements Exception {
@@ -35,6 +36,8 @@ class FailureTypeHelper {
           return FailureType.sessionExpired;
         case 'RATE_LIMIT_EXCEEDED':
           return FailureType.rateLimitExceeded;
+        case 'OPENING_AMOUNT_REQUIRED':
+          return FailureType.openingAmountRequired;
       }
     }
 

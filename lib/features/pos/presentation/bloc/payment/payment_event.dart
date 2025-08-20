@@ -12,6 +12,21 @@ class GetPaymentMethodsDispenser extends PaymentEvent {
   final String baseUrl;
 }
 
+class CancelPaymentDispenser extends PaymentEvent {
+  const CancelPaymentDispenser({
+    required this.baseUrl,
+    required this.pumpId,
+    required this.transaction,
+  });
+
+  final String baseUrl;
+  final String pumpId;
+  final String transaction;
+
+  @override
+  List<Object> get props => [baseUrl, pumpId, transaction];
+}
+
 class AuthorizePaymentDispenser extends PaymentEvent {
   const AuthorizePaymentDispenser({
     required this.baseUrl,
@@ -19,7 +34,9 @@ class AuthorizePaymentDispenser extends PaymentEvent {
     required this.nozzle,
     required this.presetType,
     required this.dose,
-    required this.price,
+    this.price,
+    this.usuarioId,
+    this.turnoId,
   });
 
   final String baseUrl;
@@ -27,10 +44,21 @@ class AuthorizePaymentDispenser extends PaymentEvent {
   final int nozzle;
   final String presetType;
   final double dose;
-  final double price;
+  final double? price;
+  final String? usuarioId;
+  final String? turnoId;
 
   @override
-  List<Object> get props => [baseUrl, pumpId, nozzle, presetType, dose, price];
+  List<Object> get props => [
+    baseUrl,
+    pumpId,
+    nozzle,
+    presetType,
+    dose,
+    price ?? 0.0,
+    usuarioId ?? '',
+    turnoId ?? '',
+  ];
 }
 
 class RegisterSuccessTransacEvent extends PaymentEvent {

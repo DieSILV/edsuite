@@ -7,8 +7,8 @@ import 'package:edsuite/features/punto_venta/presentation/screens/home_screen.da
 import 'package:edsuite/screens/sales_manager/invoice_screen.dart';
 import 'package:edsuite/screens/sales_manager/niubiz_screen.dart';
 import 'package:edsuite/screens/sales_manager/sales_screen.dart';
-import 'package:edsuite/screens/sales_manager/scheduled_sales_screen.dart';
-import 'package:edsuite/screens/sales_manager/shift_management_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/scheduled_sales_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/shift_management_screen.dart';
 import 'package:edsuite/screens/sales_manager/vaults_screen.dart';
 
 import 'package:edsuite/features/pos/presentation/screens/validation_screen.dart';
@@ -80,8 +80,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: "/configuracionPOS",
       builder: (context, state) {
-        final args = state.extra as PostConfigurationScreenArguments;
-        return PosConfigurationScreen(args: args);
+        return PosConfigurationScreen();
       },
     ),
     GoRoute(

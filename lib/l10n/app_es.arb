@@ -59,5 +59,82 @@
   "manageOption": "Gestionar",
   "sellOption": "Vender", 
   "invoiceOption": "Facturar",
-  "marketOption": "Market"
+  "marketOption": "Market",
+  "noOpenShift": "No tienes un turno abierto actualmente.",
+  "@noOpenShift": {
+    "description": "Mensaje mostrado cuando el usuario no tiene un turno abierto"
+  },
+  
+  "shiftManagementTitle": "Gestión de Turno",
+  "@shiftManagementTitle": {
+    "description": "Título de la pantalla de gestión de turno"
+  },
+
+  "greetingMessage": "👋 Hola, {userName}",
+  "@greetingMessage": {
+    "description": "Saludo con el nombre del usuario",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "Juan Pérez"
+      }
+    }
+  },
+
+  "activeShiftLabel": "Turno activo: {date}",
+  "@activeShiftLabel": {
+    "description": "Muestra la fecha del turno activo",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "20/08/2025 14:30"
+      }
+    }
+  },
+
+  "initialAmountLabel": "Monto inicial: S/ {amount}",
+  "@initialAmountLabel": {
+    "description": "Muestra el monto inicial del turno",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "250.00"
+      }
+    }
+  },
+
+  "viewSalesOption": "Ver Ventas",
+  "@viewSalesOption": {
+    "description": "Opción para ver ventas"
+  },
+
+  "vaultOption": "Bóveda",
+  "@vaultOption": {
+    "description": "Opción para acceder a la bóveda"
+  },
+
+  "expensesOption": "Gastos",
+  "@expensesOption": {
+    "description": "Opción para registrar o ver gastos"
+  },
+
+  "closeShiftOption": "Cerrar Turno",
+  "@closeShiftOption": {
+    "description": "Opción para cerrar el turno"
+  },
+
+  "niubizOption": "Niubiz",
+  "@niubizOption": {
+    "description": "Opción para la integración con Niubiz"
+  },
+
+  "dateUnavailable": "Fecha no disponible",
+  "@dateUnavailable": {
+    "description": "Mensaje cuando la fecha no está disponible"
+  },
+
+  "dateInvalid": "Fecha inválida",
+  "@dateInvalid": {
+    "description": "Mensaje cuando la fecha es inválida"
+  }
 }

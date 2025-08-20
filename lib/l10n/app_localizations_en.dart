@@ -143,4 +143,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get marketOption => 'Market';
+
+  @override
+  String get noOpenShift => 'You don\'t have an open shift currently.';
+
+  @override
+  String get shiftManagementTitle => 'Shift Management';
+
+  @override
+  String greetingMessage(String userName) {
+    return '👋 Hello, $userName';
+  }
+
+  @override
+  String activeShiftLabel(String date) {
+    return 'Active shift: $date';
+  }
+
+  @override
+  String initialAmountLabel(String amount) {
+    return 'Initial amount: S/ $amount';
+  }
+
+  @override
+  String get viewSalesOption => 'View Sales';
+
+  @override
+  String get vaultOption => 'Vault';
+
+  @override
+  String get expensesOption => 'Expenses';
+
+  @override
+  String get closeShiftOption => 'Close Shift';
+
+  @override
+  String get niubizOption => 'Niubiz';
+
+  @override
+  String get dateUnavailable => 'Date not available';
+
+  @override
+  String get dateInvalid => 'Invalid date';
 }

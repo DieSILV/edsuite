@@ -19,6 +19,8 @@ abstract interface class IPaymentRepository {
     required String presetType,
     required double dose,
     required double price,
+    required String? usuarioId,
+    required String? turnoId,
   });
   FutureResult<void> cashKeeperCommand({
     required String baseUrl,
@@ -29,4 +31,9 @@ abstract interface class IPaymentRepository {
     required String baseUrl,
   });
   FutureResult<void> cashKeeperClean({required String baseUrl});
+  FutureResult<void> cancelPayment({
+    required String baseUrl,
+    required String pumpId,
+    required String transaction,
+  });
 }

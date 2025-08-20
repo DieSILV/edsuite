@@ -64,6 +64,8 @@ class PaymentUsecases {
     required String presetType,
     required double dose,
     required double price,
+    required String usuarioId,
+    required String turnoId,
   }) async {
     try {
       final result = await paymentRepository.authorizePayment(
@@ -73,12 +75,36 @@ class PaymentUsecases {
         presetType: presetType,
         dose: dose,
         price: price,
+        usuarioId: usuarioId.isEmpty ? null : usuarioId,
+        turnoId: turnoId.isEmpty ? null : turnoId,
       );
 
       if (result.isSuccess) {
         return Success(result.successValue!);
       } else {
         return Err(result.errorValue!);
+      }
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
+
+  FutureResult<void> cancelPayment({
+    required String baseUrl,
+    required String pumpId,
+    required String transaction,
+  }) async {
+    try {
+      final result = await paymentRepository.cancelPayment(
+        baseUrl: baseUrl,
+        pumpId: pumpId,
+        transaction: transaction,
+      );
+
+      if (result.isSuccess) {
+        return Success(null);
+      } else {
+        return Err(Failure(statusCode: result.errorValue!.statusCode));
       }
     } catch (e) {
       return Err(Failure(message: e.toString()));

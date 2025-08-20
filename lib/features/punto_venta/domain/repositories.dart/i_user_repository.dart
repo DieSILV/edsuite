@@ -1,5 +1,4 @@
 import 'package:edsuite/features/punto_venta/data/models/models.dart';
-import 'package:edsuite/features/punto_venta/data/models/turno_model.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 
 abstract interface class IUserRepository {
@@ -15,5 +14,10 @@ abstract interface class IUserRepository {
   FutureResult<TurnoModel> getLastTurno({
     required String baseUrl,
     required String userId,
+  });
+  FutureResult<TransactionModel> getSolicitudesLibres({
+    required String baseUrl,
+    required String userId,
+    required String turnoId,
   });
 }

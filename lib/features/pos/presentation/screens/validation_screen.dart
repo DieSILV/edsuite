@@ -342,22 +342,23 @@ class _ValidationScreenState extends State<ValidationScreen> {
         color: context.theme.colorScheme.primary,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
+      child: Row(
         children: [
-          Align(alignment: Alignment.topRight, child: const LanguageSelector()),
           Image.asset(
             'assets/images/logo.png',
             height: context.screenHeight * 0.1,
           ),
-          const SizedBox(height: 20),
+          Spacer(),
+          const LanguageSelector(),
+
+          /* const SizedBox(height: 20),
           Text(
             context.l10n.posConfigurationTitle,
             textAlign: TextAlign.center,
             style: context.theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
             ),
-          ),
-          const SizedBox(height: 10),
+          ), */
         ],
       ),
     );

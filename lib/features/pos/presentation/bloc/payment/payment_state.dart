@@ -11,6 +11,7 @@ enum PaymentStatus {
   loadingCashKeeperDeposit,
   loadingCashKeeperClean,
   loadingCashKeeperCancelAndCleanCommand,
+  loadingCancelPayment,
   success,
   successAuthorize,
   successPaymentMethod,
@@ -20,6 +21,7 @@ enum PaymentStatus {
   successCashKeeperDeposit,
   successCashKeeperClean,
   successCashKeeperCancelAndCleanCommand,
+  successCancelPayment,
   failed,
 }
 
@@ -30,6 +32,7 @@ class PaymentState extends Equatable {
     this.paymentMethodResponse,
     this.isTransactionSuccessful = false,
     this.cashKeeperDepositResponse,
+    this.lastTransactionCancel,
     this.failure,
   });
 
@@ -40,6 +43,7 @@ class PaymentState extends Equatable {
   final PaymentMethodResponseModel? paymentMethodResponse;
   final CashKeeperDepositResponseModel? cashKeeperDepositResponse;
   final bool isTransactionSuccessful;
+  final int? lastTransactionCancel;
   final Failure? failure;
 
   PaymentState copyWith({
@@ -48,6 +52,7 @@ class PaymentState extends Equatable {
     PaymentMethodResponseModel? paymentMethodResponse,
     CashKeeperDepositResponseModel? cashKeeperDepositResponse,
     bool? isTransactionSuccessful,
+    int? lastTransactionCancel,
     Failure? failure,
   }) {
     return PaymentState(
@@ -59,6 +64,8 @@ class PaymentState extends Equatable {
           isTransactionSuccessful ?? this.isTransactionSuccessful,
       cashKeeperDepositResponse:
           cashKeeperDepositResponse ?? this.cashKeeperDepositResponse,
+      lastTransactionCancel:
+          lastTransactionCancel ?? this.lastTransactionCancel,
       failure: failure ?? this.failure,
     );
   }
@@ -70,6 +77,7 @@ class PaymentState extends Equatable {
     paymentMethodResponse,
     isTransactionSuccessful,
     cashKeeperDepositResponse,
+    lastTransactionCancel,
     failure,
   ];
 }

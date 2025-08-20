@@ -14,6 +14,28 @@ class DispenserUsecases {
     required this.dispenserRepository,
   });
 
+  FutureResult<InformationResponse> getInformation({
+    required String baseUrl,
+    required String pumpId,
+    required String transactionId,
+  }) async {
+    try {
+      final result = await dispenserRepository.getInformation(
+        baseUrl: baseUrl,
+        pumpId: pumpId,
+        transactionId: transactionId,
+      );
+
+      if (result.isSuccess) {
+        return Success(result.successValue!);
+      } else {
+        return Err(result.errorValue!);
+      }
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
+
   FutureResult<ClienteModel> getCliente({
     required String baseUrl,
     required String documento,

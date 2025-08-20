@@ -35,11 +35,6 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
   @override
   void initState() {
     super.initState();
-    /* _loadSelection();
-    _loadRemainingTime();
-    _startPolling();
-    _startCountdown();
-    _initBlinkingAnimation(); */
     _initBlinkingAnimation();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final posBloc = context.read<PosBloc>().state;

@@ -3,15 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class PostConfigurationScreenArguments {
-  final String baseUrl;
-
-  PostConfigurationScreenArguments({required this.baseUrl});
-}
-
 class PosConfigurationScreen extends StatefulWidget {
-  final PostConfigurationScreenArguments args;
-  const PosConfigurationScreen({super.key, required this.args});
+  const PosConfigurationScreen({super.key});
 
   @override
   State<PosConfigurationScreen> createState() => _PosConfigurationScreenState();
@@ -26,11 +19,13 @@ class _PosConfigurationScreenState extends State<PosConfigurationScreen> {
   @override
   void initState() {
     super.initState();
-    _loadServerConfig();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadServerConfig();
+    });
   }
 
   Future<void> _loadServerConfig() async {
-    final url = widget.args.baseUrl;
+    final url = context.read<PosBloc>().state.baseUrl;
 
     if (url.isNotEmpty) {
       final uri = Uri.tryParse(url);
@@ -66,12 +61,6 @@ class _PosConfigurationScreenState extends State<PosConfigurationScreen> {
   }
 
   Future<void> _cerrarSesion() async {
-    /* final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-
-    if (context.mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-    } */
     context.read<PosBloc>().add(ClearPosData());
   }
 
