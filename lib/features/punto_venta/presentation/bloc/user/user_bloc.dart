@@ -13,13 +13,20 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     : _userUsecases = userUsecases,
       super(const UserState.initial()) {
     on<ClearDataEvent>(_onClearDataCustomer);
-    on<GetTransactionDataEvent>(_onGetTransactionData);
     on<GetUserDataEvent>(_onGetDataByCode);
     on<CreateTurnoEvent>(_onCreateTurno);
     on<GetLastTurnoEvent>(_onGetLastTurno);
     on<LoginWithCodeEvent>(_onLoginWithCode);
     on<LoadSessionEvent>(_onLoadSession);
     on<LogoutEvent>(_onLogout);
+    on<UpdateVisaBatchClosed>(_onUpdateVisaBatchClosed);
+  }
+
+  Future<void> _onUpdateVisaBatchClosed(
+    UpdateVisaBatchClosed event,
+    Emitter<UserState> emit,
+  ) async {
+    emit(state.copyWith(visaBatchClosed: event.visaBatchClosed));
   }
 
   Future<void> _onClearDataCustomer(
@@ -27,42 +34,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     Emitter<UserState> emit,
   ) async {
     emit(const UserState.initial());
-  }
-
-  Future<void> _onGetTransactionData(
-    GetTransactionDataEvent event,
-    Emitter<UserState> emit,
-  ) async {
-    try {
-      emit(state.copyWith(status: UserStatus.loadingTransactionData));
-
-      final result = await _userUsecases.getSolicitudesLibres(
-        baseUrl: event.baseUrl,
-        userId: event.userId,
-        turnoId: event.turnoId,
-      );
-
-      if (result.isSuccess) {
-        emit(
-          state.copyWith(
-            status: UserStatus.successTransactionData,
-            transactionData: result.successValue,
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(status: UserStatus.failed, failure: result.errorValue),
-        );
-      }
-    } catch (e) {
-      addError(e);
-      emit(
-        state.copyWith(
-          status: UserStatus.failed,
-          failure: Failure(message: e.toString()),
-        ),
-      );
-    }
   }
 
   Future<void> _onGetDataByCode(

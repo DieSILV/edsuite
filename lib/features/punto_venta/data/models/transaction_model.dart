@@ -4,7 +4,9 @@ class TransactionModel {
   final int pumpTransaction;
   final double volumeTransaction;
   final double amountTransaction;
+  final int fuelGradeId;
   final String fuelGradeName;
+  final double discountTransaction;
 
   TransactionModel({
     required this.dateTimeTransaction,
@@ -12,7 +14,9 @@ class TransactionModel {
     required this.pumpTransaction,
     required this.volumeTransaction,
     required this.amountTransaction,
+    required this.fuelGradeId,
     required this.fuelGradeName,
+    required this.discountTransaction,
   });
 
   /// Crear desde JSON
@@ -30,7 +34,11 @@ class TransactionModel {
             double.tryParse(json['volumeTransaction']?.toString() ?? '') ?? 0.0,
         amountTransaction:
             double.tryParse(json['amountTransaction']?.toString() ?? '') ?? 0.0,
+        fuelGradeId: int.tryParse(json['FuelGradeId']?.toString() ?? '') ?? 0,
         fuelGradeName: json['FuelGradeName']?.toString() ?? '',
+        discountTransaction:
+            double.tryParse(json['discountTransaction']?.toString() ?? '') ??
+            0.0,
       );
     } catch (e) {
       // Si algo falla, devuelve con valores por defecto
@@ -40,7 +48,9 @@ class TransactionModel {
         pumpTransaction: 0,
         volumeTransaction: 0.0,
         amountTransaction: 0.0,
+        fuelGradeId: 0,
         fuelGradeName: '',
+        discountTransaction: 0.0,
       );
     }
   }
@@ -53,7 +63,9 @@ class TransactionModel {
       'pumpTransaction': pumpTransaction,
       'volumeTransaction': volumeTransaction,
       'amountTransaction': amountTransaction,
+      'FuelGradeId': fuelGradeId,
       'FuelGradeName': fuelGradeName,
+      'discountTransaction': discountTransaction,
     };
   }
 }

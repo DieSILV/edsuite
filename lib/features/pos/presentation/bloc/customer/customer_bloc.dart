@@ -28,6 +28,9 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
           name: event.name,
           phone: event.phone,
           address: event.address,
+          email: event.email,
+          document: event.document,
+          plate: event.plate,
         ),
       );
     } catch (e) {
@@ -60,6 +63,10 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
             name: customer.nombre,
             phone: customer.telefono,
             address: customer.direccion,
+            email: customer.correo,
+            document: customer.numero,
+            customerId: customer.id,
+            comercialPhone: customer.numero,
           ),
         );
       } else {

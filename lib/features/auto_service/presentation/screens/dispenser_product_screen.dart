@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:edsuite/core/extensions/context_extensions.dart';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:edsuite_common/edsuite_common.dart';
@@ -165,7 +166,7 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
                 if (state.pumpConfigResponse == null) {
                   CustomDialog.showSnackbar(
                     context,
-                    "No se encontró configuración para esta bomba.",
+                    context.l10n.noPumpConfiguration,
                     true,
                   );
                   break;
@@ -253,7 +254,7 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
                     child: Column(
                       children: [
                         Text(
-                          '//${side ?? ''} - SELECCIONA PRODUCTO',
+                          '//${side ?? ''} - ${context.l10n.selectProduct}',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: isTablet ? 32 : 24,
@@ -265,9 +266,9 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
                         const SizedBox(height: 30),
 
                         if (products.isEmpty)
-                          const Text(
-                            'No hay productos disponibles.',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.noProductsAvailable,
+                            style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 18,
                             ),
@@ -321,9 +322,9 @@ class _DispenserProductScreenState extends State<DispenserProductScreen>
                         color: white,
                         size: 32,
                       ),
-                      label: const Text(
-                        'REGRESAR',
-                        style: TextStyle(
+                      label: Text(
+                        context.l10n.goBackButton,
+                        style: const TextStyle(
                           color: white,
                           fontSize: 26,
                           fontWeight: FontWeight.bold,

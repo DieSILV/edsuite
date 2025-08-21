@@ -11,19 +11,13 @@ class ClearDataEvent extends UserEvent {
   const ClearDataEvent();
 }
 
-class GetTransactionDataEvent extends UserEvent {
-  const GetTransactionDataEvent({
-    required this.baseUrl,
-    required this.userId,
-    required this.turnoId,
-  });
+class UpdateVisaBatchClosed extends UserEvent {
+  const UpdateVisaBatchClosed(this.visaBatchClosed);
 
-  final String baseUrl;
-  final String userId;
-  final String turnoId;
+  final bool visaBatchClosed;
 
   @override
-  List<Object> get props => [baseUrl, userId, turnoId];
+  List<Object> get props => [visaBatchClosed];
 }
 
 class GetUserDataEvent extends UserEvent {

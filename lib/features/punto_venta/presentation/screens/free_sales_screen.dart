@@ -1,8 +1,12 @@
+import 'package:edsuite/features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
-import 'package:edsuite/features/punto_venta/presentation/bloc/user/user_bloc.dart';
+import 'package:edsuite/features/punto_venta/data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import '../bloc/user/user_bloc.dart';
+import '../bloc/user_actions/user_actions_bloc.dart';
 
 class FreeSalesScreen extends StatefulWidget {
   const FreeSalesScreen({super.key});
@@ -13,7 +17,7 @@ class FreeSalesScreen extends StatefulWidget {
 
 class _FreeSalesScreenState extends State<FreeSalesScreen> {
   bool isLoading = false;
-  List<dynamic> ventas = [];
+  List<TransactionModel> ventas = [];
 
   @override
   void initState() {
@@ -21,8 +25,8 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final posState = context.read<PosBloc>().state;
       final userState = context.read<UserBloc>().state;
-      context.read<UserBloc>().add(
-        GetTransactionDataEvent(
+      context.read<UserActionBloc>().add(
+        GetTransactionEvent(
           baseUrl: posState.baseUrl,
           userId: userState.userData!.id.toString(),
           turnoId: userState.turnoData!.id.toString(),
@@ -31,48 +35,9 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
     });
   }
 
-  /* Future<void> _cargarDatosDesdeMemoria() async {
-    final prefs = await SharedPreferences.getInstance();
-    final storedUser = prefs.getString('usuario');
-    final storedTurno = prefs.getString('turno');
-
-    if (storedUser != null && storedTurno != null) {
-      final userData = jsonDecode(storedUser);
-      final turnoData = jsonDecode(storedTurno);
-
-      setState(() {
-        usuarioId = userData['id'];
-        turnoId = turnoData['id'];
-      });
-
-      fetchVentasLibres();
-    } else {
-      _mostrarAlerta('Error', 'No se encontró sesión activa.');
-    }
-  } */
-
-  /* Future<void> fetchVentasLibres() async {
-    if (usuarioId == null || turnoId == null) return;
-
-    setState(() => isLoading = true);
-    try {
-      final url = Uri.parse(
-        '$baseUrl/solicitudes/libres?usuario_id=$usuarioId&turno_id=$turnoId',
-      );
-      final res = await http.get(url);
-      if (res.statusCode == 200) {
-        final data = json.decode(res.body);
-        setState(() => ventas = data);
-      } else {
-        _mostrarAlerta('Error', 'Error al cargar las transacciones.');
-      }
-    } catch (_) {
-      _mostrarAlerta('Error', 'No se pudo conectar al servidor.');
-    }
-    setState(() => isLoading = false);
-  } */
-
-  void _irAFacturar(dynamic venta) {
+  void _irAFacturar(TransactionModel venta) {
+    context.read<PaymentPuntoVentaBloc>().add(SetCurrentVentaEvent(venta));
+    context.push("/invoice");
     /* Navigator.push(
       context,
       MaterialPageRoute(
@@ -93,10 +58,11 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: BlocListener<UserBloc, UserState>(
+      body: BlocListener<UserActionBloc, UserActionState>(
         listener: (context, state) {
           switch (state.status) {
-            case UserStatus.successTransactionData:
+            case UserActionStatus.successTransactionData:
+              ventas = state.transactionData!;
               break;
             default:
           }
@@ -116,7 +82,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                   ),
                   const SizedBox(width: 12),
                   const Text(
@@ -146,9 +112,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
                       itemCount: ventas.length,
                       itemBuilder: (_, index) {
                         final venta = ventas[index];
-                        final fecha = DateTime.parse(
-                          venta['dateTimeTransaction'],
-                        ).toLocal();
+                        final fecha = venta.dateTimeTransaction.toLocal();
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -172,24 +136,24 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'TRANSACCIÓN # ${venta['idTransaction']}',
+                                      'TRANSACCIÓN # ${venta.idTransaction}',
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Text('Bomba: ${venta['pumpTransaction']}'),
-                                    Text('Producto: ${venta['FuelGradeName']}'),
+                                    Text('Bomba: ${venta.pumpTransaction}'),
+                                    Text('Producto: ${venta.fuelGradeName}'),
                                     Text(
                                       'Fecha: ${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}',
                                       style: const TextStyle(fontSize: 13),
                                     ),
                                     Text(
-                                      'Volumen: ${venta['volumeTransaction']} gal',
+                                      'Volumen: ${venta.volumeTransaction} gal',
                                     ),
                                     Text(
-                                      'Monto: S/ ${venta['amountTransaction']}',
+                                      'Monto: S/ ${venta.amountTransaction}',
                                     ),
                                   ],
                                 ),

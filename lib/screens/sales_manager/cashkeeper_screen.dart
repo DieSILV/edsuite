@@ -1,8 +1,7 @@
-import 'dart:async';
+/* import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:edsuite/utils/config.dart' as config;
 
 class CashKeeperScreen extends StatefulWidget {
   const CashKeeperScreen({super.key});
@@ -21,7 +20,7 @@ class _CashKeeperScreenState extends State<CashKeeperScreen> {
   bool isCancelled = false;
   Timer? pollingTimer;
 
-  String apiBase = '${config.baseUrl}/apipts/cashkeeper';
+  String baseUrl = "";
 
   Future<void> startDeposit() async {
     final value = double.tryParse(_controller.text.replaceAll(',', '.'));
@@ -268,3 +267,4 @@ class _CashKeeperScreenState extends State<CashKeeperScreen> {
     );
   }
 }
+ */

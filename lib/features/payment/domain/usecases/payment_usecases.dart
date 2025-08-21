@@ -1,8 +1,9 @@
 import 'package:edsuite/core/core.dart';
+import 'package:edsuite/features/payment/domain/domain.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 
-import '../../data/data.dart';
-import '../domain.dart';
+import '../../../pos/data/data.dart';
+import '../../data/models/models.dart';
 
 class PaymentUsecases {
   final IPaymentRepository paymentRepository;

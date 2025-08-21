@@ -79,12 +79,16 @@ class ClienteResponseModel {
 }
 
 class ClienteModel {
+  final int id;
+  final String numero;
   final String nombre;
   final String telefono;
   final String correo;
   final String direccion;
 
   ClienteModel({
+    required this.id,
+    required this.numero,
     required this.nombre,
     required this.telefono,
     required this.correo,
@@ -93,15 +97,19 @@ class ClienteModel {
 
   factory ClienteModel.fromJson(Map<String, dynamic> json) {
     return ClienteModel(
-      nombre: json['nombre'] ?? '',
-      telefono: json['telefono'] ?? '',
-      correo: json['correo'] ?? '',
-      direccion: json['direccion'] ?? '',
+      id: int.tryParse(json['id']?.toString() ?? '') ?? 0, // fallback seguro
+      numero: json['numero']?.toString() ?? '', // fallback seguro
+      nombre: json['nombre']?.toString() ?? '',
+      telefono: json['telefono']?.toString() ?? '',
+      correo: json['correo']?.toString() ?? '',
+      direccion: json['direccion']?.toString() ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'numero': numero, // <-- se incluye en el JSON
       'nombre': nombre,
       'telefono': telefono,
       'correo': correo,
@@ -111,7 +119,7 @@ class ClienteModel {
 
   /// Verifica si el cliente tiene datos válidos
   bool get isValid {
-    return nombre.isNotEmpty && telefono.isNotEmpty;
+    return id > 0 && nombre.isNotEmpty && numero.isNotEmpty;
   }
 
   /// Verifica si el cliente tiene correo válido
@@ -144,12 +152,16 @@ class ClienteModel {
   }
 
   ClienteModel copyWith({
+    int? id,
+    String? numero,
     String? nombre,
     String? telefono,
     String? correo,
     String? direccion,
   }) {
     return ClienteModel(
+      id: id ?? this.id,
+      numero: numero ?? this.numero,
       nombre: nombre ?? this.nombre,
       telefono: telefono ?? this.telefono,
       correo: correo ?? this.correo,
@@ -161,6 +173,8 @@ class ClienteModel {
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is ClienteModel &&
+        other.id == id &&
+        other.numero == numero &&
         other.nombre == nombre &&
         other.telefono == telefono &&
         other.correo == correo &&
@@ -169,6 +183,8 @@ class ClienteModel {
 
   @override
   int get hashCode =>
+      id.hashCode ^
+      numero.hashCode ^
       nombre.hashCode ^
       telefono.hashCode ^
       correo.hashCode ^
@@ -176,6 +192,6 @@ class ClienteModel {
 
   @override
   String toString() {
-    return 'ClienteModel(nombre: $nombre, telefono: $telefono, correo: $correo, direccion: $direccion)';
+    return 'ClienteModel(id: $id, numero: $numero, nombre: $nombre, telefono: $telefono, correo: $correo, direccion: $direccion)';
   }
 }

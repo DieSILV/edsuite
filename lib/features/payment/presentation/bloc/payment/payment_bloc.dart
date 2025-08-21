@@ -1,9 +1,10 @@
 import 'package:bloc/bloc.dart';
-import 'package:edsuite/features/pos/domain/domain.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:equatable/equatable.dart';
 
-import '../../../data/data.dart';
+import '../../../../pos/data/data.dart';
+import '../../../data/models/models.dart';
+import '../../../domain/domain.dart';
 
 part 'payment_event.dart';
 part 'payment_state.dart';

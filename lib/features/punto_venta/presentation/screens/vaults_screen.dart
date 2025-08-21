@@ -1,22 +1,16 @@
 import 'dart:convert';
+import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:edsuite/utils/config.dart' as config;
-import 'package:shared_preferences/shared_preferences.dart';
 
-class VaultsScreenParams {
-  final int usuarioId;
-  final int turnoId;
-
-  VaultsScreenParams({required this.usuarioId, required this.turnoId});
-}
+import '../bloc/user/user_bloc.dart';
 
 class VaultsScreen extends StatefulWidget {
-  final VaultsScreenParams params;
-
-  const VaultsScreen({super.key, required this.params});
+  const VaultsScreen({super.key});
 
   @override
   State<VaultsScreen> createState() => _VaultsScreenState();
@@ -28,20 +22,26 @@ class _VaultsScreenState extends State<VaultsScreen> {
   bool modalVisible = false;
   String monto = '';
   String motivo = '';
-
-  final String baseUrl = '${config.baseUrl}/apipts';
+  String baseUrl = "";
 
   @override
   void initState() {
     super.initState();
-    fetchBovedas();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final posState = context.read<PosBloc>().state;
+      //TODO: apipts
+      baseUrl = "${posState.baseUrl}/apipts";
+      //baseUrl = "${posState.baseUrl}";
+      fetchBovedas();
+    });
   }
 
   Future<void> fetchBovedas() async {
     setState(() => isLoading = true);
     try {
+      final userState = context.read<UserBloc>().state;
       final res = await http.get(
-        Uri.parse('$baseUrl/bovedas/turno/${widget.params.turnoId}'),
+        Uri.parse('$baseUrl/bovedas/turno/${userState.turnoData!.id}'),
       );
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
@@ -61,12 +61,14 @@ class _VaultsScreenState extends State<VaultsScreen> {
       return;
     }
     try {
+      final userState = context.read<UserBloc>().state;
+
       final res = await http.post(
         Uri.parse('$baseUrl/bovedas'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'usuario_id': widget.params.usuarioId,
-          'turno_id': widget.params.turnoId,
+          'usuario_id': userState.userData!.id,
+          'turno_id': userState.turnoData!.id,
           'monto': double.parse(monto),
           'motivo': motivo,
         }),
@@ -103,13 +105,8 @@ class _VaultsScreenState extends State<VaultsScreen> {
   }
 
   void cerrarSesion() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('usuario');
-    await prefs.remove('codigo');
-    await prefs.remove('turno');
-
-    if (!context.mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    context.read<UserBloc>().add(const LogoutEvent());
+    context.go("/");
   }
 
   @override

@@ -34,6 +34,7 @@ class NiubizBloc extends Bloc<NiubizEvent, NiubizState> {
           state.copyWith(
             status: NiubizStatus.successTransaction,
             transactionResult: result.successValue,
+            lastAmount: double.tryParse(event.amount) ?? 0.0,
           ),
         );
       } else {

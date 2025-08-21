@@ -136,5 +136,22 @@
   "dateInvalid": "Invalid date",
   "@dateInvalid": {
     "description": "Message when date is invalid"
-  }
+  },
+
+  "retry_button": "Retry",
+    "@retry_button": {
+        "description": "Retry button text"
+    },
+  "howWantToBuy": "HOW DO YOU WANT TO BUY?",
+  "soles": "SOLES",
+  "gallons": "GALLONS",
+  "enterAmountIn": "Enter the amount in",
+  "continueButton": "CONTINUE",
+  "goBackButton": "GO BACK",
+  "pricePerGallon": "PRICE PER GALLON",
+  "selectProduct": "SELECT PRODUCT",
+  "noProductsAvailable": "No products available.",
+  "tapCardToChooseDispenser": "TAP A CARD TO CHOOSE YOUR DISPENSER",
+  "noActivePumps": "No active pumps.",
+  "noPumpConfiguration": "No configuration found for this pump."
 }

@@ -136,5 +136,22 @@
   "dateInvalid": "Fecha inválida",
   "@dateInvalid": {
     "description": "Mensaje cuando la fecha es inválida"
-  }
+  },
+
+  "retry_button": "Reintentar",
+    "@retry_button": {
+        "description": "Texto del botón reintentar"
+    },
+  "howWantToBuy": "¿CÓMO DESEAS COMPRAR?",
+  "soles": "SOLES",
+  "gallons": "GALONES",
+  "enterAmountIn": "Ingrese la cantidad en",
+  "continueButton": "CONTINUAR",
+  "goBackButton": "REGRESAR",
+  "pricePerGallon": "PRECIO X GALÓN",
+  "selectProduct": "SELECCIONA PRODUCTO",
+  "noProductsAvailable": "No hay productos disponibles.",
+  "tapCardToChooseDispenser": "TOCA UNA TARJETA PARA ELEGIR TU DISPENSADOR",
+  "noActivePumps": "No hay bombas activas.",
+  "noPumpConfiguration": "No se encontró configuración para esta bomba."
 }

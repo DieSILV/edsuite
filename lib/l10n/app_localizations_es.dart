@@ -190,4 +190,45 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get dateInvalid => 'Fecha inválida';
+
+  @override
+  String get retry_button => 'Reintentar';
+
+  @override
+  String get howWantToBuy => '¿CÓMO DESEAS COMPRAR?';
+
+  @override
+  String get soles => 'SOLES';
+
+  @override
+  String get gallons => 'GALONES';
+
+  @override
+  String get enterAmountIn => 'Ingrese la cantidad en';
+
+  @override
+  String get continueButton => 'CONTINUAR';
+
+  @override
+  String get goBackButton => 'REGRESAR';
+
+  @override
+  String get pricePerGallon => 'PRECIO X GALÓN';
+
+  @override
+  String get selectProduct => 'SELECCIONA PRODUCTO';
+
+  @override
+  String get noProductsAvailable => 'No hay productos disponibles.';
+
+  @override
+  String get tapCardToChooseDispenser =>
+      'TOCA UNA TARJETA PARA ELEGIR TU DISPENSADOR';
+
+  @override
+  String get noActivePumps => 'No hay bombas activas.';
+
+  @override
+  String get noPumpConfiguration =>
+      'No se encontró configuración para esta bomba.';
 }

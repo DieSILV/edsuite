@@ -1,24 +1,23 @@
 import 'dart:convert';
+import 'dart:async';
+import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
+import 'package:edsuite/features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:edsuite/utils/config.dart' as config;
+import 'package:niubiz/niubiz.dart';
 
-class InvoiceScreenParams {
-  final Map<String, dynamic> transaccion;
-  final List<int> availablePaymentMethodIds;
-
-  InvoiceScreenParams({
-    required this.transaccion,
-    required this.availablePaymentMethodIds,
-  });
-}
+import '../../../payment/data/data.dart';
+import '../../../pos/presentation/bloc/customer/customer_bloc.dart';
+import '../../../pos/presentation/bloc/pos/pos_bloc.dart';
+import '../../data/models/transaction_model.dart';
+import '../bloc/user/user_bloc.dart';
 
 class InvoiceScreen extends StatefulWidget {
-  final InvoiceScreenParams params;
-
-  const InvoiceScreen({super.key, required this.params});
+  const InvoiceScreen({super.key});
 
   @override
   State<InvoiceScreen> createState() => _InvoiceScreenState();
@@ -39,21 +38,21 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 
 class _InvoiceScreenState extends State<InvoiceScreen> {
   final MethodChannel _channel = MethodChannel('com.edsuite.niubiz/channel');
-  final String baseUrl = '${config.baseUrl}/apipts';
   final docController = TextEditingController();
   final placaController = TextEditingController();
 
   String selectedTipoDoc = 'BOLETA';
-  Map<String, dynamic>? cliente;
-  bool isLoading = false;
+  //Map<String, dynamic>? cliente;
+  //bool isLoading = false;
   bool _isGenerating = false;
-  List<PaymentMethod> allPaymentMethods = [];
+  List<PaymentMethodModel> allPaymentMethods = [];
   List<PaymentItem> pagos = [];
   Map<String, dynamic>? niubizResult;
 
-  static const MethodChannel niubizChannel = MethodChannel(
-    'com.edsuite.niubiz/channel',
-  );
+  // Completer para manejar el await con BLoC
+  Completer<Map<String, dynamic>?>? _niubizCompleter;
+  // Variable para trackear el resultado de Niubiz mientras esperamos el registro
+  Map<String, dynamic>? _pendingNiubizResult;
 
   void refreshFormValidation() {
     setState(() {});
@@ -62,61 +61,36 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   @override
   void initState() {
     super.initState();
-    fetchPaymentMethods();
-    pagos.add(PaymentItem(method: null, monto: ''));
-  }
 
-  Future<void> fetchPaymentMethods() async {
-    try {
-      final response = await http.get(Uri.parse('$baseUrl/payment-methods'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          allPaymentMethods = data
-              .map((e) => PaymentMethod.fromJson(e))
-              .where(
-                (pm) => widget.params.availablePaymentMethodIds.contains(pm.id),
-              )
-              .toList();
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching payment methods: $e');
-    }
-  }
-
-  Future<void> buscarCliente(String numeroDoc) async {
-    setState(() => isLoading = true);
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/clientes/obtener'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'numero_doc': numeroDoc}),
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //fetchPaymentMethods();
+      final posState = context.read<PosBloc>().state;
+      context.read<PaymentPuntoVentaBloc>().add(
+        GetPaymentMethods(baseUrl: posState.baseUrl),
       );
-      if (response.statusCode == 200) {
-        setState(() => cliente = json.decode(response.body));
-      } else {
-        setState(() => cliente = null);
-      }
-    } catch (_) {
-      setState(() => cliente = null);
-    }
-    setState(() => isLoading = false);
+      pagos.add(PaymentItem(method: null, monto: ''));
+    });
   }
 
-  void onDocumentChanged(String value) {
+  void onDocumentChanged(String baseUrl, String value) {
     if (selectedTipoDoc == 'FACTURA' && value.length == 11) {
-      buscarCliente(value);
+      context.read<CustomerBloc>().add(
+        GetDataCustomer(baseUrl: baseUrl, documento: value),
+      );
+      //buscarCliente(value);
     } else if ((selectedTipoDoc == 'BOLETA' ||
             selectedTipoDoc == 'NOTA DE VENTA') &&
         (value.length == 8 || value.length == 11)) {
-      buscarCliente(value);
+      context.read<CustomerBloc>().add(
+        GetDataCustomer(baseUrl: baseUrl, documento: value),
+      );
+      //buscarCliente(value);
     } else {
-      setState(() => cliente = null);
+      //setState(() => cliente = null);
     }
   }
 
-  List<PaymentMethod> getAvailableMethodsForIndex(int index) {
+  List<PaymentMethodModel> getAvailableMethodsForIndex(int index) {
     final usedIds = pagos
         .asMap()
         .entries
@@ -136,11 +110,13 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   bool get isFormValid {
-    final total =
-        double.tryParse(
-          widget.params.transaccion['amountTransaction'].toString(),
-        ) ??
-        0;
+    final total = context
+        .read<PaymentPuntoVentaBloc>()
+        .state
+        .currentVenta!
+        .amountTransaction;
+
+    final cliente = context.read<CustomerBloc>().state.name;
 
     final tienePagosValidos = pagos.every(
       (p) =>
@@ -159,7 +135,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     debugPrint('cliente: $cliente');
     debugPrint('placa: "${placaController.text}"');
 
-    return cliente != null && tienePagosValidos && montoCoincide;
+    return cliente.isNotEmpty && tienePagosValidos && montoCoincide;
   }
 
   Future<Map<String, dynamic>?> processNiubiz(
@@ -168,92 +144,36 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }) async {
     final montoCentavos = (monto * 100).round();
 
-    try {
-      final result = await niubizChannel.invokeMethod<Map>('startTransaction', {
-        'monto': montoCentavos.toString(),
-        'useQR': useQr,
-      });
+    // Crear el completer
+    _niubizCompleter = Completer<Map<String, dynamic>?>();
 
-      if (result != null && result.isNotEmpty) {
-        String extopValue = '';
-        Map<String, dynamic> niubizData = {};
+    // Disparar el evento
+    context.read<NiubizBloc>().add(
+      StartTransactionEvent(amount: montoCentavos.toString(), useQr: useQr),
+    );
 
-        result.forEach((key, value) {
-          if (value is String && value.contains('=') && value.contains('&')) {
-            final subParts = value.split('&');
-            for (var part in subParts) {
-              final kv = part.split('=');
-              if (kv.length == 2) {
-                final subKey = kv[0].trim();
-                final subValue = kv[1].trim();
-                niubizData[subKey] = subValue;
-                if (subKey == 'EXTOP') extopValue = subValue;
-              }
-            }
-          } else {
-            niubizData[key] = value;
-          }
-        });
-
-        if (extopValue == '00') {
-          _showMessage('Cobro exitoso', isSuccess: true);
-          await _registerSuccessTransaction(niubizData, monto);
-          return niubizData;
-        } else if (extopValue == '01') {
-          _showMessage('Error en el cobro');
-          setState(() {
-            _isGenerating = false;
-          });
-        } else if (extopValue == '13') {
-          _showMessage('Cobro cancelado por el usuario');
-          setState(() {
-            _isGenerating = false;
-          });
-        } else {
-          _showMessage('Resultado desconocido: $extopValue');
-          setState(() {
-            _isGenerating = false;
-          });
-        }
-      }
-    } on PlatformException catch (_) {
-    } catch (_) {}
-
-    return null;
+    // Retornar el future del completer
+    return _niubizCompleter!.future;
   }
 
-  Future<void> _registerSuccessTransaction(Map result, double amount) async {
-    final prefs = await SharedPreferences.getInstance();
-    final deviceName = prefs.getString('pos_code');
+  Future<void> _registerSuccessTransaction(
+    String paymentMethod,
+    Map<String, dynamic> result,
+    double lastAmount,
+  ) async {
+    final posBloc = context.read<PosBloc>().state;
+    String method = paymentMethod;
+    String poscode = posBloc.posCode;
+    String amount = lastAmount.toStringAsFixed(2);
 
-    final url = Uri.parse('$baseUrl/success-transactions');
-
-    final body = {
-      'method': result['IQR'] == '1' ? 'QR' : 'CARD',
-      'response': result,
-      'pos_code': deviceName,
-      'device': 'PV',
-      'amount': amount,
-    };
-
-    try {
-      final res = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
-      );
-
-      if (res.statusCode != 201) {
-        _showError('Error enviando transacción: ${res.body}');
-      }
-    } catch (e) {
-      _showError('Error HTTP: $e');
-    }
-  }
-
-  void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    context.read<PaymentPuntoVentaBloc>().add(
+      RegisterSuccessTransacEvent(
+        baseUrl: posBloc.baseUrl,
+        method: method,
+        poscode: poscode,
+        amount: amount,
+        result: result,
+      ),
     );
   }
 
@@ -278,16 +198,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       _isGenerating = true;
     });
 
-    final prefs = await SharedPreferences.getInstance();
-    final userJson = prefs.getString('usuario');
-
-    if (userJson == null) {
-      _showMessage('❌ Usuario no encontrado en preferencias.');
-      return;
-    }
-
-    final userMap = json.decode(userJson);
-    final userId = userMap['id'];
+    final userId = context.read<UserBloc>().state.userData?.id ?? 0;
+    final clienteState = context.read<CustomerBloc>().state;
 
     for (var item in pagos) {
       if (item.method?.type == 'NIUBIZ_QR' ||
@@ -303,11 +215,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       }
     }
 
-    final trans = widget.params.transaccion;
-    debugPrint(
-      'TRANSACCION COMPLETA: ${jsonEncode(widget.params.transaccion)}',
-    );
-    final total = double.tryParse(trans['amountTransaction'].toString()) ?? 0;
+    final trans = context.read<PaymentPuntoVentaBloc>().state.currentVenta!;
+    /* debugPrint(
+      'TRANSACCION COMPLETA: ${jsonEncode(trans)}',
+    ); */
+    final total = trans.amountTransaction;
 
     /* final pago = pagos.first;
     final refPago = niubizResult?['REF'] ?? "";
@@ -321,9 +233,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     final payload = {
       "serie_documento": selectedTipoDoc == 'FACTURA' ? "F001" : "B001",
       "tipo_documento": selectedTipoDoc == 'FACTURA' ? "1" : "3",
-      "transaction_id": trans['idTransaction'],
-      "pump_id": trans['pumpTransaction'],
-      "fecha_abastecimiento": trans['dateTimeTransaction'],
+      "transaction_id": trans.idTransaction,
+      "pump_id": trans.pumpTransaction,
+      "fecha_abastecimiento": trans.dateTimeTransaction,
       "user_id": userId,
       "forma_pago": pagos.map((pago) {
         final refPago =
@@ -375,30 +287,30 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         };
       }).toList(),
       "cliente": {
-        "id": cliente?['id'],
-        "fullname": cliente?['nombre'] ?? "",
-        "mobile": cliente?['telefono'] ?? "",
-        "address": cliente?['direccion'] ?? "",
-        "vatNumber": cliente?['numero'] ?? "",
-        "commercialNumber": cliente?['numero'] ?? "",
+        "id": clienteState.customerId,
+        "fullname": clienteState.name,
+        "mobile": clienteState.phone,
+        "address": clienteState.address,
+        "vatNumber": clienteState.comercialPhone,
+        "commercialNumber": clienteState.comercialPhone,
         "codigo_tipo_documento_identidad": selectedTipoDoc == 'FACTURA'
             ? "6"
             : "1",
         "codigo_pais": "PE",
         "ubigeo": "150101",
-        "correo_electronico": cliente?['correo'] ?? "",
+        "correo_electronico": clienteState.email,
         "placa": placaController.text.trim(),
       },
       "producto": {
-        "codigo_interno": "EDS0000000${trans['FuelGradeId']?.toString() ?? ''}",
+        "codigo_interno": "EDS0000000${trans.fuelGradeId.toString()}",
         "unidad_de_medida": "GLL",
-        "pump": trans['pumpTransaction'],
+        "pump": trans.pumpTransaction,
         "nozzle": 2,
-        "fuel": trans['FuelGradeName'],
+        "fuel": trans.fuelGradeName,
         "price":
-            double.parse(trans['amountTransaction'].toString()) /
-            double.parse(trans['volumeTransaction'].toString()),
-        "volume": double.parse(trans['volumeTransaction'].toString()),
+            double.parse(trans.amountTransaction.toString()) /
+            double.parse(trans.volumeTransaction.toString()),
+        "volume": double.parse(trans.volumeTransaction.toString()),
       },
       "impuestos": {
         "currency": "PEN",
@@ -459,24 +371,28 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         if (refCAP.isNotEmpty) "cap": refCAP,
       };
     }).toList();
-
+    //TODO: APLICAR BLOC
     try {
+      final posBloc = context.read<PosBloc>().state;
       final res = await http.post(
-        Uri.parse('$baseUrl/documents/crear'),
+        Uri.parse('${posBloc.baseUrl}/apipts/documents/crear'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
 
       if (res.statusCode == 201) {
-        _showMessage('✅ Documento generado correctamente.', isSuccess: true);
+        CustomDialog.showSnackbar(
+          context,
+          '✅ Documento generado correctamente.',
+        );
 
         final data = jsonDecode(res.body);
         final doc = data['documento'];
 
         final fechaStr = getFormattedDateTime();
 
-        final monto = double.parse(trans['amountTransaction'].toString());
-        final volumen = double.parse(trans['volumeTransaction'].toString());
+        final monto = double.parse(trans.amountTransaction.toString());
+        final volumen = double.parse(trans.volumeTransaction.toString());
         final precioUnit = monto / volumen;
         final igv = monto * 0.18;
         final subtotal = monto / 1.18;
@@ -538,17 +454,35 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             separador +
             'DATOS DEL CLIENTE\n' +
             separador +
-            alinearCampo('Nombre:', cliente?['nombre'] ?? 'CLIENTE') +
-            alinearCampo('Direccion:', cliente?['direccion'] ?? '-') +
-            alinearCampo('Doc. ID:', cliente?['numero'] ?? '-') +
-            alinearCampo('Telefono:', cliente?['telefono'] ?? '-') +
-            alinearCampo('Correo:', cliente?['correo'] ?? '-') +
+            alinearCampo(
+              'Nombre:',
+              clienteState.name.isEmpty ? "CLIENTE" : clienteState.name,
+            ) +
+            alinearCampo(
+              'Direccion:',
+              clienteState.address.isEmpty ? '-' : clienteState.address,
+            ) +
+            alinearCampo(
+              'Doc. ID:',
+              clienteState.document.isEmpty ? '-' : clienteState.document,
+            ) +
+            alinearCampo(
+              'Telefono:',
+              clienteState.phone.isEmpty ? '-' : clienteState.phone,
+            ) +
+            alinearCampo(
+              'Correo:',
+              clienteState.email.isEmpty ? '-' : clienteState.email,
+            ) +
             alinearCampo('Placa:', placaController.text.trim()) +
             '\n' +
             separador +
             'DETALLE DEL PRODUCTO\n' +
             separador +
-            alinearCampo('Producto:', trans['FuelGradeName'] ?? '-') +
+            alinearCampo(
+              'Producto:',
+              trans.fuelGradeName.isEmpty ? '-' : trans.fuelGradeName,
+            ) +
             alinearCampo('Cantidad:', '${volumen.toStringAsFixed(3)} GLL') +
             alinearCampo(
               'Precio Unit:',
@@ -577,36 +511,31 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           await _channel.invokeMethod('printTicket', {"texto": texto});
           debugPrint("Impresión Niubiz exitosa");
         } catch (e) {
-          _showMessage('🖨️ Error al imprimir con Niubiz: $e');
+          //_showMessage('🖨️ Error al imprimir con Niubiz: $e');
+          CustomDialog.showSnackbar(
+            context,
+            '🖨️ Error al imprimir con Niubiz: $e',
+            true,
+          );
         }
 
         Navigator.pushReplacementNamed(context, '/');
       } else {
-        _showMessage('❌ Error generando CPE: ${res.body}');
+        //_showMessage('❌ Error generando CPE: ${res.body}');
+        CustomDialog.showSnackbar(
+          context,
+          '❌ Error generando CPE: ${res.body}',
+          true,
+        );
       }
     } catch (e) {
-      _showMessage('❌ Error generando CPE: $e');
+      CustomDialog.showSnackbar(context, '❌ Error generando CPE: $e', true);
     }
   }
 
-  void _showMessage(String msg, {bool isSuccess = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        backgroundColor: isSuccess ? Colors.green : Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   void cerrarSesion() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('usuario');
-    await prefs.remove('codigo');
-    await prefs.remove('turno');
-
-    if (!context.mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    context.read<UserBloc>().add(const LogoutEvent());
+    context.go("/");
   }
 
   @override
@@ -618,55 +547,134 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final trans = widget.params.transaccion;
-    final total = double.tryParse(trans['amountTransaction'].toString()) ?? 0;
+    final paymentState = context.watch<PaymentPuntoVentaBloc>().state;
+    final trans = paymentState.currentVenta!;
+    final total = trans.amountTransaction;
+    bool isLoading =
+        context.read<CustomerBloc>().state.status == CustomerStatus.loading;
+    final clienteState = context.watch<CustomerBloc>().state;
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: Colors.white,
-          body: Column(
-            children: [
-              _buildHeader(),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTipoDocSelector(),
-                      const SizedBox(height: 20),
-                      _buildClienteSection(),
-                      const SizedBox(height: 20),
-                      _buildPagosSection(total),
-                      const SizedBox(height: 30),
-                      _buildTransactionDetails(trans),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<PaymentPuntoVentaBloc, PaymentPuntoVentaState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case PaymentPuntoVentaStatus.successPaymentMethod:
+                allPaymentMethods = state.paymentMethodResponse ?? [];
+                break;
+              case PaymentPuntoVentaStatus.successTransaction:
+                // El registro de transacción fue exitoso
+                // Ahora podemos completar el Completer con el resultado de Niubiz
+                if (_niubizCompleter != null &&
+                    !_niubizCompleter!.isCompleted &&
+                    _pendingNiubizResult != null) {
+                  _niubizCompleter!.complete(_pendingNiubizResult);
+                  _pendingNiubizResult = null; // Limpiar
+                }
+                break;
+              case PaymentPuntoVentaStatus.failed:
+                // El registro falló, completar con null solo si hay un resultado pendiente
+                if (_niubizCompleter != null &&
+                    !_niubizCompleter!.isCompleted &&
+                    _pendingNiubizResult != null) {
+                  _niubizCompleter!.complete(null);
+                  _pendingNiubizResult = null; // Limpiar
+                }
+                break;
+              default:
+            }
+          },
         ),
+        BlocListener<NiubizBloc, NiubizState>(
+          listener: (context, state) {
+            switch (state.status) {
+              case NiubizStatus.successTransaction:
+                NiubizTransactionResult result = state.transactionResult!;
+                if (result.isSuccess) {
+                  // Guardar el resultado de Niubiz para completar después del registro
+                  _pendingNiubizResult = result.rawData;
 
-        if (_isGenerating)
-          Container(
-            color: Colors.white.withOpacity(0.8),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+                  // Iniciar el registro - NO completamos el Completer aquí
+                  String paymentMethod = result.paymentMethod;
+                  _registerSuccessTransaction(
+                    paymentMethod,
+                    result.rawData,
+                    state.lastAmount,
+                  );
+                } else {
+                  // Manejar transacción fallida o cancelada
+                  CustomDialog.showSnackbar(
+                    context,
+                    'Transacción Niubiz fallida (EXTOP=${result.extOp})',
+                    true,
+                  );
+
+                  // Completar con null en caso de error
+                  if (_niubizCompleter != null &&
+                      !_niubizCompleter!.isCompleted) {
+                    _niubizCompleter!.complete(null);
+                  }
+                }
+                break;
+              case NiubizStatus.failedTransaction:
+                // Completar con null en caso de error
+                if (_niubizCompleter != null &&
+                    !_niubizCompleter!.isCompleted) {
+                  _niubizCompleter!.complete(null);
+                }
+                break;
+              default:
+            }
+          },
+        ),
+      ],
+      child: Stack(
+        children: [
+          Scaffold(
+            backgroundColor: Colors.white,
+            body: Column(
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 20),
-                Text(
-                  'Generando...',
-                  style: TextStyle(color: Colors.blue.shade700, fontSize: 18),
+                _buildHeader(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTipoDocSelector(),
+                        const SizedBox(height: 20),
+                        _buildClienteSection(clienteState, isLoading),
+                        const SizedBox(height: 20),
+                        _buildPagosSection(total),
+                        const SizedBox(height: 30),
+                        _buildTransactionDetails(trans),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-      ],
+
+          if (_isGenerating)
+            Container(
+              color: Colors.white.withValues(alpha: 0.8),
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 20),
+                  Text(
+                    'Generando...',
+                    style: TextStyle(color: Colors.blue.shade700, fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -728,7 +736,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   setState(() {
                     selectedTipoDoc = tipo;
                     docController.clear();
-                    cliente = null;
+                    //cliente = null;
                   });
                 },
               );
@@ -739,7 +747,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildClienteSection() {
+  Widget _buildClienteSection(CustomerState clienteState, bool isLoading) {
+    final baseUrl = context.read<PosBloc>().state.baseUrl;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -757,7 +766,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 keyboardType: TextInputType.number,
                 maxLength: 11,
                 decoration: _inputDecoration('N° Documento'),
-                onChanged: onDocumentChanged,
+                onChanged: (value) => onDocumentChanged(baseUrl, value),
               ),
             ),
             const SizedBox(width: 10),
@@ -776,7 +785,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Center(child: CircularProgressIndicator()),
           )
-        else if (cliente != null) ...[
+        else if (clienteState.name.isNotEmpty) ...[
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
@@ -790,11 +799,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  cliente!['nombre'] ?? '',
+                  clienteState.name,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text(cliente!['direccion'] ?? ''),
+                Text(clienteState.address),
               ],
             ),
           ),
@@ -842,7 +851,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 children: [
                   Expanded(
                     flex: 5,
-                    child: DropdownButtonFormField<PaymentMethod>(
+                    child: DropdownButtonFormField<PaymentMethodModel>(
                       value: pagos[index].method,
                       items: available
                           .map(
@@ -914,7 +923,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildTransactionDetails(Map<String, dynamic> trans) {
+  Widget _buildTransactionDetails(TransactionModel trans) {
     return Card(
       color: const Color(0xFFF1F7FE),
       elevation: 2,
@@ -923,12 +932,12 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _detalleItem('Producto', trans['FuelGradeName']),
-            _detalleItem('Bomba', trans['pumpTransaction']),
-            _detalleItem('Volumen', '${trans['volumeTransaction']} gal'),
-            _detalleItem('Monto', 'S/ ${trans['amountTransaction']}'),
-            if (trans['discountTransaction'] != '0.000')
-              _detalleItem('Descuento', trans['discountTransaction']),
+            _detalleItem('Producto', trans.fuelGradeName),
+            _detalleItem('Bomba', trans.pumpTransaction),
+            _detalleItem('Volumen', '${trans.volumeTransaction} gal'),
+            _detalleItem('Monto', 'S/ ${trans.amountTransaction}'),
+            if (trans.discountTransaction != 0.0)
+              _detalleItem('Descuento', trans.discountTransaction),
           ],
         ),
       ),
@@ -976,24 +985,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 }
 
-class PaymentMethod {
-  final int id;
-  final String name;
-  final String type;
-
-  PaymentMethod({required this.id, required this.name, required this.type});
-
-  factory PaymentMethod.fromJson(Map<String, dynamic> json) {
-    return PaymentMethod(
-      id: json['id'],
-      name: json['name'],
-      type: json['type'],
-    );
-  }
-}
-
 class PaymentItem {
-  PaymentMethod? method;
+  PaymentMethodModel? method;
   String monto;
 
   PaymentItem({required this.method, required this.monto});

@@ -18,6 +18,7 @@ class UserRepository implements IUserRepository {
       //TODO: apipts
       final response = await http
           .get(Uri.parse('$baseUrl/apipts/users/codeturn/$code'))
+          //.get(Uri.parse('$baseUrl/users/codeturn/$code'))
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -54,6 +55,7 @@ class UserRepository implements IUserRepository {
       //TODO: apipts
       final response = await http.post(
         Uri.parse('$baseUrl/apipts/turnos'),
+        //Uri.parse('$baseUrl/turnos'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'id_usuario': userId, 'monto_llegada': amount}),
       );
@@ -90,6 +92,7 @@ class UserRepository implements IUserRepository {
       //TODO: apipts
       final response = await http.get(
         Uri.parse('$baseUrl/apipts/turnos/ultimo/$userId'),
+        //Uri.parse('$baseUrl/turnos/ultimo/$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -118,22 +121,46 @@ class UserRepository implements IUserRepository {
   }
 
   @override
-  FutureResult<TransactionModel> getSolicitudesLibres({
+  FutureResult<List<TransactionModel>> getSolicitudesLibres({
     required String baseUrl,
     required String userId,
     required String turnoId,
   }) async {
     try {
+      //TODO: apipts
       final response = await http.get(
         Uri.parse(
           '$baseUrl/apipts/solicitudes/libres?usuario_id=$userId&turno_id=$turnoId',
+          //'$baseUrl/solicitudes/libres?usuario_id=$userId&turno_id=$turnoId',
         ),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final transaccion = TransactionModel.fromJson(data);
-        return Success(transaccion);
+
+        // Verificar que sea una lista
+        if (data is List) {
+          final transacciones = data
+              .map((item) => TransactionModel.fromJson(item))
+              .toList();
+          return Success(transacciones);
+        } else if (data is Map &&
+            data.containsKey("data") &&
+            data["data"] is List) {
+          // Caso cuando la API devuelve un objeto con "data"
+          final transacciones = (data["data"] as List)
+              .map((item) => TransactionModel.fromJson(item))
+              .toList();
+          return Success(transacciones);
+        } else {
+          // No es una lista ni un objeto esperado
+          return Err(
+            Failure(
+              message: "Formato inesperado de respuesta",
+              statusCode: response.statusCode,
+            ),
+          );
+        }
       } else {
         return Err(
           Failure(

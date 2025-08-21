@@ -1,28 +1,22 @@
 import 'dart:convert';
+import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
-import 'package:edsuite/utils/config.dart' as config;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 
-class CloseShiftScreenParams {
-  final int usuarioId;
-  final int turnoId;
-
-  CloseShiftScreenParams({required this.usuarioId, required this.turnoId});
-}
+import '../bloc/user/user_bloc.dart';
 
 class CloseShiftScreen extends StatefulWidget {
-  final CloseShiftScreenParams params;
-
-  const CloseShiftScreen({super.key, required this.params});
+  const CloseShiftScreen({super.key});
 
   @override
   State<CloseShiftScreen> createState() => _CloseShiftScreenState();
 }
 
 class _CloseShiftScreenState extends State<CloseShiftScreen> {
-  final String baseUrl = '${config.baseUrl}/apipts';
+  String baseUrl = "";
 
   static const MethodChannel niubizChannel = MethodChannel(
     'com.edsuite.niubiz/channel',
@@ -37,13 +31,20 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
   @override
   void initState() {
     super.initState();
-    _loadVisaBatchStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final posState = context.read<PosBloc>().state;
+      //TODO: apipts
+      baseUrl = "${posState.baseUrl}/apipts";
+      //baseUrl = "${posState.baseUrl}";
+      _loadVisaBatchStatus();
+    });
   }
 
   Future<void> _loadVisaBatchStatus() async {
-    final prefs = await SharedPreferences.getInstance();
+    //final prefs = await SharedPreferences.getInstance();
+    final userState = context.read<UserBloc>().state;
     setState(() {
-      isVisaBatchClosed = prefs.getBool('visa_batch_closed') ?? false;
+      isVisaBatchClosed = userState.visaBatchClosed;
     });
   }
 
@@ -56,12 +57,14 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
     final url = Uri.parse('$baseUrl/documents/cierreTurno');
     try {
+      final userState = context.read<UserBloc>().state;
+
       final res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'usuario_id': widget.params.usuarioId,
-          'turno_id': widget.params.turnoId,
+          'usuario_id': userState.userData!.id,
+          'turno_id': userState.turnoData!.id,
         }),
       );
 
@@ -94,12 +97,14 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
     final url = Uri.parse('$baseUrl/turnos/cerrar_turno');
     try {
+      final userState = context.read<UserBloc>().state;
+
       final res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'usuario_id': widget.params.usuarioId,
-          'turno_id': widget.params.turnoId,
+          'usuario_id': userState.userData!.id,
+          'turno_id': userState.turnoData!.id,
         }),
       );
 
@@ -131,17 +136,12 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
       success = false;
     });
 
-    Navigator.pushReplacementNamed(context, '/gestionTurno');
+    context.push('/gestionTurno');
   }
 
   void cerrarSesion() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('usuario');
-    await prefs.remove('codigo');
-    await prefs.remove('turno');
-
-    if (!context.mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    context.read<UserBloc>().add(const LogoutEvent());
+    context.go("/");
   }
 
   Future<void> cerrarLoteVisa() async {
@@ -173,10 +173,11 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
         print('Datos procesados VISA: $niubizData');
 
-        final prefs = await SharedPreferences.getInstance();
+        //final prefs = await SharedPreferences.getInstance();
 
         if (extopValue == '00') {
-          await prefs.setBool('visa_batch_closed', true);
+          //await prefs.setBool('visa_batch_closed', true);
+          context.read<UserBloc>().add(const UpdateVisaBatchClosed(true));
           setState(() {
             isVisaBatchClosed = true;
           });
@@ -195,7 +196,8 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
             ),
           );
         } else if (extopValue == '01') {
-          await prefs.setBool('visa_batch_closed', false);
+          //await prefs.setBool('visa_batch_closed', false);
+          context.read<UserBloc>().add(const UpdateVisaBatchClosed(false));
           setState(() {
             isVisaBatchClosed = false;
           });
@@ -216,8 +218,8 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
         }
       }
     } on PlatformException catch (_) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('visa_batch_closed', false);
+      //final prefs = await SharedPreferences.getInstance();
+      context.read<UserBloc>().add(const UpdateVisaBatchClosed(false));
       setState(() {
         isVisaBatchClosed = false;
       });

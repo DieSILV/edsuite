@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:edsuite/core/extensions/context_extensions.dart';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
 import 'package:edsuite/features/pos/data/data.dart';
 import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
@@ -309,7 +310,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'TOCA UNA TARJETA PARA ELEGIR TU DISPENSADOR',
+                          context.l10n.tapCardToChooseDispenser,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: isTablet ? 30 : 22,
@@ -320,9 +321,9 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                         ),
                         const SizedBox(height: 30),
                         if (availablePumps.isEmpty)
-                          const Text(
-                            'No hay bombas activas.',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.noActivePumps,
+                            style: const TextStyle(
                               fontSize: 18,
                               color: Colors.white70,
                             ),
@@ -373,9 +374,9 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
                         color: white,
                         size: 32,
                       ),
-                      label: const Text(
-                        'REGRESAR',
-                        style: TextStyle(
+                      label: Text(
+                        context.l10n.goBackButton,
+                        style: const TextStyle(
                           color: white,
                           fontSize: 26,
                           fontWeight: FontWeight.bold,

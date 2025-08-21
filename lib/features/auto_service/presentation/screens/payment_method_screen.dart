@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
-import 'package:edsuite/features/pos/presentation/bloc/payment/payment_bloc.dart';
+import 'package:edsuite/features/payment/presentation/bloc/payment/payment_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:niubiz/niubiz.dart';
 import '../../../../core/core.dart';
 import '../../../niubiz/domain/domain.dart';
-import '../../../pos/data/data.dart';
+import '../../../payment/data/models/models.dart';
 import '../../../pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 import 'comprobante_screen.dart';
 

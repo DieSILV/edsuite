@@ -390,9 +390,9 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final montoStr = _controllerMonto.text.replaceAll(',', '.');
-    final isValidMonto =
-        double.tryParse(montoStr) != null && double.parse(montoStr) > 0;
+    //final montoStr = _controllerMonto.text.replaceAll(',', '.');
+    /* final isValidMonto =
+        double.tryParse(montoStr) != null && double.parse(montoStr) > 0; */
 
     return Scaffold(
       appBar: AppBar(

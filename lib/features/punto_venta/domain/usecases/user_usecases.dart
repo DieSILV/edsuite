@@ -14,7 +14,7 @@ class UserUsecases {
     required this.keyValueStorageService,
   });
 
-  FutureResult<TransactionModel> getSolicitudesLibres({
+  FutureResult<List<TransactionModel>> getSolicitudesLibres({
     required String baseUrl,
     required String userId,
     required String turnoId,

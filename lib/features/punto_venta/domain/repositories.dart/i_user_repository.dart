@@ -15,7 +15,7 @@ abstract interface class IUserRepository {
     required String baseUrl,
     required String userId,
   });
-  FutureResult<TransactionModel> getSolicitudesLibres({
+  FutureResult<List<TransactionModel>> getSolicitudesLibres({
     required String baseUrl,
     required String userId,
     required String turnoId,

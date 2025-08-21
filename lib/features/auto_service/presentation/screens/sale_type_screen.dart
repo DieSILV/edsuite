@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:edsuite/core/extensions/context_extensions.dart';
 import 'package:edsuite/features/pos/data/models/pump_config_response_model.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:flutter/material.dart';
@@ -206,13 +207,13 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
 
                           if (fuelPrice != null)
                             _buildInfoTile(
-                              'PRECIO X GALÓN',
+                              context.l10n.pricePerGallon,
                               'S/ ${fuelPrice!.toStringAsFixed(2)}',
                             ),
                           const SizedBox(height: 30),
-                          const Text(
-                            '¿CÓMO DESEAS COMPRAR?',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.howWantToBuy,
+                            style: const TextStyle(
                               color: white,
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -222,8 +223,8 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              _buildOptionButton('SOLES'),
-                              _buildOptionButton('GALONES'),
+                              _buildOptionButton(context.l10n.soles),
+                              _buildOptionButton(context.l10n.gallons),
                             ],
                           ),
                           const SizedBox(height: 30),
@@ -237,7 +238,7 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                               onChanged: (_) => setState(() {}),
                               style: const TextStyle(color: white),
                               decoration: InputDecoration(
-                                labelText: 'Ingrese la cantidad en ',
+                                labelText: context.l10n.enterAmountIn,
                                 labelStyle: const TextStyle(
                                   color: Colors.white70,
                                 ),
@@ -269,9 +270,9 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                         }
                       : null,
                   icon: const Icon(Icons.arrow_forward, color: white, size: 28),
-                  label: const Text(
-                    'CONTINUAR',
-                    style: TextStyle(
+                  label: Text(
+                    context.l10n.continueButton,
+                    style: const TextStyle(
                       color: white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -303,9 +304,9 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                         color: white,
                         size: 32,
                       ),
-                      label: const Text(
-                        'REGRESAR',
-                        style: TextStyle(
+                      label: Text(
+                        context.l10n.goBackButton,
+                        style: const TextStyle(
                           color: white,
                           fontSize: 26,
                           fontWeight: FontWeight.bold,

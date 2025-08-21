@@ -18,7 +18,9 @@ class DispenserRepository implements IDispenserRepository {
     try {
       final response = await http
           .post(
+            //TODO: apipts
             Uri.parse('$baseUrl/apipts/pts/status'),
+            //Uri.parse('$baseUrl/pts/status'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({"pts_pumps": sideIds}),
           )
@@ -50,7 +52,9 @@ class DispenserRepository implements IDispenserRepository {
   }) async {
     try {
       final response = await http.post(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/pts/config'),
+        //Uri.parse('$baseUrl/pts/config'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -81,7 +85,9 @@ class DispenserRepository implements IDispenserRepository {
   }) async {
     try {
       final response = await http.post(
+        //TODO: apipts
         Uri.parse("${baseUrl}/apipts/clientes/obtener"),
+        //Uri.parse("${baseUrl}/clientes/obtener"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"numero_doc": documento}),
       );
@@ -112,7 +118,9 @@ class DispenserRepository implements IDispenserRepository {
   }) async {
     try {
       final result = await http.post(
-        Uri.parse('$baseUrl/pts/information'),
+        //TODO: apipts
+        Uri.parse('$baseUrl/apipts/pts/information'),
+        //Uri.parse('$baseUrl/pts/information'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           "pumpId": pumpId,

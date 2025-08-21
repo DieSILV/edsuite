@@ -8,7 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../pos/data/data.dart';
 import '../../../pos/presentation/bloc/dispenser/dispenser_bloc.dart';
-import '../../../pos/presentation/bloc/payment/payment_bloc.dart';
+import '../../../payment/presentation/bloc/payment/payment_bloc.dart';
 import '../../../pos/presentation/bloc/pos/pos_bloc.dart';
 
 class ScheduledSalesScreen extends StatefulWidget {

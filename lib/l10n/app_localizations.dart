@@ -427,6 +427,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Invalid date'**
   String get dateInvalid;
+
+  /// Retry button text
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry_button;
+
+  /// No description provided for @howWantToBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'HOW DO YOU WANT TO BUY?'**
+  String get howWantToBuy;
+
+  /// No description provided for @soles.
+  ///
+  /// In en, this message translates to:
+  /// **'SOLES'**
+  String get soles;
+
+  /// No description provided for @gallons.
+  ///
+  /// In en, this message translates to:
+  /// **'GALLONS'**
+  String get gallons;
+
+  /// No description provided for @enterAmountIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount in'**
+  String get enterAmountIn;
+
+  /// No description provided for @continueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE'**
+  String get continueButton;
+
+  /// No description provided for @goBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'GO BACK'**
+  String get goBackButton;
+
+  /// No description provided for @pricePerGallon.
+  ///
+  /// In en, this message translates to:
+  /// **'PRICE PER GALLON'**
+  String get pricePerGallon;
+
+  /// No description provided for @selectProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'SELECT PRODUCT'**
+  String get selectProduct;
+
+  /// No description provided for @noProductsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No products available.'**
+  String get noProductsAvailable;
+
+  /// No description provided for @tapCardToChooseDispenser.
+  ///
+  /// In en, this message translates to:
+  /// **'TAP A CARD TO CHOOSE YOUR DISPENSER'**
+  String get tapCardToChooseDispenser;
+
+  /// No description provided for @noActivePumps.
+  ///
+  /// In en, this message translates to:
+  /// **'No active pumps.'**
+  String get noActivePumps;
+
+  /// No description provided for @noPumpConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'No configuration found for this pump.'**
+  String get noPumpConfiguration;
 }
 
 class _AppLocalizationsDelegate

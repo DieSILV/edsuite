@@ -1,5 +1,7 @@
+import 'package:edsuite/features/payment/data/models/document_model.dart';
 import 'package:edsuite_common/edsuite_common.dart';
-import '../../data/data.dart';
+import '../../../pos/data/data.dart';
+import '../../data/models/models.dart';
 
 abstract interface class IPaymentRepository {
   FutureResult<PaymentMethodResponseModel> getPaymentMethods({
@@ -35,5 +37,9 @@ abstract interface class IPaymentRepository {
     required String baseUrl,
     required String pumpId,
     required String transaction,
+  });
+  FutureResult<DocumentModel> getDocument({
+    required String baseUrl,
+    required String documentId,
   });
 }

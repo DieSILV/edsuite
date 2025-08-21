@@ -1,20 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
-import 'package:edsuite/utils/config.dart' as config;
 import 'package:flutter/services.dart';
 
-class SalesScreenParams {
-  final int usuarioId;
-  final int turnoId;
-
-  SalesScreenParams({required this.usuarioId, required this.turnoId});
-}
+import '../../../pos/presentation/bloc/pos/pos_bloc.dart';
+import '../bloc/user/user_bloc.dart';
 
 class SalesScreen extends StatefulWidget {
-  final SalesScreenParams params;
-
-  const SalesScreen({super.key, required this.params});
+  const SalesScreen({super.key});
 
   @override
   State<SalesScreen> createState() => _SalesScreenState();
@@ -22,7 +16,7 @@ class SalesScreen extends StatefulWidget {
 
 class _SalesScreenState extends State<SalesScreen> {
   final MethodChannel _channel = MethodChannel('com.edsuite.niubiz/channel');
-  final String baseUrl = '${config.baseUrl}/apipts';
+  String baseUrl = "";
 
   bool isLoading = false;
   List<dynamic> ventas = [];
@@ -32,14 +26,21 @@ class _SalesScreenState extends State<SalesScreen> {
   @override
   void initState() {
     super.initState();
-    fetchVentas();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final posState = context.read<PosBloc>().state;
+      //TODO: apipts
+      baseUrl = "${posState.baseUrl}/apipts";
+      //baseUrl = "${posState.baseUrl}";
+      fetchVentas();
+    });
   }
 
   Future<void> fetchVentas() async {
     setState(() => isLoading = true);
     try {
+      final userState = context.read<UserBloc>().state;
       final url = Uri.parse(
-        '$baseUrl/solicitudes/usuarioTurno?usuario_id=${widget.params.usuarioId}&turno_id=${widget.params.turnoId}',
+        '$baseUrl/solicitudes/usuarioTurno?usuario_id=${userState.userData!.id}&turno_id=${userState.turnoData!.id}',
       );
       final res = await http.get(url);
       if (res.statusCode == 200) {

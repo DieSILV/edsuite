@@ -185,4 +185,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateInvalid => 'Invalid date';
+
+  @override
+  String get retry_button => 'Retry';
+
+  @override
+  String get howWantToBuy => 'HOW DO YOU WANT TO BUY?';
+
+  @override
+  String get soles => 'SOLES';
+
+  @override
+  String get gallons => 'GALLONS';
+
+  @override
+  String get enterAmountIn => 'Enter the amount in';
+
+  @override
+  String get continueButton => 'CONTINUE';
+
+  @override
+  String get goBackButton => 'GO BACK';
+
+  @override
+  String get pricePerGallon => 'PRICE PER GALLON';
+
+  @override
+  String get selectProduct => 'SELECT PRODUCT';
+
+  @override
+  String get noProductsAvailable => 'No products available.';
+
+  @override
+  String get tapCardToChooseDispenser => 'TAP A CARD TO CHOOSE YOUR DISPENSER';
+
+  @override
+  String get noActivePumps => 'No active pumps.';
+
+  @override
+  String get noPumpConfiguration => 'No configuration found for this pump.';
 }

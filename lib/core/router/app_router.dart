@@ -1,15 +1,14 @@
 import 'package:edsuite/core/config/constants/environment.dart';
-import 'package:edsuite/screens/sales_manager/cashkeeper_screen.dart';
-import 'package:edsuite/screens/sales_manager/close_shift_screen.dart';
-import 'package:edsuite/screens/sales_manager/expense_screen.dart';
-import 'package:edsuite/screens/sales_manager/free_sales_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/close_shift_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/expense_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/free_sales_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/home_screen.dart';
-import 'package:edsuite/screens/sales_manager/invoice_screen.dart';
-import 'package:edsuite/screens/sales_manager/niubiz_screen.dart';
-import 'package:edsuite/screens/sales_manager/sales_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/niubiz_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/sales_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/scheduled_sales_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/shift_management_screen.dart';
-import 'package:edsuite/screens/sales_manager/vaults_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/vaults_screen.dart';
 
 import 'package:edsuite/features/pos/presentation/screens/validation_screen.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +24,25 @@ final appRouter = GoRouter(
   initialLocation: "/",
   navigatorKey: _rootNavigatorKey,
   debugLogDiagnostics: Environment().enableLogging,
+  errorPageBuilder: (context, state) {
+    return MaterialPage(
+      key: state.pageKey,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Back'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              context.go("/");
+            },
+          ),
+        ),
+        body: Center(
+          child: Text('Page not found', style: const TextStyle(fontSize: 24)),
+        ),
+      ),
+    );
+  },
   routes: [
     GoRoute(path: "/", builder: (context, state) => const ValidationScreen()),
     GoRoute(
@@ -65,10 +83,10 @@ final appRouter = GoRouter(
       builder: (context, state) => const ShiftManagementScreen(),
     ),
     GoRoute(path: "/niubiz", builder: (context, state) => const NiubizScreen()),
-    GoRoute(
+    /* GoRoute(
       path: "/cashkeeper",
       builder: (context, state) => const CashKeeperScreen(),
-    ),
+    ), */
     GoRoute(
       path: "/ventasProgramada",
       builder: (context, state) => const ScheduledSalesScreen(),
@@ -86,41 +104,31 @@ final appRouter = GoRouter(
     GoRoute(
       path: "/expense",
       builder: (context, state) {
-        final params = state.extra as ExpenseScreenParams;
-
-        return ExpenseScreen(params: params);
+        return ExpenseScreen();
       },
     ),
     GoRoute(
       path: "/vaults",
       builder: (context, state) {
-        final params = state.extra as VaultsScreenParams;
-
-        return VaultsScreen(params: params);
+        return VaultsScreen();
       },
     ),
     GoRoute(
       path: "/sales",
       builder: (context, state) {
-        final params = state.extra as SalesScreenParams;
-
-        return SalesScreen(params: params);
+        return SalesScreen();
       },
     ),
     GoRoute(
       path: "/closeShift",
       builder: (context, state) {
-        final params = state.extra as CloseShiftScreenParams;
-
-        return CloseShiftScreen(params: params);
+        return CloseShiftScreen();
       },
     ),
     GoRoute(
       path: "/invoice",
       builder: (context, state) {
-        final params = state.extra as InvoiceScreenParams;
-
-        return InvoiceScreen(params: params);
+        return InvoiceScreen();
       },
     ),
     GoRoute(

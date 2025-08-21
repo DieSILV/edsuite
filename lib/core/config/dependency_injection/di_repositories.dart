@@ -1,6 +1,8 @@
 import 'package:edsuite/features/niubiz/domain/domain.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:niubiz/niubiz.dart';
+import '../../../features/payment/data/data.dart';
+import '../../../features/payment/domain/domain.dart';
 import '../../../features/pos/data/data.dart';
 import '../../../features/pos/domain/domain.dart';
 import '../../../features/punto_venta/data/repositories/repositories.dart';

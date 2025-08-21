@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:edsuite/features/pos/data/models/authorize_response_model.dart';
+import 'package:edsuite/features/payment/data/models/authorize_response_model.dart';
+import 'package:edsuite/features/payment/data/models/document_model.dart';
+import 'package:edsuite/features/payment/domain/domain.dart';
 import 'package:edsuite/features/pos/data/models/cashkeeper_deposit_response_model.dart';
-import 'package:edsuite/features/pos/data/models/payment_method_model.dart';
+import 'package:edsuite/features/payment/data/models/payment_method_model.dart';
 import 'package:edsuite_common/edsuite_common.dart';
 import 'package:http/http.dart' as http;
-import '../../domain/domain.dart';
 
 class PaymentRepository implements IPaymentRepository {
   @override
@@ -15,7 +16,9 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       final response = await http.get(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/payment-methods'),
+        //Uri.parse('$baseUrl/payment-methods'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -52,7 +55,9 @@ class PaymentRepository implements IPaymentRepository {
     required Map<String, dynamic> result,
   }) async {
     try {
-      final url = Uri.parse('$baseUrl/success-transactions');
+      //TODO: apipts
+      final url = Uri.parse('$baseUrl/apipts/success-transactions');
+      //final url = Uri.parse('$baseUrl/success-transactions');
 
       final response = await http.post(
         url,
@@ -95,7 +100,9 @@ class PaymentRepository implements IPaymentRepository {
     required String? turnoId,
   }) async {
     try {
+      //TODO: apipts
       final url = Uri.parse('$baseUrl/apipts/pts/authorize');
+      //final url = Uri.parse('$baseUrl/pts/authorize');
 
       final body = {
         'pumpId': pumpId,
@@ -142,7 +149,9 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       final response = await http.post(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/cashkeeper/comando'),
+        //Uri.parse('$baseUrl/cashkeeper/comando'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"command": "\$42|${amount}|1#"}),
       );
@@ -169,6 +178,7 @@ class PaymentRepository implements IPaymentRepository {
   FutureResult<void> cashKeeperCancelCommand({required String baseUrl}) async {
     try {
       final response = await http.post(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/cashkeeper/comando'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"command": r"$42|0|1#"}),
@@ -206,6 +216,7 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       final response = await http.get(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/cashkeeper/depositado'),
       );
 
@@ -233,6 +244,7 @@ class PaymentRepository implements IPaymentRepository {
   FutureResult<void> cashKeeperClean({required String baseUrl}) async {
     try {
       final response = await http.post(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/cashkeeper/limpiar'),
       );
 
@@ -262,7 +274,9 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       final response = await http.post(
+        //TODO: apipts
         Uri.parse('$baseUrl/apipts/pts/cancel'),
+        //Uri.parse('$baseUrl/pts/cancel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"pumpId": pumpId, "transaction": transaction}),
       );
@@ -283,5 +297,14 @@ class PaymentRepository implements IPaymentRepository {
     } catch (e) {
       return Err(Failure(message: e.toString()));
     }
+  }
+
+  @override
+  FutureResult<DocumentModel> getDocument({
+    required String baseUrl,
+    required String documentId,
+  }) {
+    // TODO: implement getDocument
+    throw UnimplementedError();
   }
 }

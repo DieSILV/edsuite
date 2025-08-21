@@ -11,10 +11,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'core/core.dart';
 import 'features/niubiz/domain/domain.dart';
+import 'features/payment/domain/domain.dart';
+import 'features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
 import 'features/pos/domain/domain.dart';
-import 'features/pos/presentation/bloc/payment/payment_bloc.dart';
+import 'features/payment/presentation/bloc/payment/payment_bloc.dart';
 import 'features/punto_venta/domain/domain.dart';
 import 'features/punto_venta/presentation/bloc/user/user_bloc.dart';
+import 'features/punto_venta/presentation/bloc/user_actions/user_actions_bloc.dart';
 
 Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,8 +64,17 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
                 PaymentBloc(paymentUsecases: context.read<PaymentUsecases>()),
           ),
           BlocProvider(
+            create: (context) => PaymentPuntoVentaBloc(
+              paymentUsecases: context.read<PaymentUsecases>(),
+            ),
+          ),
+          BlocProvider(
             create: (context) =>
                 UserBloc(userUsecases: context.read<UserUsecases>()),
+          ),
+          BlocProvider(
+            create: (context) =>
+                UserActionBloc(userUsecases: context.read<UserUsecases>()),
           ),
         ],
         child: await builder(),

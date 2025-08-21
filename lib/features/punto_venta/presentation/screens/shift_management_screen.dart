@@ -134,19 +134,30 @@ class ShiftManagementScreen extends StatelessWidget {
     TurnoModel turno,
   ) {
     final opciones = [
-      {'icon': FontAwesomeIcons.receipt, 'label': context.l10n.viewSalesOption},
-      {'icon': FontAwesomeIcons.vault, 'label': context.l10n.vaultOption},
+      {
+        'icon': FontAwesomeIcons.receipt,
+        'label': context.l10n.viewSalesOption,
+        'route': '/sales',
+      },
+      {
+        'icon': FontAwesomeIcons.vault,
+        'label': context.l10n.vaultOption,
+        'route': '/vaults',
+      },
       {
         'icon': FontAwesomeIcons.moneyBillWave,
         'label': context.l10n.expensesOption,
+        'route': '/expense',
       },
       {
         'icon': FontAwesomeIcons.powerOff,
         'label': context.l10n.closeShiftOption,
+        'route': '/closeShift',
       },
       {
         'icon': FontAwesomeIcons.solidCreditCard,
         'label': context.l10n.niubizOption,
+        'route': '/niubiz',
       },
     ];
 
@@ -163,51 +174,7 @@ class ShiftManagementScreen extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(14),
             onTap: () {
-              /* switch (item['label']) {
-                case 'Gastos':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          ExpenseScreen(usuarioId: usuarioId, turnoId: turnoId),
-                    ),
-                  );
-                  break;
-                case 'Bóveda':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          VaultsScreen(usuarioId: usuarioId, turnoId: turnoId),
-                    ),
-                  );
-                  break;
-                case 'Ver Ventas':
-                  Navigator.pushNamed(
-                    context,
-                    'Ventas',
-                    arguments: {'usuarioId': usuarioId, 'turnoId': turnoId},
-                  );
-                  break;
-                case 'Cerrar Turno':
-                  Navigator.pushNamed(
-                    context,
-                    'Cierre',
-                    arguments: {'usuarioId': usuarioId, 'turnoId': turnoId},
-                  );
-                  break;
-                case 'Niubiz':
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          NiubizScreen(),
-                    ),
-                  );
-                  break;
-                default:
-                  _showAlert('Info', '${item['label']} no implementado.');
-              } */
+              context.push(item['route'] as String);
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
