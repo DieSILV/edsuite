@@ -97,6 +97,7 @@ class _DispenserSideScreenState extends State<DispenserSideScreen>
 
   Future<void> _clearPreferencesAndRedirect() async {
     context.read<DispenserBloc>().add(ClearDataDispenser());
+    context.go("/");
     /* final prefs = await SharedPreferences.getInstance();
     final keysToKeep = ['base_url', 'pos_info', 'pos_code'];
 

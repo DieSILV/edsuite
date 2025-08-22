@@ -591,7 +591,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           _showMessage('🖨️ Error al imprimir con Niubiz: $e');
         }
 
-        Navigator.pushReplacementNamed(context, '/');
+        context.push("/");
       } else {
         _showMessage('❌ Error generando CPE: ${res.body}');
       }
