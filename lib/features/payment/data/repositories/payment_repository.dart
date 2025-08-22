@@ -17,8 +17,8 @@ class PaymentRepository implements IPaymentRepository {
     try {
       final response = await http.get(
         //TODO: apipts
-        //Uri.parse('$baseUrl/apipts/payment-methods'),
-        Uri.parse('$baseUrl/payment-methods'),
+        Uri.parse('$baseUrl/apipts/payment-methods'),
+        //Uri.parse('$baseUrl/payment-methods'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -56,8 +56,8 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       //TODO: apipts
-      //final url = Uri.parse('$baseUrl/apipts/success-transactions');
-      final url = Uri.parse('$baseUrl/success-transactions');
+      final url = Uri.parse('$baseUrl/apipts/success-transactions');
+      //final url = Uri.parse('$baseUrl/success-transactions');
 
       final response = await http.post(
         url,
@@ -101,8 +101,8 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       //TODO: apipts
-      //final url = Uri.parse('$baseUrl/apipts/pts/authorize');
-      final url = Uri.parse('$baseUrl/pts/authorize');
+      final url = Uri.parse('$baseUrl/apipts/pts/authorize');
+      //final url = Uri.parse('$baseUrl/pts/authorize');
 
       final body = {
         'pumpId': pumpId,
@@ -275,8 +275,8 @@ class PaymentRepository implements IPaymentRepository {
     try {
       final response = await http.post(
         //TODO: apipts
-        //Uri.parse('$baseUrl/apipts/pts/cancel'),
-        Uri.parse('$baseUrl/pts/cancel'),
+        Uri.parse('$baseUrl/apipts/pts/cancel'),
+        //Uri.parse('$baseUrl/pts/cancel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"pumpId": pumpId, "transaction": transaction}),
       );

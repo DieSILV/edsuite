@@ -17,8 +17,8 @@ class UserRepository implements IUserRepository {
     try {
       //TODO: apipts
       final response = await http
-          //.get(Uri.parse('$baseUrl/apipts/users/codeturn/$code'))
-          .get(Uri.parse('$baseUrl/users/codeturn/$code'))
+          .get(Uri.parse('$baseUrl/apipts/users/codeturn/$code'))
+          //.get(Uri.parse('$baseUrl/users/codeturn/$code'))
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
@@ -54,8 +54,8 @@ class UserRepository implements IUserRepository {
     try {
       //TODO: apipts
       final response = await http.post(
-        //Uri.parse('$baseUrl/apipts/turnos'),
-        Uri.parse('$baseUrl/turnos'),
+        Uri.parse('$baseUrl/apipts/turnos'),
+        //Uri.parse('$baseUrl/turnos'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'id_usuario': userId, 'monto_llegada': amount}),
       );
@@ -91,8 +91,8 @@ class UserRepository implements IUserRepository {
     try {
       //TODO: apipts
       final response = await http.get(
-        //Uri.parse('$baseUrl/apipts/turnos/ultimo/$userId'),
-        Uri.parse('$baseUrl/turnos/ultimo/$userId'),
+        Uri.parse('$baseUrl/apipts/turnos/ultimo/$userId'),
+        //Uri.parse('$baseUrl/turnos/ultimo/$userId'),
       );
 
       if (response.statusCode == 200) {
@@ -130,8 +130,8 @@ class UserRepository implements IUserRepository {
       //TODO: apipts
       final response = await http.get(
         Uri.parse(
-          //'$baseUrl/apipts/solicitudes/libres?usuario_id=$userId&turno_id=$turnoId',
-          '$baseUrl/solicitudes/libres?usuario_id=$userId&turno_id=$turnoId',
+          '$baseUrl/apipts/solicitudes/libres?usuario_id=$userId&turno_id=$turnoId',
+          //'$baseUrl/solicitudes/libres?usuario_id=$userId&turno_id=$turnoId',
         ),
       );
 
