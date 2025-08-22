@@ -153,5 +153,157 @@
   "noProductsAvailable": "No hay productos disponibles.",
   "tapCardToChooseDispenser": "TOCA UNA TARJETA PARA ELEGIR TU DISPENSADOR",
   "noActivePumps": "No hay bombas activas.",
-  "noPumpConfiguration": "No se encontró configuración para esta bomba."
+  "noPumpConfiguration": "No se encontró configuración para esta bomba.",
+  "niubizTitle": "NIUBIZ",
+  "cancelByReference": "Anular por Referencia",
+  "cancelByReferenceDesc": "Anular la última transacción mediante referencia.",
+  "cancelByIDU": "Anular por IDU",
+  "iduNumberLabel": "Número IDU para anular",
+  "reprintDuplicate": "Reimprimir Duplicado",
+  "reprintDuplicateDesc": "Reimprimir el duplicado de la última acción por POS.",
+  "initializeNiubiz": "Inicializar Niubiz",
+  "initializeNiubizDesc": "Inicializar Niubiz en el POS para usarlo.",
+  "copyLastTransaction": "Copia Última Transacción",
+  "copyLastTransactionDesc": "Copiar la última transacción.",
+  "multicommerce": "Multicomercio",
+  "multicommerceDesc": "Lanzar transacción multicomercio en POS.",
+  "reversal": "Reverso",
+  "reversalDesc": "Ejecutar reverso de la última transacción.",
+  "binQuery": "Consulta BIN",
+  "binQueryDesc": "Consultar BIN en el POS.",
+  "batchHistory": "Histórico de Cierres",
+  "batchHistoryDesc": "Consultar histórico de cierres de lote.",
+  "reportsDetail": "Detalle de Reportes",
+  "reportsDetailDesc": "Obtener detalle de reportes desde el POS.",
+  "noResponseFromPOS": "⚠️ No se recibió respuesta del POS.",
+  "successfulCancellation": "Anulación exitosa.",
+  "duplicatePrintSuccess": "Impresión duplicado exitosa.",
+  "initializationSuccess": "Inicialización exitosa.",
+  "reversalSuccess": "Reverso ejecutado con éxito.",
+  "copyTransactionSuccess": "Copia de última transacción exitosa.",
+  "multicommerceTransactionSuccess": "Transacción multicomercio exitosa.",
+  "binQuerySuccess": "Consulta BIN exitosa.",
+  "requestCanceled": "Petición Cancelada",
+  "requestFailed": "Petición No Exitosa (EXTOP={code})",
+  "@requestFailed": {
+    "description": "Mensaje cuando falla una petición",
+    "placeholders": {
+      "code": {
+        "type": "String",
+        "example": "01"
+      }
+    }
+  },
+  "noStatusCodeReceived": "No se recibió código de estado (EXTOP).",
+  "successfulRequest": "Petición exitosa.",
+  "nativeChannelError": "Error del canal nativo: {message}",
+  "@nativeChannelError": {
+    "description": "Error del canal nativo",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "example": "Connection failed"
+      }
+    }
+  },
+  "unexpectedError": "Error inesperado: {error}",
+  "@unexpectedError": {
+    "description": "Error inesperado",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Unknown error"
+      }
+    }
+  },
+  "validIDURequired": "⚠️ Debes ingresar un IDU válido para anular.",
+  "successfulCancellationTitle": "Anulación Exitosa",
+  "canceledTransactionIDU": "La transacción anulada con éxito tenía el IDU:\n{idu}",
+  "@canceledTransactionIDU": {
+    "description": "IDU de transacción anulada",
+    "placeholders": {
+      "idu": {
+        "type": "String",
+        "example": "123456"
+      }
+    }
+  },
+  "closeButton": "Cerrar",
+  "multicommerceResponse": "Respuesta Multicomercio",
+  "binQueryResults": "Resultados Consulta BIN",
+  "correctResponseNoBins": "Respuesta correcta pero no se encontraron BINs.",
+  "invalidMulticommerceResponse": "Respuesta multicomercio inválida: no se encontró LIS=",
+  "commerceNumber": "Comercio {number}:",
+  "@commerceNumber": {
+    "description": "Número de comercio",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "enterPassword": "Ingrese la contraseña",
+  "password": "Contraseña",
+  "cancel": "Cancelar",
+  "accept": "Aceptar",
+  "incorrectPassword": "Contraseña incorrecta",
+  "tapToRefuel": "TOCA LA PANTALLA\nPARA ABASTECER",
+  "poweredByEscienza": "Powered by Escienza",
+  "invoiceTitle": "FACTURAR TRANSACCIÓN",
+  "invoiceFactura": "FACTURA",
+  "invoiceBoleta": "BOLETA",
+  "invoiceNota": "NOTA",
+  "customerData": "DATOS CLIENTE",
+  "documentNumber": "N° Documento",
+  "plate": "Placa",
+  "paymentMethods": "MÉTODOS DE PAGO",
+  "addPaymentMethod": "Agregar método",
+  "method": "Método",
+  "amount": "Monto",
+  "totalTransaction": "Total transacción: S/ {total}",
+  "generateCPE": "GENERAR CPE",
+  "product": "Producto",
+  "pump": "Bomba",
+  "volume": "Volumen",
+  "discount": "Descuento",
+  "chargeSuccess": "Cobro exitoso",
+  "chargeError": "Error en el cobro",
+  "chargeCancelled": "Cobro cancelado por el usuario",
+  "unknownResult": "Resultado desconocido: {extopValue}",
+  "documentGenerated": "✅ Documento generado correctamente.",
+  "documentError": "❌ Error generando CPE: {error}",
+  "printError": "🖨️ Error al imprimir con Niubiz: {error}",
+  "thanksForPreference": "Gracias por su preferencia",
+  "validateReceipt": "Valida tu comprobante en:",
+  "date": "Fecha",
+  "serie": "Serie",
+  "productDetail": "DETALLE DEL PRODUCTO",
+  "summary": "RESUMEN",
+  "subtotal": "Subtotal",
+  "igv": "IGV (18)",
+  "total": "Total",
+  "payments": "PAGOS",
+  "importe": "Importe",
+  "unitPrice": "Precio Unit",
+  "email": "Correo",
+  "docId": "Doc. ID",
+  "name": "Nombre",
+  "address": "Direccion",
+  "plateLabel": "Placa",
+  "print": "Imprimir",
+  "back": "Atrás",
+  "success": "Éxito",
+  "error": "Error",
+  "loading": "Cargando...",
+  "removeMethod": "Quitar método",
+  "clientName": "Nombre del cliente",
+  "clientAddress": "Dirección del cliente",
+  "clientPhone": "Teléfono del cliente",
+  "clientEmail": "Correo del cliente",
+  "clientDocument": "Documento del cliente",
+  "clientPlate": "Placa del cliente",
+  "add": "Agregar",
+  "cancel": "Cancelar",
+  "accept": "Aceptar"
 }

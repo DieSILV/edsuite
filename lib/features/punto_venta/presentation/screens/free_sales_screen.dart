@@ -1,6 +1,7 @@
 import 'package:edsuite/features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:edsuite/features/punto_venta/data/data.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -37,7 +38,13 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
 
   void _irAFacturar(TransactionModel venta) {
     context.read<PaymentPuntoVentaBloc>().add(SetCurrentVentaEvent(venta));
-    context.push("/invoice");
+    context.push(
+      "/invoice",
+      extra: InvoiceScreenParams(
+        transaccion: venta.toJson(),
+        availablePaymentMethodIds: [1, 3],
+      ),
+    );
     /* Navigator.push(
       context,
       MaterialPageRoute(
@@ -63,6 +70,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
           switch (state.status) {
             case UserActionStatus.successTransactionData:
               ventas = state.transactionData!;
+              setState(() {});
               break;
             default:
           }

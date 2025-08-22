@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
+import 'package:edsuite/features/punto_venta/presentation/bloc/user_actions/user_actions_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +43,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
   Future<void> _loadVisaBatchStatus() async {
     //final prefs = await SharedPreferences.getInstance();
-    final userState = context.read<UserBloc>().state;
+    final userState = context.read<UserActionBloc>().state;
     setState(() {
       isVisaBatchClosed = userState.visaBatchClosed;
     });
@@ -177,7 +178,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
 
         if (extopValue == '00') {
           //await prefs.setBool('visa_batch_closed', true);
-          context.read<UserBloc>().add(const UpdateVisaBatchClosed(true));
+          context.read<UserActionBloc>().add(const UpdateVisaBatchClosed(true));
           setState(() {
             isVisaBatchClosed = true;
           });
@@ -197,7 +198,9 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
           );
         } else if (extopValue == '01') {
           //await prefs.setBool('visa_batch_closed', false);
-          context.read<UserBloc>().add(const UpdateVisaBatchClosed(false));
+          context.read<UserActionBloc>().add(
+            const UpdateVisaBatchClosed(false),
+          );
           setState(() {
             isVisaBatchClosed = false;
           });
@@ -219,7 +222,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
       }
     } on PlatformException catch (_) {
       //final prefs = await SharedPreferences.getInstance();
-      context.read<UserBloc>().add(const UpdateVisaBatchClosed(false));
+      context.read<UserActionBloc>().add(const UpdateVisaBatchClosed(false));
       setState(() {
         isVisaBatchClosed = false;
       });

@@ -1,4 +1,7 @@
+import 'package:edsuite/core/extensions/context_extensions.dart';
+import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -40,22 +43,25 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ingrese la contraseña'),
+        title: Text(context.l10n.enterPassword),
         content: TextField(
           controller: _passwordController,
           obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Contraseña',
-            focusedBorder: OutlineInputBorder(
+          decoration: InputDecoration(
+            labelText: context.l10n.password,
+            focusedBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.blue),
             ),
-            border: OutlineInputBorder(),
+            border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.blue)),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(color: Colors.blue),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -66,10 +72,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               if (_passwordController.text == 'escienza2025**') {
                 Navigator.pop(context, true);
               } else {
-                _showMessage('Contraseña incorrecta');
+                _showMessage(context.l10n.incorrectPassword);
               }
             },
-            child: const Text('Aceptar'),
+            child: Text(context.l10n.accept),
           ),
         ],
       ),
@@ -90,6 +96,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        context.read<DispenserBloc>().add(ClearDataDispenser());
         context.pushReplacement('/dispenser');
       },
       child: Scaffold(
@@ -107,8 +114,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     const SizedBox(height: 30),
                     ScaleTransition(
                       scale: _animation,
-                      child: const Text(
-                        'TOCA LA PANTALLA\nPARA ABASTECER',
+                      child: Text(
+                        context.l10n.tapToRefuel,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
@@ -128,8 +135,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Powered by Escienza',
+                  Text(
+                    context.l10n.poweredByEscienza,
                     style: TextStyle(color: Colors.white),
                   ),
                   IconButton(

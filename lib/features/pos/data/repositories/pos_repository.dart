@@ -17,8 +17,8 @@ class PosRepository implements IPosRepository {
       final response = await http
           .post(
             //TODO: apipts
-            Uri.parse('$baseUrl/apipts/pos-identifiers/resolve'),
-            //Uri.parse('$baseUrl/pos-identifiers/resolve'),
+            //Uri.parse('$baseUrl/apipts/pos-identifiers/resolve'),
+            Uri.parse('$baseUrl/pos-identifiers/resolve'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({"code": code}),
           )
@@ -58,8 +58,8 @@ class PosRepository implements IPosRepository {
     try {
       final response = await http
           //TODO: apipts
-          .get(Uri.parse('$baseUrl/apipts/status/ping'))
-          //.get(Uri.parse('$baseUrl/status/ping'))
+          //.get(Uri.parse('$baseUrl/apipts/status/ping'))
+          .get(Uri.parse('$baseUrl/status/ping'))
           .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {

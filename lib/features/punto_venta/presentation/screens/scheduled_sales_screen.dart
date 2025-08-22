@@ -166,6 +166,8 @@ class _ScheduledSalesScreenState extends State<ScheduledSalesScreen> {
         presetType: presetType,
         dose: (presetType != "FullTank") ? double.parse(inputValor) : 0.0,
         price: selectedPump!.nozzles[0].price,
+        usuarioId: userState.userData!.id.toString(),
+        turnoId: userState.turnoData!.id.toString(),
       ),
     );
 

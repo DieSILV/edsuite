@@ -1,3 +1,4 @@
+import 'package:edsuite/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -22,6 +23,8 @@ class _NiubizScreenState extends State<NiubizScreen> {
   bool isProcessingReverso = false;
   bool isProcessingConsultaBin = false;
   bool isProcessingCopyLastTransaction = false;
+  bool isProcessingBatchHistory = false;
+  bool isProcessingReportsDetail = false;
 
   @override
   void dispose() {
@@ -53,7 +56,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
       final Map? result = await platform.invokeMethod(method, arguments);
 
       if (result == null || result.isEmpty) {
-        _showMessage('⚠️ No se recibió respuesta del POS.', isSuccess: false);
+        _showMessage(context.l10n.noResponseFromPOS, isSuccess: false);
         setState(() => _setProcessing(buttonKey, false));
         return;
       }
@@ -107,25 +110,19 @@ class _NiubizScreenState extends State<NiubizScreen> {
         if (extopCode == '00') {
           if (binPairs.isNotEmpty) {
             _showBinDialog(binPairs);
-            _showMessage('Consulta BIN exitosa.', isSuccess: true);
+            _showMessage(context.l10n.binQuerySuccess, isSuccess: true);
           } else {
-            _showMessage(
-              'Respuesta correcta pero no se encontraron BINs.',
-              isSuccess: true,
-            );
+            _showMessage(context.l10n.correctResponseNoBins, isSuccess: true);
           }
         } else if (extopCode == '13') {
-          _showMessage('Petición Cancelada', isSuccess: false);
+          _showMessage(context.l10n.requestCanceled, isSuccess: false);
         } else if (extopCode != null) {
           _showMessage(
-            'Petición No Exitosa (EXTOP=$extopCode)',
+            context.l10n.requestFailed(extopCode ?? ""),
             isSuccess: false,
           );
         } else {
-          _showMessage(
-            'No se recibió código de estado (EXTOP).',
-            isSuccess: false,
-          );
+          _showMessage(context.l10n.noStatusCodeReceived, isSuccess: false);
         }
         return;
       }
@@ -140,19 +137,19 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
         if (extopCode == '00') {
           _showParsedMulticomercioDialog(combinedResponse);
-          _showMessage('Transacción multicomercio exitosa.', isSuccess: true);
+          _showMessage(
+            context.l10n.multicommerceTransactionSuccess,
+            isSuccess: true,
+          );
         } else if (extopCode == '13') {
-          _showMessage('Petición Cancelada', isSuccess: false);
+          _showMessage(context.l10n.requestCanceled, isSuccess: false);
         } else if (extopCode != null) {
           _showMessage(
-            'Petición No Exitosa (EXTOP=$extopCode)',
+            context.l10n.requestFailed(extopCode ?? ""),
             isSuccess: false,
           );
         } else {
-          _showMessage(
-            'No se recibió código de estado (EXTOP).',
-            isSuccess: false,
-          );
+          _showMessage(context.l10n.noStatusCodeReceived, isSuccess: false);
         }
         return;
       }
@@ -164,45 +161,45 @@ class _NiubizScreenState extends State<NiubizScreen> {
             if (iduValue != null) {
               _showIDUDialog(iduValue!);
             }
-            _showMessage('Anulación exitosa.', isSuccess: true);
+            _showMessage(context.l10n.successfulCancellation, isSuccess: true);
             break;
           case 'duplicado':
-            _showMessage('Impresión duplicado exitosa.', isSuccess: true);
+            _showMessage(context.l10n.duplicatePrintSuccess, isSuccess: true);
             break;
           case 'inicializar':
-            _showMessage('Inicialización exitosa.', isSuccess: true);
+            _showMessage(context.l10n.initializationSuccess, isSuccess: true);
             break;
           case 'reverso':
-            _showMessage('Reverso ejecutado con éxito.', isSuccess: true);
+            _showMessage(context.l10n.reversalSuccess, isSuccess: true);
             break;
           case 'copy_last_transaction':
-            _showMessage(
-              'Copia de última transacción exitosa.',
-              isSuccess: true,
-            );
+            _showMessage(context.l10n.copyTransactionSuccess, isSuccess: true);
             break;
           default:
-            _showMessage('Petición exitosa.', isSuccess: true);
+            _showMessage(context.l10n.successfulRequest, isSuccess: true);
         }
       } else if (extopCode == '13') {
-        _showMessage('Petición Cancelada', isSuccess: false);
+        _showMessage(context.l10n.requestCanceled, isSuccess: false);
       } else if (extopCode != null) {
         _showMessage(
-          'Petición No Exitosa (EXTOP=$extopCode)',
+          context.l10n.requestFailed(extopCode ?? ""),
           isSuccess: false,
         );
       } else {
-        _showMessage(
-          'No se recibió código de estado (EXTOP).',
-          isSuccess: false,
-        );
+        _showMessage(context.l10n.noStatusCodeReceived, isSuccess: false);
       }
     } on PlatformException catch (e) {
       setState(() => _setProcessing(buttonKey, false));
-      _showMessage('Error del canal nativo: ${e.message}', isSuccess: false);
+      _showMessage(
+        context.l10n.nativeChannelError(e.message ?? ''),
+        isSuccess: false,
+      );
     } catch (e) {
       setState(() => _setProcessing(buttonKey, false));
-      _showMessage('Error inesperado: $e', isSuccess: false);
+      _showMessage(
+        context.l10n.unexpectedError(e.toString()),
+        isSuccess: false,
+      );
     }
   }
 
@@ -211,12 +208,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Anulación Exitosa'),
-          content: Text('La transacción anulada con éxito tenía el IDU:\n$idu'),
+          title: Text(context.l10n.successfulCancellationTitle),
+          content: Text(context.l10n.canceledTransactionIDU(idu)),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+              child: Text(context.l10n.closeButton),
             ),
           ],
         );
@@ -227,10 +224,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
   void _showParsedMulticomercioDialog(String rawResponse) {
     final lisIndex = rawResponse.indexOf('LIS=');
     if (lisIndex == -1) {
-      _showMessage(
-        'Respuesta multicomercio inválida: no se encontró LIS=',
-        isSuccess: false,
-      );
+      _showMessage(context.l10n.invalidMulticommerceResponse, isSuccess: false);
       return;
     }
 
@@ -259,7 +253,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
     final buffer = StringBuffer();
     for (int i = 0; i < comerciosParseados.length; i++) {
-      buffer.writeln('Comercio ${i + 1}:');
+      buffer.writeln(context.l10n.commerceNumber(i + 1));
       comerciosParseados[i].forEach((key, value) {
         buffer.writeln('  $key: $value');
       });
@@ -270,12 +264,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Respuesta Multicomercio'),
+          title: Text(context.l10n.multicommerceResponse),
           content: SingleChildScrollView(child: Text(buffer.toString())),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cerrar'),
+              child: Text(context.l10n.closeButton),
             ),
           ],
         );
@@ -288,7 +282,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Resultados Consulta BIN'),
+          title: Text(context.l10n.binQueryResults),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(
@@ -304,7 +298,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
           ),
           actions: [
             TextButton(
-              child: const Text('Cerrar'),
+              child: Text(context.l10n.closeButton),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -348,10 +342,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
   Future<void> anularPorIDU(String idu) async {
     if (idu.trim().isEmpty) {
-      _showMessage(
-        '⚠️ Debes ingresar un IDU válido para anular.',
-        isSuccess: false,
-      );
+      _showMessage(context.l10n.validIDURequired, isSuccess: false);
       return;
     }
     await _invokeNiubizMethod(
@@ -388,19 +379,30 @@ class _NiubizScreenState extends State<NiubizScreen> {
     );
   }
 
+  Future<void> batchHistory() async {
+    await _invokeNiubizMethod('batchHistory', buttonKey: 'batchHistory');
+  }
+
+  Future<void> reportsDetail() async {
+    await _invokeNiubizMethod('reportsDetail', buttonKey: 'reportsDetail');
+  }
+
   @override
   Widget build(BuildContext context) {
-    //final montoStr = _controllerMonto.text.replaceAll(',', '.');
-    /* final isValidMonto =
-        double.tryParse(montoStr) != null && double.parse(montoStr) > 0; */
+    final montoStr = _controllerMonto.text.replaceAll(',', '.');
+    final isValidMonto =
+        double.tryParse(montoStr) != null && double.parse(montoStr) > 0;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text(
-          'NIUBIZ',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          context.l10n.niubizTitle,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       body: Padding(
@@ -409,12 +411,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildSectionTitle('Anular por Referencia'),
+              _buildSectionTitle(context.l10n.cancelByReference),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Anular la última transacción mediante referencia.',
+                      context.l10n.cancelByReferenceDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -444,7 +446,7 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Anular por IDU'),
+              _buildSectionTitle(context.l10n.cancelByIDU),
               Row(
                 children: [
                   Expanded(
@@ -453,9 +455,9 @@ class _NiubizScreenState extends State<NiubizScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: false,
                       ),
-                      decoration: const InputDecoration(
-                        labelText: 'Número IDU para anular',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.iduNumberLabel,
+                        border: const OutlineInputBorder(),
                       ),
                       enabled: !isProcessingIDU,
                     ),
@@ -489,12 +491,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Reimprimir Duplicado'),
+              _buildSectionTitle(context.l10n.reprintDuplicate),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Reimprimir el duplicado de la última acción por POS.',
+                      context.l10n.reprintDuplicateDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -524,12 +526,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Inicializar Niubiz'),
+              _buildSectionTitle(context.l10n.initializeNiubiz),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Inicializar Niubiz en el POS para usarlo.',
+                      context.l10n.initializeNiubizDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -559,12 +561,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Copia Última Transacción'),
+              _buildSectionTitle(context.l10n.copyLastTransaction),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Copiar la última transacción.',
+                      context.l10n.copyLastTransactionDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -594,12 +596,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Multicomercio'),
+              _buildSectionTitle(context.l10n.multicommerce),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Lanzar transacción multicomercio en POS.',
+                      context.l10n.multicommerceDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -627,12 +629,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Reverso'),
+              _buildSectionTitle(context.l10n.reversal),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Ejecutar reverso de la última transacción.',
+                      context.l10n.reversalDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -660,12 +662,12 @@ class _NiubizScreenState extends State<NiubizScreen> {
 
               const Divider(height: 40),
 
-              _buildSectionTitle('Consulta BIN'),
+              _buildSectionTitle(context.l10n.binQuery),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Consultar BIN en el POS.',
+                      context.l10n.binQueryDesc,
                       style: TextStyle(color: Colors.grey[700]),
                     ),
                   ),
@@ -687,6 +689,72 @@ class _NiubizScreenState extends State<NiubizScreen> {
                             ),
                           )
                         : const Icon(Icons.search, size: 28),
+                  ),
+                ],
+              ),
+
+              const Divider(height: 40),
+
+              _buildSectionTitle(context.l10n.batchHistory),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.l10n.batchHistoryDesc,
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: isProcessingBatchHistory ? null : batchHistory,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(16),
+                      shape: const CircleBorder(),
+                      backgroundColor: Colors.teal,
+                    ),
+                    child: isProcessingBatchHistory
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.history, size: 28),
+                  ),
+                ],
+              ),
+
+              const Divider(height: 40),
+
+              _buildSectionTitle(context.l10n.reportsDetail),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.l10n.reportsDetailDesc,
+                      style: TextStyle(color: Colors.grey[700]),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: isProcessingReportsDetail ? null : reportsDetail,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(16),
+                      shape: const CircleBorder(),
+                      backgroundColor: Colors.teal,
+                    ),
+                    child: isProcessingReportsDetail
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 3,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.list_alt, size: 28),
                   ),
                 ],
               ),

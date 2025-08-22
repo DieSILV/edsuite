@@ -86,8 +86,8 @@ class DispenserRepository implements IDispenserRepository {
     try {
       final response = await http.post(
         //TODO: apipts
-        Uri.parse("${baseUrl}/apipts/clientes/obtener"),
-        //Uri.parse("${baseUrl}/clientes/obtener"),
+        //Uri.parse("${baseUrl}/apipts/clientes/obtener"),
+        Uri.parse("${baseUrl}/clientes/obtener"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"numero_doc": documento}),
       );

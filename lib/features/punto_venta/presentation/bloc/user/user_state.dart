@@ -20,7 +20,6 @@ class UserState extends Equatable {
     required this.status,
     this.userData,
     this.turnoData,
-    this.visaBatchClosed = false,
     this.failure,
   });
 
@@ -29,7 +28,6 @@ class UserState extends Equatable {
   final UserStatus status;
   final UserModel? userData;
   final TurnoModel? turnoData;
-  final bool visaBatchClosed;
   final Failure? failure;
 
   UserState copyWith({
@@ -43,17 +41,10 @@ class UserState extends Equatable {
       status: status ?? this.status,
       userData: userData ?? this.userData,
       turnoData: turnoData ?? this.turnoData,
-      visaBatchClosed: visaBatchClosed ?? this.visaBatchClosed,
       failure: failure ?? this.failure,
     );
   }
 
   @override
-  List<Object?> get props => [
-    status,
-    userData,
-    turnoData,
-    visaBatchClosed,
-    failure,
-  ];
+  List<Object?> get props => [status, userData, turnoData, failure];
 }

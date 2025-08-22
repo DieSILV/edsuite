@@ -15,7 +15,8 @@ class DispenserResponseModel {
     for (final bomba in bombas) {
       if (bomba.isAvailable) {
         availablePumps.add(
-          PumpAvailable(pump: bomba.pump, side: 'LADO ${bomba.pump}'),
+          //TODO: L10n
+          PumpAvailable(pump: bomba.pump, side: 'SIDE ${bomba.pump}'),
         );
       }
     }

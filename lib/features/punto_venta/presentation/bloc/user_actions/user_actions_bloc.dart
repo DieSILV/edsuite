@@ -14,6 +14,14 @@ class UserActionBloc extends Bloc<UserActionEvent, UserActionState> {
       super(const UserActionState.initial()) {
     on<ClearDataEvent>(_onClearDataCustomer);
     on<GetTransactionEvent>(_onGetTransactionData);
+    on<UpdateVisaBatchClosed>(_onUpdateVisaBatchClosed);
+  }
+
+  Future<void> _onUpdateVisaBatchClosed(
+    UpdateVisaBatchClosed event,
+    Emitter<UserActionState> emit,
+  ) async {
+    emit(state.copyWith(visaBatchClosed: event.visaBatchClosed));
   }
 
   Future<void> _onClearDataCustomer(

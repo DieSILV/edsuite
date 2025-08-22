@@ -141,31 +141,7 @@ class DispenserBloc extends Bloc<DispenserEvent, DispenserState> {
     ClearDataDispenser event,
     Emitter<DispenserState> emit,
   ) async {
-    try {
-      emit(
-        state.copyWith(
-          status: DispenserStatus.successClear,
-          selectedSide: null,
-          selectedPump: null,
-          remainingTime: null,
-          selectedFuelPrice: null,
-          selectedSaleType: null,
-          selectedSaleAmount: null,
-          currentProduct: null,
-          clienteResponse: null,
-          dispenserResponse: null,
-          pumpConfigResponse: null,
-        ),
-      );
-    } catch (e) {
-      addError(e);
-      emit(
-        state.copyWith(
-          status: DispenserStatus.failed,
-          failure: Failure(message: e.toString()),
-        ),
-      );
-    }
+    emit(const DispenserState.initial());
   }
 
   Future<void> _onGetStatusDispenser(

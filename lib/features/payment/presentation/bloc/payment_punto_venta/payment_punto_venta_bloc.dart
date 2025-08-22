@@ -46,7 +46,9 @@ class PaymentPuntoVentaBloc
 
         final availableMethods = paymentMethods.paymentMethods
             .where(
-              (method) => state.availablePaymentMethodIds.contains(method.id),
+              (method) => state.availablePaymentMethodIds.contains(
+                int.tryParse(method.id) ?? -1,
+              ),
             )
             .toList();
 

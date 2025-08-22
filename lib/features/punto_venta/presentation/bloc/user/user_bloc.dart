@@ -19,14 +19,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<LoginWithCodeEvent>(_onLoginWithCode);
     on<LoadSessionEvent>(_onLoadSession);
     on<LogoutEvent>(_onLogout);
-    on<UpdateVisaBatchClosed>(_onUpdateVisaBatchClosed);
-  }
-
-  Future<void> _onUpdateVisaBatchClosed(
-    UpdateVisaBatchClosed event,
-    Emitter<UserState> emit,
-  ) async {
-    emit(state.copyWith(visaBatchClosed: event.visaBatchClosed));
   }
 
   Future<void> _onClearDataCustomer(

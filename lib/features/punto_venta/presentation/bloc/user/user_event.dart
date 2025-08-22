@@ -11,15 +11,6 @@ class ClearDataEvent extends UserEvent {
   const ClearDataEvent();
 }
 
-class UpdateVisaBatchClosed extends UserEvent {
-  const UpdateVisaBatchClosed(this.visaBatchClosed);
-
-  final bool visaBatchClosed;
-
-  @override
-  List<Object> get props => [visaBatchClosed];
-}
-
 class GetUserDataEvent extends UserEvent {
   const GetUserDataEvent({required this.baseUrl, required this.code});
 

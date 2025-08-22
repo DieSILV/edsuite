@@ -505,6 +505,636 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No configuration found for this pump.'**
   String get noPumpConfiguration;
+
+  /// No description provided for @niubizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NIUBIZ'**
+  String get niubizTitle;
+
+  /// No description provided for @cancelByReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel by Reference'**
+  String get cancelByReference;
+
+  /// No description provided for @cancelByReferenceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the last transaction by reference.'**
+  String get cancelByReferenceDesc;
+
+  /// No description provided for @cancelByIDU.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel by IDU'**
+  String get cancelByIDU;
+
+  /// No description provided for @iduNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'IDU number to cancel'**
+  String get iduNumberLabel;
+
+  /// No description provided for @reprintDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reprint Duplicate'**
+  String get reprintDuplicate;
+
+  /// No description provided for @reprintDuplicateDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reprint duplicate of the last POS action.'**
+  String get reprintDuplicateDesc;
+
+  /// No description provided for @initializeNiubiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialize Niubiz'**
+  String get initializeNiubiz;
+
+  /// No description provided for @initializeNiubizDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialize Niubiz in the POS to use it.'**
+  String get initializeNiubizDesc;
+
+  /// No description provided for @copyLastTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy Last Transaction'**
+  String get copyLastTransaction;
+
+  /// No description provided for @copyLastTransactionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy the last transaction.'**
+  String get copyLastTransactionDesc;
+
+  /// No description provided for @multicommerce.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-commerce'**
+  String get multicommerce;
+
+  /// No description provided for @multicommerceDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Launch multi-commerce transaction in POS.'**
+  String get multicommerceDesc;
+
+  /// No description provided for @reversal.
+  ///
+  /// In en, this message translates to:
+  /// **'Reversal'**
+  String get reversal;
+
+  /// No description provided for @reversalDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Execute reversal of the last transaction.'**
+  String get reversalDesc;
+
+  /// No description provided for @binQuery.
+  ///
+  /// In en, this message translates to:
+  /// **'BIN Query'**
+  String get binQuery;
+
+  /// No description provided for @binQueryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Query BIN in the POS.'**
+  String get binQueryDesc;
+
+  /// No description provided for @batchHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Batch History'**
+  String get batchHistory;
+
+  /// No description provided for @batchHistoryDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Query batch closure history.'**
+  String get batchHistoryDesc;
+
+  /// No description provided for @reportsDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports Detail'**
+  String get reportsDetail;
+
+  /// No description provided for @reportsDetailDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get reports detail from POS.'**
+  String get reportsDetailDesc;
+
+  /// No description provided for @noResponseFromPOS.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ No response received from POS.'**
+  String get noResponseFromPOS;
+
+  /// No description provided for @successfulCancellation.
+  ///
+  /// In en, this message translates to:
+  /// **'Successful cancellation.'**
+  String get successfulCancellation;
+
+  /// No description provided for @duplicatePrintSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate print successful.'**
+  String get duplicatePrintSuccess;
+
+  /// No description provided for @initializationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialization successful.'**
+  String get initializationSuccess;
+
+  /// No description provided for @reversalSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Reversal executed successfully.'**
+  String get reversalSuccess;
+
+  /// No description provided for @copyTransactionSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Last transaction copy successful.'**
+  String get copyTransactionSuccess;
+
+  /// No description provided for @multicommerceTransactionSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-commerce transaction successful.'**
+  String get multicommerceTransactionSuccess;
+
+  /// No description provided for @binQuerySuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'BIN query successful.'**
+  String get binQuerySuccess;
+
+  /// No description provided for @requestCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Request Canceled'**
+  String get requestCanceled;
+
+  /// Message when a request fails
+  ///
+  /// In en, this message translates to:
+  /// **'Request Failed (EXTOP={code})'**
+  String requestFailed(String code);
+
+  /// No description provided for @noStatusCodeReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'No status code received (EXTOP).'**
+  String get noStatusCodeReceived;
+
+  /// No description provided for @successfulRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'Successful request.'**
+  String get successfulRequest;
+
+  /// Native channel error
+  ///
+  /// In en, this message translates to:
+  /// **'Native channel error: {message}'**
+  String nativeChannelError(String message);
+
+  /// Unexpected error
+  ///
+  /// In en, this message translates to:
+  /// **'Unexpected error: {error}'**
+  String unexpectedError(String error);
+
+  /// No description provided for @validIDURequired.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ You must enter a valid IDU to cancel.'**
+  String get validIDURequired;
+
+  /// No description provided for @successfulCancellationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Successful Cancellation'**
+  String get successfulCancellationTitle;
+
+  /// IDU of canceled transaction
+  ///
+  /// In en, this message translates to:
+  /// **'The successfully canceled transaction had the IDU:\n{idu}'**
+  String canceledTransactionIDU(String idu);
+
+  /// No description provided for @closeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get closeButton;
+
+  /// No description provided for @multicommerceResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-commerce Response'**
+  String get multicommerceResponse;
+
+  /// No description provided for @binQueryResults.
+  ///
+  /// In en, this message translates to:
+  /// **'BIN Query Results'**
+  String get binQueryResults;
+
+  /// No description provided for @correctResponseNoBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct response but no BINs found.'**
+  String get correctResponseNoBins;
+
+  /// No description provided for @invalidMulticommerceResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid multi-commerce response: LIS= not found'**
+  String get invalidMulticommerceResponse;
+
+  /// Commerce number
+  ///
+  /// In en, this message translates to:
+  /// **'Commerce {number}:'**
+  String commerceNumber(int number);
+
+  /// No description provided for @enterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get enterPassword;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @incorrectPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect password'**
+  String get incorrectPassword;
+
+  /// No description provided for @tapToRefuel.
+  ///
+  /// In en, this message translates to:
+  /// **'TAP THE SCREEN\nTO REFUEL'**
+  String get tapToRefuel;
+
+  /// No description provided for @poweredByEscienza.
+  ///
+  /// In en, this message translates to:
+  /// **'Powered by Escienza'**
+  String get poweredByEscienza;
+
+  /// No description provided for @invoiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'INVOICE TRANSACTION'**
+  String get invoiceTitle;
+
+  /// No description provided for @invoiceFactura.
+  ///
+  /// In en, this message translates to:
+  /// **'INVOICE'**
+  String get invoiceFactura;
+
+  /// No description provided for @invoiceBoleta.
+  ///
+  /// In en, this message translates to:
+  /// **'RECEIPT'**
+  String get invoiceBoleta;
+
+  /// No description provided for @invoiceNota.
+  ///
+  /// In en, this message translates to:
+  /// **'NOTE'**
+  String get invoiceNota;
+
+  /// No description provided for @customerData.
+  ///
+  /// In en, this message translates to:
+  /// **'CUSTOMER DATA'**
+  String get customerData;
+
+  /// No description provided for @documentNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Document Number'**
+  String get documentNumber;
+
+  /// No description provided for @plate.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate'**
+  String get plate;
+
+  /// No description provided for @paymentMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'PAYMENT METHODS'**
+  String get paymentMethods;
+
+  /// No description provided for @addPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Add method'**
+  String get addPaymentMethod;
+
+  /// No description provided for @method.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get method;
+
+  /// No description provided for @amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount;
+
+  /// No description provided for @totalTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Total transaction: S/ {total}'**
+  String totalTransaction(Object total);
+
+  /// No description provided for @generateCPE.
+  ///
+  /// In en, this message translates to:
+  /// **'GENERATE CPE'**
+  String get generateCPE;
+
+  /// No description provided for @product.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get product;
+
+  /// No description provided for @pump.
+  ///
+  /// In en, this message translates to:
+  /// **'Pump'**
+  String get pump;
+
+  /// No description provided for @volume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get volume;
+
+  /// No description provided for @discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discount;
+
+  /// No description provided for @chargeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Charge successful'**
+  String get chargeSuccess;
+
+  /// No description provided for @chargeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Charge error'**
+  String get chargeError;
+
+  /// No description provided for @chargeCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Charge cancelled by user'**
+  String get chargeCancelled;
+
+  /// No description provided for @unknownResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown result: {extopValue}'**
+  String unknownResult(Object extopValue);
+
+  /// No description provided for @documentGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'✅ Document generated successfully.'**
+  String get documentGenerated;
+
+  /// No description provided for @documentError.
+  ///
+  /// In en, this message translates to:
+  /// **'❌ Error generating CPE: {error}'**
+  String documentError(Object error);
+
+  /// No description provided for @printError.
+  ///
+  /// In en, this message translates to:
+  /// **'🖨️ Error printing with Niubiz: {error}'**
+  String printError(Object error);
+
+  /// No description provided for @thanksForPreference.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your preference'**
+  String get thanksForPreference;
+
+  /// No description provided for @validateReceipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate your receipt at:'**
+  String get validateReceipt;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @serie.
+  ///
+  /// In en, this message translates to:
+  /// **'Serie'**
+  String get serie;
+
+  /// No description provided for @productDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'PRODUCT DETAIL'**
+  String get productDetail;
+
+  /// No description provided for @summary.
+  ///
+  /// In en, this message translates to:
+  /// **'SUMMARY'**
+  String get summary;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @igv.
+  ///
+  /// In en, this message translates to:
+  /// **'IGV (18)'**
+  String get igv;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @payments.
+  ///
+  /// In en, this message translates to:
+  /// **'PAYMENTS'**
+  String get payments;
+
+  /// No description provided for @importe.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get importe;
+
+  /// No description provided for @unitPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit Price'**
+  String get unitPrice;
+
+  /// No description provided for @email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email;
+
+  /// No description provided for @docId.
+  ///
+  /// In en, this message translates to:
+  /// **'Doc. ID'**
+  String get docId;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
+
+  /// No description provided for @plateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plate'**
+  String get plateLabel;
+
+  /// No description provided for @print.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get print;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @success.
+  ///
+  /// In en, this message translates to:
+  /// **'Success'**
+  String get success;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @removeMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove method'**
+  String get removeMethod;
+
+  /// No description provided for @clientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Client name'**
+  String get clientName;
+
+  /// No description provided for @clientAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Client address'**
+  String get clientAddress;
+
+  /// No description provided for @clientPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Client phone'**
+  String get clientPhone;
+
+  /// No description provided for @clientEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Client email'**
+  String get clientEmail;
+
+  /// No description provided for @clientDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Client document'**
+  String get clientDocument;
+
+  /// No description provided for @clientPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Client plate'**
+  String get clientPlate;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
 }
 
 class _AppLocalizationsDelegate

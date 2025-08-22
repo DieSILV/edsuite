@@ -11,6 +11,15 @@ class ClearDataEvent extends UserActionEvent {
   const ClearDataEvent();
 }
 
+class UpdateVisaBatchClosed extends UserActionEvent {
+  const UpdateVisaBatchClosed(this.visaBatchClosed);
+
+  final bool visaBatchClosed;
+
+  @override
+  List<Object> get props => [visaBatchClosed];
+}
+
 class GetTransactionEvent extends UserActionEvent {
   const GetTransactionEvent({
     required this.baseUrl,

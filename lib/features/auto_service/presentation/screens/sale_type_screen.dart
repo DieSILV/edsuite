@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:edsuite/core/extensions/context_extensions.dart';
 import 'package:edsuite/features/pos/data/models/pump_config_response_model.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -229,28 +230,33 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                           ),
                           const SizedBox(height: 30),
                           if (saleType != null)
-                            TextField(
-                              controller: _amountController,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                    decimal: true,
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: context.screenWidth * 0.05,
+                              ),
+                              child: TextField(
+                                controller: _amountController,
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                onChanged: (_) => setState(() {}),
+                                style: const TextStyle(color: white),
+                                decoration: InputDecoration(
+                                  labelText: context.l10n.enterAmountIn,
+                                  labelStyle: const TextStyle(
+                                    color: Colors.white70,
                                   ),
-                              onChanged: (_) => setState(() {}),
-                              style: const TextStyle(color: white),
-                              decoration: InputDecoration(
-                                labelText: context.l10n.enterAmountIn,
-                                labelStyle: const TextStyle(
-                                  color: Colors.white70,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white24,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: white),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: const BorderSide(color: white),
+                                  filled: true,
+                                  fillColor: Colors.white24,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: white),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    borderSide: const BorderSide(color: white),
+                                  ),
                                 ),
                               ),
                             ),

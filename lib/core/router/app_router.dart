@@ -128,7 +128,9 @@ final appRouter = GoRouter(
     GoRoute(
       path: "/invoice",
       builder: (context, state) {
-        return InvoiceScreen();
+        final params = state.extra as InvoiceScreenParams;
+
+        return InvoiceScreen(params: params);
       },
     ),
     GoRoute(
