@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:edsuite/core/extensions/extensions.dart';
 import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
 import 'package:edsuite/features/payment/presentation/bloc/payment/payment_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
@@ -114,7 +115,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     final selectedSaleAmount = dispenserState.selectedSaleAmount!;
     final selectedFuelPrice = dispenserState.currentProduct!.price;
 
-    double total = saleType == 'GALONES'
+    double total = saleType == context.l10n.gallons
         ? selectedSaleAmount * selectedFuelPrice
         : selectedSaleAmount;
 
@@ -213,9 +214,9 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
     String presetTypeString = dispenserState.selectedSaleType ?? '';
     double dose = dispenserState.selectedSaleAmount ?? 0.0;
     double price = dispenserState.currentProduct?.price ?? 0.0;
-    final presetType = presetTypeString == "SOLES"
+    final presetType = presetTypeString == context.l10n.soles
         ? "Amount"
-        : presetTypeString == "GALONES"
+        : presetTypeString == context.l10n.gallons
         ? "Volume"
         : "FullTank";
 
@@ -465,7 +466,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                       const SizedBox(height: 8),
 
                       Text(
-                        'TOTAL A COBRAR: S/ //${amountToCharge.toStringAsFixed(2)}',
+                        context.l10n.totalToCharge(
+                          amountToCharge.toStringAsFixed(2),
+                        ),
+                        //'TOTAL A COBRAR: S/ //${amountToCharge.toStringAsFixed(2)}',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
@@ -474,7 +478,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                       ),
                       if (isCashKeeperActive)
                         Text(
-                          'Depositado: S/ ${depositedAmount.toStringAsFixed(2)}',
+                          context.l10n.depositedAmount(
+                            depositedAmount.toStringAsFixed(2),
+                          ),
+                          //'Depositado: S/ ${depositedAmount.toStringAsFixed(2)}',
                           style: const TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -573,8 +580,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                         color: white,
                         size: 32,
                       ),
-                      label: const Text(
-                        'REGRESAR',
+                      label: Text(
+                        context.l10n.goBackButton,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -606,8 +613,10 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                           const SizedBox(height: 20),
                           Text(
                             isCashKeeperActive
-                                ? 'Esperando depósito...'
-                                : 'Procesando...',
+                                ? context.l10n.waitingDeposit
+                                : context.l10n.processing,
+                            //? 'Esperando depósito...'
+                            //: 'Procesando...',
                             style: const TextStyle(
                               color: white,
                               fontSize: 18,
@@ -619,7 +628,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen>
                             ElevatedButton.icon(
                               onPressed: cancelDeposit,
                               icon: const Icon(Icons.cancel),
-                              label: const Text("CANCELAR DEPÓSITO"),
+                              label: Text(context.l10n.cancelDeposit),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 foregroundColor: white,

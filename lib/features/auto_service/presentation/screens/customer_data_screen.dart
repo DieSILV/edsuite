@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:edsuite/core/extensions/context_extensions.dart';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
 import 'package:edsuite/features/pos/presentation/bloc/customer/customer_bloc.dart';
 import 'package:flutter/material.dart';
@@ -235,8 +236,8 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'TIPO DE COMPROBANTE',
+                          Text(
+                            context.l10n.receiptTypeTitle,
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -262,18 +263,24 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                                 rucController.clear();
                               });
                             },
-                            children: const [
+                            children: [
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text("Factura (RUC)"),
+                                child: Text(
+                                  context.l10n.customerDataInvoiceOption,
+                                ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text("Boleta (DNI)"),
+                                child: Text(
+                                  context.l10n.customerDataReceiptOption,
+                                ),
                               ),
                               Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 12),
-                                child: Text("Sin Doc."),
+                                child: Text(
+                                  context.l10n.customerDataNoDocumentOption,
+                                ),
                               ),
                             ],
                           ),
@@ -282,7 +289,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                           if (receiptType == 'receipt')
                             _buildInputField(
                               controller: dniController,
-                              label: 'Ingrese DNI',
+                              label: context.l10n.customerDataEnterDniLabel,
                               maxLength: 8,
                               icon: Icons.badge,
                               keyboardType: TextInputType.number,
@@ -292,7 +299,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                           if (receiptType == 'invoice')
                             _buildInputField(
                               controller: rucController,
-                              label: 'Ingrese RUC',
+                              label: context.l10n.customerDataEnterRucLabel,
                               maxLength: 11,
                               icon: Icons.apartment,
                               onChanged: (_) =>
@@ -324,7 +331,7 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                           const SizedBox(height: 20),
                           _buildInputField(
                             controller: plateController,
-                            label: 'Placa del vehículo',
+                            label: context.l10n.customerDataVehiclePlateLabel,
                             icon: Icons.directions_car,
                             onChanged: (_) => setState(() {}),
                             textCapitalization: TextCapitalization.characters,
@@ -342,8 +349,8 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                 child: ElevatedButton.icon(
                   onPressed: isContinueEnabled ? _continue : null,
                   icon: const Icon(Icons.arrow_forward, color: white, size: 28),
-                  label: const Text(
-                    'CONTINUAR',
+                  label: Text(
+                    context.l10n.customerDataContinueButton,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -368,8 +375,8 @@ class _CustomerDataScreenState extends State<CustomerDataScreen>
                   child: ElevatedButton.icon(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back, color: white, size: 32),
-                    label: const Text(
-                      'REGRESAR',
+                    label: Text(
+                      context.l10n.customerDataGoBackButton,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

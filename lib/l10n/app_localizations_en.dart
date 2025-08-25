@@ -561,4 +561,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get add => 'Add';
+
+  @override
+  String get aperturaTitle => 'OPENING';
+
+  @override
+  String get initialAmountLabelDialog => 'INITIAL AMOUNT';
+
+  @override
+  String get confirmButton => 'Confirm';
+
+  @override
+  String get receiptTypeTitle => 'RECEIPT TYPE';
+
+  @override
+  String get customerDataInvoiceOption => 'Invoice (RUC)';
+
+  @override
+  String get customerDataReceiptOption => 'Receipt (DNI)';
+
+  @override
+  String get customerDataNoDocumentOption => 'No Doc.';
+
+  @override
+  String get customerDataEnterDniLabel => 'Enter DNI';
+
+  @override
+  String get customerDataEnterRucLabel => 'Enter RUC';
+
+  @override
+  String get customerDataVehiclePlateLabel => 'Vehicle plate';
+
+  @override
+  String get customerDataContinueButton => 'CONTINUE';
+
+  @override
+  String get customerDataGoBackButton => 'GO BACK';
+
+  @override
+  String totalToCharge(String amount) {
+    return 'TOTAL TO CHARGE: S/ $amount';
+  }
+
+  @override
+  String depositedAmount(String amount) {
+    return 'Deposited: S/ $amount';
+  }
+
+  @override
+  String get waitingDeposit => 'Waiting for deposit...';
+
+  @override
+  String get processing => 'Processing...';
+
+  @override
+  String get cancelDeposit => 'CANCEL DEPOSIT';
 }

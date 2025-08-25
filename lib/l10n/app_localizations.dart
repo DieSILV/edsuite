@@ -1135,6 +1135,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get add;
+
+  /// No description provided for @aperturaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'OPENING'**
+  String get aperturaTitle;
+
+  /// No description provided for @initialAmountLabelDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'INITIAL AMOUNT'**
+  String get initialAmountLabelDialog;
+
+  /// No description provided for @confirmButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmButton;
+
+  /// No description provided for @receiptTypeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RECEIPT TYPE'**
+  String get receiptTypeTitle;
+
+  /// No description provided for @customerDataInvoiceOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice (RUC)'**
+  String get customerDataInvoiceOption;
+
+  /// No description provided for @customerDataReceiptOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt (DNI)'**
+  String get customerDataReceiptOption;
+
+  /// No description provided for @customerDataNoDocumentOption.
+  ///
+  /// In en, this message translates to:
+  /// **'No Doc.'**
+  String get customerDataNoDocumentOption;
+
+  /// No description provided for @customerDataEnterDniLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter DNI'**
+  String get customerDataEnterDniLabel;
+
+  /// No description provided for @customerDataEnterRucLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter RUC'**
+  String get customerDataEnterRucLabel;
+
+  /// No description provided for @customerDataVehiclePlateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle plate'**
+  String get customerDataVehiclePlateLabel;
+
+  /// No description provided for @customerDataContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE'**
+  String get customerDataContinueButton;
+
+  /// No description provided for @customerDataGoBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'GO BACK'**
+  String get customerDataGoBackButton;
+
+  /// Text showing the total to charge
+  ///
+  /// In en, this message translates to:
+  /// **'TOTAL TO CHARGE: S/ {amount}'**
+  String totalToCharge(String amount);
+
+  /// Text showing the deposited amount
+  ///
+  /// In en, this message translates to:
+  /// **'Deposited: S/ {amount}'**
+  String depositedAmount(String amount);
+
+  /// No description provided for @waitingDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for deposit...'**
+  String get waitingDeposit;
+
+  /// No description provided for @processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get processing;
+
+  /// No description provided for @cancelDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'CANCEL DEPOSIT'**
+  String get cancelDeposit;
 }
 
 class _AppLocalizationsDelegate

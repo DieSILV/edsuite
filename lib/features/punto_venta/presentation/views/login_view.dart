@@ -48,7 +48,7 @@ class _LoginViewState extends State<LoginView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'APERTURA',
+              context.l10n.aperturaTitle,
               style: context.theme.textTheme.headlineMedium?.copyWith(
                 color: context.colorScheme.primary,
               ),
@@ -80,7 +80,7 @@ class _LoginViewState extends State<LoginView> {
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 24),
                 decoration: InputDecoration(
-                  labelText: 'MONTO INICIAL',
+                  labelText: context.l10n.initialAmountLabelDialog,
                   labelStyle: context.theme.textTheme.bodyLarge?.copyWith(
                     color: context.colorScheme.primary,
                   ),
@@ -137,7 +137,7 @@ class _LoginViewState extends State<LoginView> {
                     },
                     icon: const Icon(Icons.check, color: Colors.white),
                     label: Text(
-                      'Confirmar',
+                      context.l10n.confirmButton,
                       style: context.theme.textTheme.bodyLarge?.copyWith(
                         color: Colors.white,
                       ),
@@ -158,12 +158,12 @@ class _LoginViewState extends State<LoginView> {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Ingrese la contraseña'),
+        title: Text(context.l10n.enterPassword),
         content: TextField(
           controller: _passwordController,
           obscureText: true,
           decoration: InputDecoration(
-            labelText: 'Contraseña',
+            labelText: context.l10n.password,
             labelStyle: const TextStyle(color: Colors.grey),
             enabledBorder: OutlineInputBorder(
               borderSide: const BorderSide(color: Colors.grey),
@@ -178,7 +178,10 @@ class _LoginViewState extends State<LoginView> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.blue)),
+            child: Text(
+              context.l10n.cancel,
+              style: TextStyle(color: Colors.blue),
+            ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -191,12 +194,12 @@ class _LoginViewState extends State<LoginView> {
               } else {
                 CustomDialog.showSnackbar(
                   context,
-                  "Contraseña incorrecta",
+                  context.l10n.incorrectPassword,
                   true,
                 );
               }
             },
-            child: const Text('Aceptar'),
+            child: Text(context.l10n.accept),
           ),
         ],
       ),

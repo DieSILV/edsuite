@@ -305,5 +305,40 @@
   "clientPlate": "Placa del cliente",
   "add": "Agregar",
   "cancel": "Cancelar",
-  "accept": "Aceptar"
+  "accept": "Aceptar",
+  "aperturaTitle": "APERTURA",
+  "initialAmountLabelDialog": "MONTO INICIAL",
+  "confirmButton": "Confirmar",
+  "receiptTypeTitle": "TIPO DE COMPROBANTE",
+  "customerDataInvoiceOption": "Factura (RUC)",
+  "customerDataReceiptOption": "Boleta (DNI)",
+  "customerDataNoDocumentOption": "Sin Doc.",
+  "customerDataEnterDniLabel": "Ingrese DNI",
+  "customerDataEnterRucLabel": "Ingrese RUC",
+  "customerDataVehiclePlateLabel": "Placa del vehículo",
+  "customerDataContinueButton": "CONTINUAR",
+  "customerDataGoBackButton": "REGRESAR",
+  "totalToCharge": "TOTAL A COBRAR: S/ {amount}",
+  "@totalToCharge": {
+    "description": "Texto que muestra el total a cobrar",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "150.00"
+      }
+    }
+  },
+  "depositedAmount": "Depositado: S/ {amount}",
+  "@depositedAmount": {
+    "description": "Texto que muestra el monto depositado",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100.00"
+      }
+    }
+  },
+  "waitingDeposit": "Esperando depósito...",
+  "processing": "Procesando...",
+  "cancelDeposit": "CANCELAR DEPÓSITO"
 }

@@ -196,7 +196,7 @@ class _SaleTypeScreenState extends State<SaleTypeScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            '//${selectedSide ?? '-'} - ${selectedFuel ?? 'PRODUCTO'}',
+                            '//${selectedSide ?? '-'} - ${selectedFuel ?? 'PRODUCT'}',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: isTablet ? 32 : 24,

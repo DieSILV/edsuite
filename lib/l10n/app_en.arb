@@ -305,5 +305,40 @@
   "clientPlate": "Client plate",
   "add": "Add",
   "cancel": "Cancel",
-  "accept": "Accept"
+  "accept": "Accept",
+  "aperturaTitle": "OPENING",
+  "initialAmountLabelDialog": "INITIAL AMOUNT",
+  "confirmButton": "Confirm",
+  "receiptTypeTitle": "RECEIPT TYPE",
+  "customerDataInvoiceOption": "Invoice (RUC)",
+  "customerDataReceiptOption": "Receipt (DNI)",
+  "customerDataNoDocumentOption": "No Doc.",
+  "customerDataEnterDniLabel": "Enter DNI",
+  "customerDataEnterRucLabel": "Enter RUC",
+  "customerDataVehiclePlateLabel": "Vehicle plate",
+  "customerDataContinueButton": "CONTINUE",
+  "customerDataGoBackButton": "GO BACK",
+  "totalToCharge": "TOTAL TO CHARGE: S/ {amount}",
+  "@totalToCharge": {
+    "description": "Text showing the total to charge",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "150.00"
+      }
+    }
+  },
+  "depositedAmount": "Deposited: S/ {amount}",
+  "@depositedAmount": {
+    "description": "Text showing the deposited amount",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100.00"
+      }
+    }
+  },
+  "waitingDeposit": "Waiting for deposit...",
+  "processing": "Processing...",
+  "cancelDeposit": "CANCEL DEPOSIT"
 }
