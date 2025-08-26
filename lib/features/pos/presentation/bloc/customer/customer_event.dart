@@ -48,6 +48,6 @@ class GetDataCustomer extends CustomerEvent {
   List<Object> get props => [baseUrl, documento];
 }
 
-class ClearDataCustomer extends CustomerEvent {
-  const ClearDataCustomer();
+class CustomerClearEvent extends CustomerEvent {
+  const CustomerClearEvent();
 }

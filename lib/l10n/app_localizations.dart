@@ -1237,6 +1237,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'CANCEL DEPOSIT'**
   String get cancelDeposit;
+
+  /// No description provided for @generating.
+  ///
+  /// In en, this message translates to:
+  /// **'Generating...'**
+  String get generating;
+
+  /// No description provided for @invoiceTransactionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'INVOICE TRANSACTION'**
+  String get invoiceTransactionTitle;
+
+  /// No description provided for @customerDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'CUSTOMER DATA'**
+  String get customerDataTitle;
+
+  /// No description provided for @documentNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Document No.'**
+  String get documentNumberLabel;
+
+  /// No description provided for @paymentMethodsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PAYMENT METHODS'**
+  String get paymentMethodsTitle;
+
+  /// No description provided for @methodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get methodLabel;
+
+  /// No description provided for @invoiceAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get invoiceAmountLabel;
+
+  /// Transaction total
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction total: S/ {amount}'**
+  String transactionTotal(String amount);
+
+  /// No description provided for @invoiceProductLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get invoiceProductLabel;
+
+  /// No description provided for @invoicePumpLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pump'**
+  String get invoicePumpLabel;
+
+  /// No description provided for @invoiceVolumeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get invoiceVolumeLabel;
+
+  /// No description provided for @amountDetailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountDetailLabel;
+
+  /// No description provided for @discountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discountLabel;
+
+  /// No description provided for @freeSalesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Sales'**
+  String get freeSalesTitle;
+
+  /// No description provided for @noFreeSales.
+  ///
+  /// In en, this message translates to:
+  /// **'No free sales.'**
+  String get noFreeSales;
+
+  /// Label for transaction number
+  ///
+  /// In en, this message translates to:
+  /// **'TRANSACTION # {id}'**
+  String transactionLabel(String id);
+
+  /// Label for pump
+  ///
+  /// In en, this message translates to:
+  /// **'Pump: {pump}'**
+  String pumpLabel(String pump);
+
+  /// Label for product
+  ///
+  /// In en, this message translates to:
+  /// **'Product: {product}'**
+  String productLabel(String product);
+
+  /// Label for date
+  ///
+  /// In en, this message translates to:
+  /// **'Date: {date}'**
+  String dateLabel(String date);
+
+  /// Label for volume
+  ///
+  /// In en, this message translates to:
+  /// **'Volume: {volume} gal'**
+  String volumeLabel(String volume);
+
+  /// Label for amount
+  ///
+  /// In en, this message translates to:
+  /// **'Amount: S/ {amount}'**
+  String amountLabel(String amount);
 }
 
 class _AppLocalizationsDelegate

@@ -12,9 +12,49 @@ class UserActionBloc extends Bloc<UserActionEvent, UserActionState> {
   UserActionBloc({required UserUsecases userUsecases})
     : _userUsecases = userUsecases,
       super(const UserActionState.initial()) {
-    on<ClearDataEvent>(_onClearDataCustomer);
+    on<UserActionsClearEvent>(_onClearDataCustomer);
     on<GetTransactionEvent>(_onGetTransactionData);
     on<UpdateVisaBatchClosed>(_onUpdateVisaBatchClosed);
+    on<CreateDocumentEvent>(_onCreateDocument);
+  }
+
+  Future<void> _onCreateDocument(
+    CreateDocumentEvent event,
+    Emitter<UserActionState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(status: UserActionStatus.loadingCreateDocument));
+
+      final result = await _userUsecases.createDocument(
+        baseUrl: event.baseUrl,
+        invoicePayload: event.invoicePayload,
+      );
+
+      if (result.isSuccess) {
+        emit(
+          state.copyWith(
+            status: UserActionStatus.successCreatingDocument,
+            documentMethodsPay: result.successValue!.metodoPago,
+            document: result.successValue!.document,
+          ),
+        );
+      } else {
+        emit(
+          state.copyWith(
+            status: UserActionStatus.failed,
+            failure: result.errorValue,
+          ),
+        );
+      }
+    } catch (e) {
+      addError(e);
+      emit(
+        state.copyWith(
+          status: UserActionStatus.failed,
+          failure: Failure(message: e.toString()),
+        ),
+      );
+    }
   }
 
   Future<void> _onUpdateVisaBatchClosed(
@@ -25,7 +65,7 @@ class UserActionBloc extends Bloc<UserActionEvent, UserActionState> {
   }
 
   Future<void> _onClearDataCustomer(
-    ClearDataEvent event,
+    UserActionsClearEvent event,
     Emitter<UserActionState> emit,
   ) async {
     emit(const UserActionState.initial());

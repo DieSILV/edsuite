@@ -1,23 +1,27 @@
-import 'dart:convert';
-import 'dart:async';
-import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
-import 'package:edsuite/features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
-import 'package:edsuite_common/edsuite_common.dart';
+/* import 'dart:convert';
+import 'package:edsuite/core/extensions/context_extensions.dart';
+import 'package:edsuite/features/punto_venta/presentation/bloc/user/user_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:niubiz/niubiz.dart';
-
-import '../../../payment/data/data.dart';
-import '../../../pos/presentation/bloc/customer/customer_bloc.dart';
 import '../../../pos/presentation/bloc/pos/pos_bloc.dart';
-import '../../data/models/transaction_model.dart';
-import '../bloc/user/user_bloc.dart';
+
+class InvoiceScreenParams {
+  final Map<String, dynamic> transaccion;
+  final List<int> availablePaymentMethodIds;
+
+  InvoiceScreenParams({
+    required this.transaccion,
+    required this.availablePaymentMethodIds,
+  });
+}
 
 class InvoiceScreen extends StatefulWidget {
-  const InvoiceScreen({super.key});
+  final InvoiceScreenParams params;
+
+  InvoiceScreen({super.key, required this.params});
 
   @override
   State<InvoiceScreen> createState() => _InvoiceScreenState();
@@ -38,21 +42,22 @@ class UpperCaseTextFormatter extends TextInputFormatter {
 
 class _InvoiceScreenState extends State<InvoiceScreen> {
   final MethodChannel _channel = MethodChannel('com.edsuite.niubiz/channel');
+  //final String baseUrl = '${config.baseUrl}/apipts';
+  String baseUrl = "";
   final docController = TextEditingController();
   final placaController = TextEditingController();
 
   String selectedTipoDoc = 'BOLETA';
-  //Map<String, dynamic>? cliente;
-  //bool isLoading = false;
+  Map<String, dynamic>? cliente;
+  bool isLoading = false;
   bool _isGenerating = false;
-  List<PaymentMethodModel> allPaymentMethods = [];
+  List<PaymentMethod> allPaymentMethods = [];
   List<PaymentItem> pagos = [];
   Map<String, dynamic>? niubizResult;
 
-  // Completer para manejar el await con BLoC
-  Completer<Map<String, dynamic>?>? _niubizCompleter;
-  // Variable para trackear el resultado de Niubiz mientras esperamos el registro
-  Map<String, dynamic>? _pendingNiubizResult;
+  static const MethodChannel niubizChannel = MethodChannel(
+    'com.edsuite.niubiz/channel',
+  );
 
   void refreshFormValidation() {
     setState(() {});
@@ -63,34 +68,66 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      //fetchPaymentMethods();
       final posState = context.read<PosBloc>().state;
-      context.read<PaymentPuntoVentaBloc>().add(
-        GetPaymentMethods(baseUrl: posState.baseUrl),
-      );
+      //TODO: apipts
+      baseUrl = "${posState.baseUrl}";
+      //baseUrl = "${posState.baseUrl}";
+      fetchPaymentMethods();
       pagos.add(PaymentItem(method: null, monto: ''));
     });
   }
 
-  void onDocumentChanged(String baseUrl, String value) {
-    if (selectedTipoDoc == 'FACTURA' && value.length == 11) {
-      context.read<CustomerBloc>().add(
-        GetDataCustomer(baseUrl: baseUrl, documento: value),
-      );
-      //buscarCliente(value);
-    } else if ((selectedTipoDoc == 'BOLETA' ||
-            selectedTipoDoc == 'NOTA DE VENTA') &&
-        (value.length == 8 || value.length == 11)) {
-      context.read<CustomerBloc>().add(
-        GetDataCustomer(baseUrl: baseUrl, documento: value),
-      );
-      //buscarCliente(value);
-    } else {
-      //setState(() => cliente = null);
+  Future<void> fetchPaymentMethods() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/payment-methods'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          allPaymentMethods = data
+              .map((e) => PaymentMethod.fromJson(e))
+              .where(
+                (pm) => widget.params.availablePaymentMethodIds.contains(pm.id),
+              )
+              .toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching payment methods: $e');
     }
   }
 
-  List<PaymentMethodModel> getAvailableMethodsForIndex(int index) {
+  Future<void> buscarCliente(String numeroDoc) async {
+    setState(() => isLoading = true);
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/clientes/obtener'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'numero_doc': numeroDoc}),
+      );
+      if (response.statusCode == 200) {
+        setState(() => cliente = json.decode(response.body));
+      } else {
+        setState(() => cliente = null);
+      }
+    } catch (_) {
+      setState(() => cliente = null);
+    }
+    setState(() => isLoading = false);
+  }
+
+  void onDocumentChanged(String value) {
+    if (selectedTipoDoc == 'FACTURA' && value.length == 11) {
+      buscarCliente(value);
+    } else if ((selectedTipoDoc == 'BOLETA' ||
+            selectedTipoDoc == 'NOTA DE VENTA') &&
+        (value.length == 8 || value.length == 11)) {
+      buscarCliente(value);
+    } else {
+      setState(() => cliente = null);
+    }
+  }
+
+  List<PaymentMethod> getAvailableMethodsForIndex(int index) {
     final usedIds = pagos
         .asMap()
         .entries
@@ -110,13 +147,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   bool get isFormValid {
-    final total = context
-        .read<PaymentPuntoVentaBloc>()
-        .state
-        .currentVenta!
-        .amountTransaction;
-
-    final cliente = context.read<CustomerBloc>().state.name;
+    final total =
+        double.tryParse(
+          widget.params.transaccion['amountTransaction'].toString(),
+        ) ??
+        0;
 
     final tienePagosValidos = pagos.every(
       (p) =>
@@ -135,7 +170,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     debugPrint('cliente: $cliente');
     debugPrint('placa: "${placaController.text}"');
 
-    return cliente.isNotEmpty && tienePagosValidos && montoCoincide;
+    return cliente != null && tienePagosValidos && montoCoincide;
   }
 
   Future<Map<String, dynamic>?> processNiubiz(
@@ -144,36 +179,92 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }) async {
     final montoCentavos = (monto * 100).round();
 
-    // Crear el completer
-    _niubizCompleter = Completer<Map<String, dynamic>?>();
+    try {
+      final result = await niubizChannel.invokeMethod<Map>('startTransaction', {
+        'monto': montoCentavos.toString(),
+        'useQR': useQr,
+      });
 
-    // Disparar el evento
-    context.read<NiubizBloc>().add(
-      StartTransactionEvent(amount: montoCentavos.toString(), useQr: useQr),
-    );
+      if (result != null && result.isNotEmpty) {
+        String extopValue = '';
+        Map<String, dynamic> niubizData = {};
 
-    // Retornar el future del completer
-    return _niubizCompleter!.future;
+        result.forEach((key, value) {
+          if (value is String && value.contains('=') && value.contains('&')) {
+            final subParts = value.split('&');
+            for (var part in subParts) {
+              final kv = part.split('=');
+              if (kv.length == 2) {
+                final subKey = kv[0].trim();
+                final subValue = kv[1].trim();
+                niubizData[subKey] = subValue;
+                if (subKey == 'EXTOP') extopValue = subValue;
+              }
+            }
+          } else {
+            niubizData[key] = value;
+          }
+        });
+
+        if (extopValue == '00') {
+          _showMessage('Cobro exitoso', isSuccess: true);
+          await _registerSuccessTransaction(niubizData, monto);
+          return niubizData;
+        } else if (extopValue == '01') {
+          _showMessage('Error en el cobro');
+          setState(() {
+            _isGenerating = false;
+          });
+        } else if (extopValue == '13') {
+          _showMessage('Cobro cancelado por el usuario');
+          setState(() {
+            _isGenerating = false;
+          });
+        } else {
+          _showMessage('Resultado desconocido: $extopValue');
+          setState(() {
+            _isGenerating = false;
+          });
+        }
+      }
+    } on PlatformException catch (_) {
+    } catch (_) {}
+
+    return null;
   }
 
-  Future<void> _registerSuccessTransaction(
-    String paymentMethod,
-    Map<String, dynamic> result,
-    double lastAmount,
-  ) async {
+  Future<void> _registerSuccessTransaction(Map result, double amount) async {
     final posBloc = context.read<PosBloc>().state;
-    String method = paymentMethod;
-    String poscode = posBloc.posCode;
-    String amount = lastAmount.toStringAsFixed(2);
+    final deviceName = posBloc.posCode;
 
-    context.read<PaymentPuntoVentaBloc>().add(
-      RegisterSuccessTransacEvent(
-        baseUrl: posBloc.baseUrl,
-        method: method,
-        poscode: poscode,
-        amount: amount,
-        result: result,
-      ),
+    final url = Uri.parse('$baseUrl/success-transactions');
+
+    final body = {
+      'method': result['IQR'] == '1' ? 'QR' : 'CARD',
+      'response': result,
+      'pos_code': deviceName,
+      'device': 'PV',
+      'amount': amount,
+    };
+
+    try {
+      final res = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (res.statusCode != 201) {
+        _showError('Error enviando transacción: ${res.body}');
+      }
+    } catch (e) {
+      _showError('Error HTTP: $e');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
@@ -198,8 +289,14 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       _isGenerating = true;
     });
 
-    final userId = context.read<UserBloc>().state.userData?.id ?? 0;
-    final clienteState = context.read<CustomerBloc>().state;
+    final user = context.read<UserBloc>().state.userData;
+
+    if (user == null) {
+      _showMessage('❌ Usuario no encontrado en preferencias.');
+      return;
+    }
+
+    final userId = user.id;
 
     for (var item in pagos) {
       if (item.method?.type == 'NIUBIZ_QR' ||
@@ -215,27 +312,27 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
       }
     }
 
-    final trans = context.read<PaymentPuntoVentaBloc>().state.currentVenta!;
-    /* debugPrint(
-      'TRANSACCION COMPLETA: ${jsonEncode(trans)}',
-    ); */
-    final total = trans.amountTransaction;
+    final trans = widget.params.transaccion;
+    debugPrint(
+      'TRANSACCION COMPLETA: ${jsonEncode(widget.params.transaccion)}',
+    );
+    final total = double.tryParse(trans['amountTransaction'].toString()) ?? 0;
 
-    /* final pago = pagos.first;
+    final pago = pagos.first;
     final refPago = niubizResult?['REF'] ?? "";
     final refIDU = niubizResult?['IDU'] ?? "";
     final refBAN = niubizResult?['BAN'] ?? "";
     final refTAR = niubizResult?['TAR'] ?? "";
     final refLOT = niubizResult?['LOT'] ?? "";
     final refSER = niubizResult?['SER'] ?? "";
-    final refCAP = niubizResult?['CAP'] ?? ""; */
+    final refCAP = niubizResult?['CAP'] ?? "";
 
     final payload = {
       "serie_documento": selectedTipoDoc == 'FACTURA' ? "F001" : "B001",
       "tipo_documento": selectedTipoDoc == 'FACTURA' ? "1" : "3",
-      "transaction_id": trans.idTransaction,
-      "pump_id": trans.pumpTransaction,
-      "fecha_abastecimiento": trans.dateTimeTransaction.toIso8601String(),
+      "transaction_id": trans['idTransaction'],
+      "pump_id": trans['pumpTransaction'],
+      "fecha_abastecimiento": trans['dateTimeTransaction'],
       "user_id": userId,
       "forma_pago": pagos.map((pago) {
         final refPago =
@@ -287,30 +384,30 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         };
       }).toList(),
       "cliente": {
-        "id": clienteState.customerId,
-        "fullname": clienteState.name,
-        "mobile": clienteState.phone,
-        "address": clienteState.address,
-        "vatNumber": clienteState.comercialPhone,
-        "commercialNumber": clienteState.comercialPhone,
+        "id": cliente?['id'],
+        "fullname": cliente?['nombre'] ?? "",
+        "mobile": cliente?['telefono'] ?? "",
+        "address": cliente?['direccion'] ?? "",
+        "vatNumber": cliente?['numero'] ?? "",
+        "commercialNumber": cliente?['numero'] ?? "",
         "codigo_tipo_documento_identidad": selectedTipoDoc == 'FACTURA'
             ? "6"
             : "1",
         "codigo_pais": "PE",
         "ubigeo": "150101",
-        "correo_electronico": clienteState.email,
+        "correo_electronico": cliente?['correo'] ?? "",
         "placa": placaController.text.trim(),
       },
       "producto": {
-        "codigo_interno": "EDS0000000${trans.fuelGradeId.toString()}",
+        "codigo_interno": "EDS0000000${trans['FuelGradeId']?.toString() ?? ''}",
         "unidad_de_medida": "GLL",
-        "pump": trans.pumpTransaction,
+        "pump": trans['pumpTransaction'],
         "nozzle": 2,
-        "fuel": trans.fuelGradeName,
+        "fuel": trans['FuelGradeName'],
         "price":
-            double.parse(trans.amountTransaction.toString()) /
-            double.parse(trans.volumeTransaction.toString()),
-        "volume": double.parse(trans.volumeTransaction.toString()),
+            double.parse(trans['amountTransaction'].toString()) /
+            double.parse(trans['volumeTransaction'].toString()),
+        "volume": double.parse(trans['volumeTransaction'].toString()),
       },
       "impuestos": {
         "currency": "PEN",
@@ -371,29 +468,24 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         if (refCAP.isNotEmpty) "cap": refCAP,
       };
     }).toList();
-    //TODO: APLICAR BLOC
+
     try {
-      final posBloc = context.read<PosBloc>().state;
       final res = await http.post(
-        //TODO: APIPTS
-        Uri.parse('${posBloc.baseUrl}/apipts/documents/crear'),
+        Uri.parse('$baseUrl/documents/crear'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
 
       if (res.statusCode == 201) {
-        CustomDialog.showSnackbar(
-          context,
-          '✅ Documento generado correctamente.',
-        );
+        _showMessage('✅ Documento generado correctamente.', isSuccess: true);
 
         final data = jsonDecode(res.body);
         final doc = data['documento'];
 
         final fechaStr = getFormattedDateTime();
 
-        final monto = double.parse(trans.amountTransaction.toString());
-        final volumen = double.parse(trans.volumeTransaction.toString());
+        final monto = double.parse(trans['amountTransaction'].toString());
+        final volumen = double.parse(trans['volumeTransaction'].toString());
         final precioUnit = monto / volumen;
         final igv = monto * 0.18;
         final subtotal = monto / 1.18;
@@ -455,35 +547,17 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             separador +
             'DATOS DEL CLIENTE\n' +
             separador +
-            alinearCampo(
-              'Nombre:',
-              clienteState.name.isEmpty ? "CLIENTE" : clienteState.name,
-            ) +
-            alinearCampo(
-              'Direccion:',
-              clienteState.address.isEmpty ? '-' : clienteState.address,
-            ) +
-            alinearCampo(
-              'Doc. ID:',
-              clienteState.document.isEmpty ? '-' : clienteState.document,
-            ) +
-            alinearCampo(
-              'Telefono:',
-              clienteState.phone.isEmpty ? '-' : clienteState.phone,
-            ) +
-            alinearCampo(
-              'Correo:',
-              clienteState.email.isEmpty ? '-' : clienteState.email,
-            ) +
-            alinearCampo('Placa:', placaController.text.trim()) +
+            alinearCampo('Nombre:', cliente?['nombre'] ?? 'CLIENTE') +
+            alinearCampo('Direccion:', cliente?['direccion'] ?? '-') +
+            alinearCampo('Doc. ID:', cliente?['numero'] ?? '-') +
+            alinearCampo('Telefono:', cliente?['telefono'] ?? '-') +
+            alinearCampo('Correo:', cliente?['correo'] ?? '-') +
+            alinearCampo('Placa:', placaController.text.trim() ?? '-') +
             '\n' +
             separador +
             'DETALLE DEL PRODUCTO\n' +
             separador +
-            alinearCampo(
-              'Producto:',
-              trans.fuelGradeName.isEmpty ? '-' : trans.fuelGradeName,
-            ) +
+            alinearCampo('Producto:', trans['FuelGradeName'] ?? '-') +
             alinearCampo('Cantidad:', '${volumen.toStringAsFixed(3)} GLL') +
             alinearCampo(
               'Precio Unit:',
@@ -509,32 +583,31 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             'technotrade.nubox360.com/buscar \n \n \n \n';
 
         try {
-          await _channel.invokeMethod('printTicket', {"texto": texto});
+          final result = await _channel.invokeMethod('printTicket', {
+            "texto": texto,
+          });
           debugPrint("Impresión Niubiz exitosa");
         } catch (e) {
-          //_showMessage('🖨️ Error al imprimir con Niubiz: $e');
-          CustomDialog.showSnackbar(
-            context,
-            '🖨️ Error al imprimir con Niubiz: $e',
-            true,
-          );
+          _showMessage('🖨️ Error al imprimir con Niubiz: $e');
         }
 
-        Navigator.pushReplacementNamed(context, '/');
+        context.push("/");
       } else {
-        //_showMessage('❌ Error generando CPE: ${res.body}');
-        CustomDialog.showSnackbar(
-          context,
-          '❌ Error generando CPE: ${res.body}',
-          true,
-        );
+        _showMessage('❌ Error generando CPE: ${res.body}');
       }
     } catch (e) {
-      CustomDialog.showSnackbar(context, '❌ Error generando CPE: $e', true);
-      setState(() {
-        _isGenerating = false;
-      });
+      _showMessage('❌ Error generando CPE: $e');
     }
+  }
+
+  void _showMessage(String msg, {bool isSuccess = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: isSuccess ? Colors.green : Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void cerrarSesion() async {
@@ -551,135 +624,55 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final paymentState = context.watch<PaymentPuntoVentaBloc>().state;
-    final trans = paymentState.currentVenta!;
-    final total = trans.amountTransaction;
-    bool isLoading =
-        context.read<CustomerBloc>().state.status == CustomerStatus.loading;
-    final clienteState = context.watch<CustomerBloc>().state;
+    final trans = widget.params.transaccion;
+    final total = double.tryParse(trans['amountTransaction'].toString()) ?? 0;
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<PaymentPuntoVentaBloc, PaymentPuntoVentaState>(
-          listener: (context, state) {
-            switch (state.status) {
-              case PaymentPuntoVentaStatus.successPaymentMethod:
-                allPaymentMethods = state.paymentMethodResponse ?? [];
-                setState(() {});
-                break;
-              case PaymentPuntoVentaStatus.successTransaction:
-                // El registro de transacción fue exitoso
-                // Ahora podemos completar el Completer con el resultado de Niubiz
-                if (_niubizCompleter != null &&
-                    !_niubizCompleter!.isCompleted &&
-                    _pendingNiubizResult != null) {
-                  _niubizCompleter!.complete(_pendingNiubizResult);
-                  _pendingNiubizResult = null; // Limpiar
-                }
-                break;
-              case PaymentPuntoVentaStatus.failed:
-                // El registro falló, completar con null solo si hay un resultado pendiente
-                if (_niubizCompleter != null &&
-                    !_niubizCompleter!.isCompleted &&
-                    _pendingNiubizResult != null) {
-                  _niubizCompleter!.complete(null);
-                  _pendingNiubizResult = null; // Limpiar
-                }
-                break;
-              default:
-            }
-          },
-        ),
-        BlocListener<NiubizBloc, NiubizState>(
-          listener: (context, state) {
-            switch (state.status) {
-              case NiubizStatus.successTransaction:
-                NiubizTransactionResult result = state.transactionResult!;
-                if (result.isSuccess) {
-                  // Guardar el resultado de Niubiz para completar después del registro
-                  _pendingNiubizResult = result.rawData;
-
-                  // Iniciar el registro - NO completamos el Completer aquí
-                  String paymentMethod = result.paymentMethod;
-                  _registerSuccessTransaction(
-                    paymentMethod,
-                    result.rawData,
-                    state.lastAmount,
-                  );
-                } else {
-                  // Manejar transacción fallida o cancelada
-                  CustomDialog.showSnackbar(
-                    context,
-                    'Transacción Niubiz fallida (EXTOP=${result.extOp})',
-                    true,
-                  );
-
-                  // Completar con null en caso de error
-                  if (_niubizCompleter != null &&
-                      !_niubizCompleter!.isCompleted) {
-                    _niubizCompleter!.complete(null);
-                  }
-                }
-                break;
-              case NiubizStatus.failedTransaction:
-                // Completar con null en caso de error
-                if (_niubizCompleter != null &&
-                    !_niubizCompleter!.isCompleted) {
-                  _niubizCompleter!.complete(null);
-                }
-                break;
-              default:
-            }
-          },
-        ),
-      ],
-      child: Stack(
-        children: [
-          Scaffold(
-            backgroundColor: Colors.white,
-            body: Column(
-              children: [
-                _buildHeader(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTipoDocSelector(),
-                        const SizedBox(height: 20),
-                        _buildClienteSection(clienteState, isLoading),
-                        const SizedBox(height: 20),
-                        _buildPagosSection(total),
-                        const SizedBox(height: 30),
-                        _buildTransactionDetails(trans),
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            children: [
+              _buildHeader(),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTipoDocSelector(),
+                      const SizedBox(height: 20),
+                      _buildClienteSection(),
+                      const SizedBox(height: 20),
+                      _buildPagosSection(total),
+                      const SizedBox(height: 30),
+                      _buildTransactionDetails(trans),
+                      const SizedBox(height: 20),
+                    ],
                   ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        if (_isGenerating)
+          Container(
+            color: Colors.white.withOpacity(0.8),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 20),
+                Text(
+                  'Generando...',
+                  style: TextStyle(color: Colors.blue.shade700, fontSize: 18),
                 ),
               ],
             ),
           ),
-
-          if (_isGenerating)
-            Container(
-              color: Colors.white.withValues(alpha: 0.8),
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 20),
-                  Text(
-                    'Generando...',
-                    style: TextStyle(color: Colors.blue.shade700, fontSize: 18),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -698,10 +691,10 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             onPressed: () => context.pop(),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'FACTURAR TRANSACCIÓN',
-              style: TextStyle(
+              context.l10n.invoiceTitle,
+              style: const TextStyle(
                 fontFamily: 'Poppins',
                 color: Colors.white,
                 fontSize: 20,
@@ -715,6 +708,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 
   Widget _buildTipoDocSelector() {
+    final tipos = ['BOLETA', 'FACTURA', 'NOTA DE VENTA'];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -722,7 +716,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           child: Wrap(
             spacing: 10,
             runSpacing: 8,
-            children: ['FACTURA', 'BOLETA', 'NOTA'].map((tipo) {
+            children: tipos.map((tipo) {
               final bool selected = selectedTipoDoc == tipo;
               return ChoiceChip(
                 label: Text(tipo),
@@ -737,7 +731,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                   setState(() {
                     selectedTipoDoc = tipo;
                     docController.clear();
-                    //cliente = null;
+                    cliente = null;
                   });
                 },
               );
@@ -748,14 +742,13 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildClienteSection(CustomerState clienteState, bool isLoading) {
-    final baseUrl = context.read<PosBloc>().state.baseUrl;
+  Widget _buildClienteSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'DATOS CLIENTE',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        Text(
+          context.l10n.customerData,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
         Row(
@@ -766,8 +759,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 controller: docController,
                 keyboardType: TextInputType.number,
                 maxLength: 11,
-                decoration: _inputDecoration('N° Documento'),
-                onChanged: (value) => onDocumentChanged(baseUrl, value),
+                decoration: _inputDecoration(context.l10n.documentNumber),
+                onChanged: onDocumentChanged,
               ),
             ),
             const SizedBox(width: 10),
@@ -776,7 +769,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               child: TextFormField(
                 controller: placaController,
                 inputFormatters: [UpperCaseTextFormatter()],
-                decoration: _inputDecoration('Placa'),
+                decoration: _inputDecoration(context.l10n.plate),
               ),
             ),
           ],
@@ -786,7 +779,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
             padding: EdgeInsets.symmetric(vertical: 12),
             child: Center(child: CircularProgressIndicator()),
           )
-        else if (clienteState.name.isNotEmpty) ...[
+        else if (cliente != null) ...[
           const SizedBox(height: 12),
           Container(
             width: double.infinity,
@@ -800,11 +793,11 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  clienteState.name,
+                  cliente!['nombre'] ?? '',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text(clienteState.address),
+                Text(cliente!['direccion'] ?? ''),
               ],
             ),
           ),
@@ -820,9 +813,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'MÉTODOS DE PAGO',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.paymentMethods,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             TextButton.icon(
               onPressed: allPaymentMethods.isEmpty
@@ -833,9 +826,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       });
                     },
               icon: const Icon(Icons.add, color: Colors.blue),
-              label: const Text(
-                'Agregar método',
-                style: TextStyle(color: Colors.blue),
+              label: Text(
+                context.l10n.addPaymentMethod,
+                style: const TextStyle(color: Colors.blue),
               ),
             ),
           ],
@@ -852,7 +845,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                 children: [
                   Expanded(
                     flex: 5,
-                    child: DropdownButtonFormField<PaymentMethodModel>(
+                    child: DropdownButtonFormField<PaymentMethod>(
                       value: pagos[index].method,
                       items: available
                           .map(
@@ -865,7 +858,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       onChanged: (val) {
                         setState(() => pagos[index].method = val);
                       },
-                      decoration: _inputDecoration('Método'),
+                      decoration: _inputDecoration(context.l10n.method),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -875,7 +868,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
-                      decoration: _inputDecoration('Monto'),
+                      decoration: _inputDecoration(context.l10n.amount),
                       onChanged: (val) {
                         setState(() {
                           pagos[index].monto = val;
@@ -900,7 +893,8 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Total transacción: S/ ${total.toStringAsFixed(2)}',
+          context.l10n.totalTransaction(total.toStringAsFixed(2)),
+
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 10),
@@ -909,9 +903,9 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
           child: ElevatedButton.icon(
             onPressed: isFormValid ? generarCPE : null,
             icon: const Icon(Icons.print, color: Colors.white),
-            label: const Text(
-              'GENERAR CPE',
-              style: TextStyle(color: Colors.white),
+            label: Text(
+              context.l10n.generateCPE,
+              style: const TextStyle(color: Colors.white),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
@@ -924,7 +918,7 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
     );
   }
 
-  Widget _buildTransactionDetails(TransactionModel trans) {
+  Widget _buildTransactionDetails(Map<String, dynamic> trans) {
     return Card(
       color: const Color(0xFFF1F7FE),
       elevation: 2,
@@ -933,12 +927,18 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
         padding: const EdgeInsets.all(12),
         child: Column(
           children: [
-            _detalleItem('Producto', trans.fuelGradeName),
-            _detalleItem('Bomba', trans.pumpTransaction),
-            _detalleItem('Volumen', '${trans.volumeTransaction} gal'),
-            _detalleItem('Monto', 'S/ ${trans.amountTransaction}'),
-            if (trans.discountTransaction != 0.0)
-              _detalleItem('Descuento', trans.discountTransaction),
+            _detalleItem(context.l10n.product, trans['FuelGradeName']),
+            _detalleItem(context.l10n.pump, trans['pumpTransaction']),
+            _detalleItem(
+              context.l10n.volume,
+              '${trans['volumeTransaction']} gal',
+            ),
+            _detalleItem(
+              context.l10n.amount,
+              'S/ ${trans['amountTransaction']}',
+            ),
+            if (trans['discountTransaction'] != '0.000')
+              _detalleItem(context.l10n.discount, trans['discountTransaction']),
           ],
         ),
       ),
@@ -986,9 +986,26 @@ class _InvoiceScreenState extends State<InvoiceScreen> {
   }
 }
 
+class PaymentMethod {
+  final int id;
+  final String name;
+  final String type;
+
+  PaymentMethod({required this.id, required this.name, required this.type});
+
+  factory PaymentMethod.fromJson(Map<String, dynamic> json) {
+    return PaymentMethod(
+      id: json['id'],
+      name: json['name'],
+      type: json['type'],
+    );
+  }
+}
+
 class PaymentItem {
-  PaymentMethodModel? method;
+  PaymentMethod? method;
   String monto;
 
   PaymentItem({required this.method, required this.monto});
 }
+ */

@@ -1,5 +1,9 @@
 import 'package:edsuite/core/extensions/context_extensions.dart';
+import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
+import 'package:edsuite/features/payment/presentation/bloc/payment/payment_bloc.dart';
+import 'package:edsuite/features/pos/presentation/bloc/customer/customer_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/dispenser/dispenser_bloc.dart';
+import 'package:edsuite/features/punto_venta/presentation/bloc/user_actions/user_actions_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -29,6 +33,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       begin: 1.0,
       end: 1.1,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      //Clear states
+      context.read<UserActionBloc>().add(const UserActionsClearEvent());
+      context.read<CustomerBloc>().add(const CustomerClearEvent());
+      context.read<NiubizBloc>().add(const NiubizClearEvent());
+      context.read<PaymentBloc>().add(const ClearDataPayment());
+    });
   }
 
   @override

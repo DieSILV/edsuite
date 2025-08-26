@@ -14,7 +14,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
       super(const CustomerState.initial()) {
     on<SetDataCustomer>(_onSetDataCustomer);
     on<GetDataCustomer>(_onGetDataCustomer);
-    on<ClearDataCustomer>(_onClearDataCustomer);
+    on<CustomerClearEvent>(_onClearDataCustomer);
   }
 
   Future<void> _onSetDataCustomer(
@@ -89,7 +89,7 @@ class CustomerBloc extends Bloc<CustomerEvent, CustomerState> {
   }
 
   Future<void> _onClearDataCustomer(
-    ClearDataCustomer event,
+    CustomerClearEvent event,
     Emitter<CustomerState> emit,
   ) async {
     emit(const CustomerState.initial());

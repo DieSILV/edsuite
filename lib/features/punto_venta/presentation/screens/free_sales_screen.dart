@@ -1,7 +1,8 @@
+import 'package:edsuite/core/extensions/extensions.dart';
 import 'package:edsuite/features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
 import 'package:edsuite/features/pos/presentation/bloc/pos/pos_bloc.dart';
 import 'package:edsuite/features/punto_venta/data/data.dart';
-import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen.dart';
+import 'package:edsuite_common/edsuite_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,6 @@ class FreeSalesScreen extends StatefulWidget {
 }
 
 class _FreeSalesScreenState extends State<FreeSalesScreen> {
-  bool isLoading = false;
   List<TransactionModel> ventas = [];
 
   @override
@@ -38,22 +38,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
 
   void _irAFacturar(TransactionModel venta) {
     context.read<PaymentPuntoVentaBloc>().add(SetCurrentVentaEvent(venta));
-    context.push(
-      "/invoice",
-      extra: InvoiceScreenParams(
-        transaccion: venta.toJson(),
-        availablePaymentMethodIds: [1, 3],
-      ),
-    );
-    /* Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => InvoiceScreen(
-          transaccion: venta,
-          availablePaymentMethodIds: [1, 3],
-        ),
-      ),
-    ); */
+    context.push("/invoice");
   }
 
   void cerrarSesion() async {
@@ -63,6 +48,9 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading =
+        context.watch<UserActionBloc>().state.status ==
+        UserActionStatus.loadingTransactionData;
     return Scaffold(
       backgroundColor: Colors.white,
       body: BlocListener<UserActionBloc, UserActionState>(
@@ -80,8 +68,8 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              decoration: const BoxDecoration(
-                color: Color(0xFF2196F3),
+              decoration: BoxDecoration(
+                color: context.colorScheme.primary,
                 borderRadius: BorderRadius.vertical(
                   bottom: Radius.circular(20),
                 ),
@@ -93,13 +81,10 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
                     onPressed: () => context.pop(),
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Ventas Libres',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
+                  Text(
+                    context.l10n.freeSalesTitle,
+                    style: context.theme.textTheme.titleLarge?.copyWith(
                       color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
@@ -109,9 +94,9 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : ventas.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'No hay ventas libres.',
+                        context.l10n.noFreeSales,
                         style: TextStyle(color: Colors.black54),
                       ),
                     )
@@ -144,24 +129,40 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'TRANSACCIÓN # ${venta.idTransaction}',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
+                                      context.l10n.transactionLabel(
+                                        venta.idTransaction.toString(),
                                       ),
+                                      style: context.theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     const SizedBox(height: 6),
-                                    Text('Bomba: ${venta.pumpTransaction}'),
-                                    Text('Producto: ${venta.fuelGradeName}'),
                                     Text(
-                                      'Fecha: ${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}',
+                                      context.l10n.pumpLabel(
+                                        venta.pumpTransaction.toString(),
+                                      ),
+                                    ),
+                                    Text(
+                                      context.l10n.productLabel(
+                                        venta.fuelGradeName,
+                                      ),
+                                    ),
+                                    Text(
+                                      context.l10n.dateLabel(
+                                        "${fecha.day}/${fecha.month}/${fecha.year} ${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}",
+                                      ),
                                       style: const TextStyle(fontSize: 13),
                                     ),
                                     Text(
-                                      'Volumen: ${venta.volumeTransaction} gal',
+                                      context.l10n.volumeLabel(
+                                        venta.volumeTransaction.toString(),
+                                      ),
                                     ),
                                     Text(
-                                      'Monto: S/ ${venta.amountTransaction}',
+                                      context.l10n.amountLabel(
+                                        venta.amountTransaction.toString(),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -170,9 +171,9 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
                                 onTap: () => _irAFacturar(venta),
                                 child: Container(
                                   padding: const EdgeInsets.all(10),
-                                  decoration: const BoxDecoration(
+                                  decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.blueAccent,
+                                    color: context.colorScheme.primary,
                                   ),
                                   child: const Icon(
                                     Icons.receipt_long,
@@ -195,7 +196,7 @@ class _FreeSalesScreenState extends State<FreeSalesScreen> {
         child: ElevatedButton.icon(
           onPressed: cerrarSesion,
           icon: const Icon(Icons.logout),
-          label: const Text('Cerrar Sesión'),
+          label: Text(context.l10n.closeSession),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.redAccent,
             foregroundColor: Colors.white,

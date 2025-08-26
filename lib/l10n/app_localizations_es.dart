@@ -625,4 +625,81 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get cancelDeposit => 'CANCELAR DEPÓSITO';
+
+  @override
+  String get generating => 'Generando...';
+
+  @override
+  String get invoiceTransactionTitle => 'FACTURAR TRANSACCIÓN';
+
+  @override
+  String get customerDataTitle => 'DATOS CLIENTE';
+
+  @override
+  String get documentNumberLabel => 'N° Documento';
+
+  @override
+  String get paymentMethodsTitle => 'MÉTODOS DE PAGO';
+
+  @override
+  String get methodLabel => 'Método';
+
+  @override
+  String get invoiceAmountLabel => 'Amount';
+
+  @override
+  String transactionTotal(String amount) {
+    return 'Total transacción: S/ $amount';
+  }
+
+  @override
+  String get invoiceProductLabel => 'Product';
+
+  @override
+  String get invoicePumpLabel => 'Pump';
+
+  @override
+  String get invoiceVolumeLabel => 'Volume';
+
+  @override
+  String get amountDetailLabel => 'Monto';
+
+  @override
+  String get discountLabel => 'Descuento';
+
+  @override
+  String get freeSalesTitle => 'Ventas Libres';
+
+  @override
+  String get noFreeSales => 'No hay ventas libres.';
+
+  @override
+  String transactionLabel(String id) {
+    return 'TRANSACCIÓN # $id';
+  }
+
+  @override
+  String pumpLabel(String pump) {
+    return 'Bomba: $pump';
+  }
+
+  @override
+  String productLabel(String product) {
+    return 'Producto: $product';
+  }
+
+  @override
+  String dateLabel(String date) {
+    return 'Fecha: $date';
+  }
+
+  @override
+  String volumeLabel(String volume) {
+    return 'Volumen: $volume gal';
+  }
+
+  @override
+  String amountLabel(String amount) {
+    return 'Monto: S/ $amount';
+  }
 }

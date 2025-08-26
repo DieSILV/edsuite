@@ -136,7 +136,7 @@ class NiubizPlatformDataSourceImpl implements NiubizPlatformDataSource {
   Future<NiubizTransactionResult> printTicket(String text) async {
     try {
       final result = await _platform.invokeMethod<Map>('printTicket', {
-        'text': text,
+        'texto': text,
       });
 
       return NiubizTransactionResult.fromSimpleResult(

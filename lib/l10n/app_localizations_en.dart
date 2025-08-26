@@ -616,4 +616,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cancelDeposit => 'CANCEL DEPOSIT';
+
+  @override
+  String get generating => 'Generating...';
+
+  @override
+  String get invoiceTransactionTitle => 'INVOICE TRANSACTION';
+
+  @override
+  String get customerDataTitle => 'CUSTOMER DATA';
+
+  @override
+  String get documentNumberLabel => 'Document No.';
+
+  @override
+  String get paymentMethodsTitle => 'PAYMENT METHODS';
+
+  @override
+  String get methodLabel => 'Method';
+
+  @override
+  String get invoiceAmountLabel => 'Amount';
+
+  @override
+  String transactionTotal(String amount) {
+    return 'Transaction total: S/ $amount';
+  }
+
+  @override
+  String get invoiceProductLabel => 'Product';
+
+  @override
+  String get invoicePumpLabel => 'Pump';
+
+  @override
+  String get invoiceVolumeLabel => 'Volume';
+
+  @override
+  String get amountDetailLabel => 'Amount';
+
+  @override
+  String get discountLabel => 'Discount';
+
+  @override
+  String get freeSalesTitle => 'Free Sales';
+
+  @override
+  String get noFreeSales => 'No free sales.';
+
+  @override
+  String transactionLabel(String id) {
+    return 'TRANSACTION # $id';
+  }
+
+  @override
+  String pumpLabel(String pump) {
+    return 'Pump: $pump';
+  }
+
+  @override
+  String productLabel(String product) {
+    return 'Product: $product';
+  }
+
+  @override
+  String dateLabel(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String volumeLabel(String volume) {
+    return 'Volume: $volume gal';
+  }
+
+  @override
+  String amountLabel(String amount) {
+    return 'Amount: S/ $amount';
+  }
 }

@@ -6,6 +6,22 @@ class NiubizUsecases {
 
   NiubizUsecases({required this.niubizRepository});
 
+  FutureResult<NiubizTransactionResult> printTicket({
+    required String texto,
+  }) async {
+    try {
+      final result = await niubizRepository.printTicket(texto);
+
+      if (result.isSuccess) {
+        return Success(result.successValue!);
+      } else {
+        return Err(result.errorValue!);
+      }
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
+
   FutureResult<NiubizTransactionResult> startTransaction({
     required String amount,
     required bool useQr,

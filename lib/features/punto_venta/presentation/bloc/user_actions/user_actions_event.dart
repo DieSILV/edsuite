@@ -7,8 +7,17 @@ sealed class UserActionEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class ClearDataEvent extends UserActionEvent {
-  const ClearDataEvent();
+class CreateDocumentEvent extends UserActionEvent {
+  const CreateDocumentEvent(this.baseUrl, this.invoicePayload);
+  final String baseUrl;
+  final InvoicePayload invoicePayload;
+
+  @override
+  List<Object> get props => [baseUrl, invoicePayload];
+}
+
+class UserActionsClearEvent extends UserActionEvent {
+  const UserActionsClearEvent();
 }
 
 class UpdateVisaBatchClosed extends UserActionEvent {

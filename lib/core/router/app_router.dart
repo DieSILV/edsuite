@@ -4,6 +4,7 @@ import 'package:edsuite/features/punto_venta/presentation/screens/expense_screen
 import 'package:edsuite/features/punto_venta/presentation/screens/free_sales_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/home_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen_old.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/niubiz_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/sales_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/scheduled_sales_screen.dart';
@@ -128,9 +129,9 @@ final appRouter = GoRouter(
     GoRoute(
       path: "/invoice",
       builder: (context, state) {
-        final params = state.extra as InvoiceScreenParams;
+        //final params = state.extra as InvoiceScreenParams;
 
-        return InvoiceScreen(params: params);
+        return InvoiceScreen();
       },
     ),
     GoRoute(

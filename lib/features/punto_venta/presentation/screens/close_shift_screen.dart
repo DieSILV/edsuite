@@ -34,8 +34,7 @@ class _CloseShiftScreenState extends State<CloseShiftScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final posState = context.read<PosBloc>().state;
-      //TODO: apipts
-      baseUrl = "${posState.baseUrl}/apipts";
+      baseUrl = "${posState.baseUrl}";
       //baseUrl = "${posState.baseUrl}";
       _loadVisaBatchStatus();
     });

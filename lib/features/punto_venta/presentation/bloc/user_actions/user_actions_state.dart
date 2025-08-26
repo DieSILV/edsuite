@@ -3,6 +3,8 @@ part of 'user_actions_bloc.dart';
 enum UserActionStatus {
   initial,
   loadingTransactionData,
+  loadingCreateDocument,
+  successCreatingDocument,
   successTransactionData,
   failed,
 }
@@ -12,6 +14,8 @@ class UserActionState extends Equatable {
     required this.status,
     this.transactionData,
     this.visaBatchClosed = false,
+    this.documentMethodsPay,
+    this.document,
     this.failure,
   });
 
@@ -20,18 +24,24 @@ class UserActionState extends Equatable {
   final UserActionStatus status;
   final List<TransactionModel>? transactionData;
   final bool visaBatchClosed;
+  final String? documentMethodsPay;
+  final Document? document;
   final Failure? failure;
 
   UserActionState copyWith({
     UserActionStatus? status,
     List<TransactionModel>? transactionData,
     bool? visaBatchClosed,
+    String? documentMethodsPay,
+    Document? document,
     Failure? failure,
   }) {
     return UserActionState(
       status: status ?? this.status,
       transactionData: transactionData ?? this.transactionData,
       visaBatchClosed: visaBatchClosed ?? this.visaBatchClosed,
+      documentMethodsPay: documentMethodsPay ?? this.documentMethodsPay,
+      document: document ?? this.document,
       failure: failure ?? this.failure,
     );
   }
@@ -41,6 +51,8 @@ class UserActionState extends Equatable {
     status,
     transactionData,
     visaBatchClosed,
+    documentMethodsPay,
+    document,
     failure,
   ];
 }

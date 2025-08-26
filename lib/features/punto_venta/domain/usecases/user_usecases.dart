@@ -14,6 +14,26 @@ class UserUsecases {
     required this.keyValueStorageService,
   });
 
+  FutureResult<DocumentResponse> createDocument({
+    required String baseUrl,
+    required InvoicePayload invoicePayload,
+  }) async {
+    try {
+      final result = await userRepository.createDocument(
+        baseUrl: baseUrl,
+        invoicePayload: invoicePayload,
+      );
+
+      if (result.isSuccess) {
+        return Success(result.successValue!);
+      } else {
+        return Err(result.errorValue!);
+      }
+    } catch (e) {
+      return Err(Failure(message: e.toString()));
+    }
+  }
+
   FutureResult<List<TransactionModel>> getSolicitudesLibres({
     required String baseUrl,
     required String userId,

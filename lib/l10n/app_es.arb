@@ -340,5 +340,92 @@
   },
   "waitingDeposit": "Esperando depósito...",
   "processing": "Procesando...",
-  "cancelDeposit": "CANCELAR DEPÓSITO"
+  "cancelDeposit": "CANCELAR DEPÓSITO",
+  "generating": "Generando...",
+  "invoiceTransactionTitle": "FACTURAR TRANSACCIÓN",
+  "customerDataTitle": "DATOS CLIENTE",
+  "documentNumberLabel": "N° Documento",
+  "plateLabel": "Placa",
+  "paymentMethodsTitle": "MÉTODOS DE PAGO",
+  "addPaymentMethod": "Agregar método",
+  "methodLabel": "Método",
+  "invoiceAmountLabel": "Amount",
+  "generateCPE": "GENERAR CPE",
+  "transactionTotal": "Total transacción: S/ {amount}",
+  "@transactionTotal": {
+    "description": "Total de la transacción",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100.00"
+      }
+    }
+  },
+  "invoiceProductLabel": "Product",
+  "invoicePumpLabel": "Pump",
+  "invoiceVolumeLabel": "Volume",
+  "amountDetailLabel": "Monto",
+  "discountLabel": "Descuento",
+  "freeSalesTitle": "Ventas Libres",
+  "noFreeSales": "No hay ventas libres.",
+  "transactionLabel": "TRANSACCIÓN # {id}",
+  "@transactionLabel": {
+    "description": "Etiqueta para el número de transacción",
+    "placeholders": {
+      "id": {
+        "type": "String",
+        "example": "12345"
+      }
+    }
+  },
+  "pumpLabel": "Bomba: {pump}",
+  "@pumpLabel": {
+    "description": "Etiqueta para la bomba",
+    "placeholders": {
+      "pump": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "productLabel": "Producto: {product}",
+  "@productLabel": {
+    "description": "Etiqueta para el producto",
+    "placeholders": {
+      "product": {
+        "type": "String",
+        "example": "Diesel"
+      }
+    }
+  },
+  "dateLabel": "Fecha: {date}",
+  "@dateLabel": {
+    "description": "Etiqueta para la fecha",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "26/08/2025 14:30"
+      }
+    }
+  },
+  "volumeLabel": "Volumen: {volume} gal",
+  "@volumeLabel": {
+    "description": "Etiqueta para el volumen",
+    "placeholders": {
+      "volume": {
+        "type": "String",
+        "example": "10.5"
+      }
+    }
+  },
+  "amountLabel": "Monto: S/ {amount}",
+  "@amountLabel": {
+    "description": "Etiqueta para el monto",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "150.00"
+      }
+    }
+  }
 }

@@ -20,4 +20,8 @@ abstract interface class IUserRepository {
     required String userId,
     required String turnoId,
   });
+  FutureResult<DocumentResponse> createDocument({
+    required String baseUrl,
+    required InvoicePayload invoicePayload,
+  });
 }

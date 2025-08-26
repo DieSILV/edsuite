@@ -340,5 +340,92 @@
   },
   "waitingDeposit": "Waiting for deposit...",
   "processing": "Processing...",
-  "cancelDeposit": "CANCEL DEPOSIT"
+  "cancelDeposit": "CANCEL DEPOSIT",
+  "generating": "Generating...",
+  "invoiceTransactionTitle": "INVOICE TRANSACTION",
+  "customerDataTitle": "CUSTOMER DATA",
+  "documentNumberLabel": "Document No.",
+  "plateLabel": "Plate",
+  "paymentMethodsTitle": "PAYMENT METHODS",
+  "addPaymentMethod": "Add method",
+  "methodLabel": "Method",
+  "invoiceAmountLabel": "Amount",
+  "generateCPE": "GENERATE CPE",
+  "transactionTotal": "Transaction total: S/ {amount}",
+  "@transactionTotal": {
+    "description": "Transaction total",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100.00"
+      }
+    }
+  },
+  "invoiceProductLabel": "Product",
+  "invoicePumpLabel": "Pump",
+  "invoiceVolumeLabel": "Volume",
+  "amountDetailLabel": "Amount",
+  "discountLabel": "Discount",
+  "freeSalesTitle": "Free Sales",
+  "noFreeSales": "No free sales.",
+  "transactionLabel": "TRANSACTION # {id}",
+  "@transactionLabel": {
+    "description": "Label for transaction number",
+    "placeholders": {
+      "id": {
+        "type": "String",
+        "example": "12345"
+      }
+    }
+  },
+  "pumpLabel": "Pump: {pump}",
+  "@pumpLabel": {
+    "description": "Label for pump",
+    "placeholders": {
+      "pump": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "productLabel": "Product: {product}",
+  "@productLabel": {
+    "description": "Label for product",
+    "placeholders": {
+      "product": {
+        "type": "String",
+        "example": "Diesel"
+      }
+    }
+  },
+  "dateLabel": "Date: {date}",
+  "@dateLabel": {
+    "description": "Label for date",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "08/26/2025 14:30"
+      }
+    }
+  },
+  "volumeLabel": "Volume: {volume} gal",
+  "@volumeLabel": {
+    "description": "Label for volume",
+    "placeholders": {
+      "volume": {
+        "type": "String",
+        "example": "10.5"
+      }
+    }
+  },
+  "amountLabel": "Amount: S/ {amount}",
+  "@amountLabel": {
+    "description": "Label for amount",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "150.00"
+      }
+    }
+  }
 }

@@ -17,7 +17,7 @@ class PaymentRepository implements IPaymentRepository {
     try {
       final response = await http.get(
         //TODO: apipts
-        Uri.parse('$baseUrl/apipts/payment-methods'),
+        Uri.parse('$baseUrl/payment-methods'),
         //Uri.parse('$baseUrl/payment-methods'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -56,7 +56,7 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       //TODO: apipts
-      final url = Uri.parse('$baseUrl/apipts/success-transactions');
+      final url = Uri.parse('$baseUrl/success-transactions');
       //final url = Uri.parse('$baseUrl/success-transactions');
 
       final response = await http.post(
@@ -64,13 +64,13 @@ class PaymentRepository implements IPaymentRepository {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'method': method,
-          'poscode': poscode,
+          'pos_code': poscode,
           'amount': amount,
           'result': result,
         }),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return Success(null);
       } else {
         return Err(Failure(statusCode: response.statusCode));
@@ -100,8 +100,7 @@ class PaymentRepository implements IPaymentRepository {
     required String? turnoId,
   }) async {
     try {
-      //TODO: apipts
-      final url = Uri.parse('$baseUrl/apipts/pts/authorize');
+      final url = Uri.parse('$baseUrl/pts/authorize');
       //final url = Uri.parse('$baseUrl/pts/authorize');
 
       final body = {
@@ -150,7 +149,7 @@ class PaymentRepository implements IPaymentRepository {
     try {
       final response = await http.post(
         //TODO: apipts
-        Uri.parse('$baseUrl/apipts/cashkeeper/comando'),
+        Uri.parse('$baseUrl/cashkeeper/comando'),
         //Uri.parse('$baseUrl/cashkeeper/comando'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"command": "\$42|${amount}|1#"}),
@@ -178,8 +177,7 @@ class PaymentRepository implements IPaymentRepository {
   FutureResult<void> cashKeeperCancelCommand({required String baseUrl}) async {
     try {
       final response = await http.post(
-        //TODO: apipts
-        Uri.parse('$baseUrl/apipts/cashkeeper/comando'),
+        Uri.parse('$baseUrl/cashkeeper/comando'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"command": r"$42|0|1#"}),
       );
@@ -216,8 +214,7 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       final response = await http.get(
-        //TODO: apipts
-        Uri.parse('$baseUrl/apipts/cashkeeper/depositado'),
+        Uri.parse('$baseUrl/cashkeeper/depositado'),
       );
 
       if (response.statusCode == 200) {
@@ -245,7 +242,7 @@ class PaymentRepository implements IPaymentRepository {
     try {
       final response = await http.post(
         //TODO: apipts
-        Uri.parse('$baseUrl/apipts/cashkeeper/limpiar'),
+        Uri.parse('$baseUrl/cashkeeper/limpiar'),
       );
 
       if (response.statusCode == 200) {
@@ -274,8 +271,7 @@ class PaymentRepository implements IPaymentRepository {
   }) async {
     try {
       final response = await http.post(
-        //TODO: apipts
-        Uri.parse('$baseUrl/apipts/pts/cancel'),
+        Uri.parse('$baseUrl/pts/cancel'),
         //Uri.parse('$baseUrl/pts/cancel'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"pumpId": pumpId, "transaction": transaction}),

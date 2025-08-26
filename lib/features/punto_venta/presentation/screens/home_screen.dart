@@ -1,6 +1,9 @@
 import 'package:edsuite/core/extensions/extensions.dart';
 import 'package:edsuite/core/helpers/get_error_msg_icon.dart';
+import 'package:edsuite/features/niubiz/presentation/niubiz_bloc/niubiz_bloc.dart';
+import 'package:edsuite/features/payment/presentation/bloc/payment_punto_venta/payment_punto_venta_bloc.dart';
 import 'package:edsuite/features/punto_venta/presentation/bloc/user/user_bloc.dart';
+import 'package:edsuite/features/punto_venta/presentation/bloc/user_actions/user_actions_bloc.dart';
 import 'package:edsuite/features/punto_venta/presentation/views/user_view.dart';
 import 'package:edsuite/features/punto_venta/presentation/views/views.dart';
 import 'package:edsuite_common/edsuite_common.dart';
@@ -21,6 +24,10 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UserBloc>().add(const LoadSessionEvent());
+      //Clear states
+      context.read<UserActionBloc>().add(const UserActionsClearEvent());
+      context.read<NiubizBloc>().add(const NiubizClearEvent());
+      context.read<PaymentPuntoVentaBloc>().add(const ClearDataPayment());
     });
   }
 

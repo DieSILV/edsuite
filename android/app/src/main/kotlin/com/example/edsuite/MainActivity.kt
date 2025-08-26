@@ -119,7 +119,16 @@ class MainActivity : FlutterActivity() {
                         result.error("EMPTY_TEXT", "No se recibió texto para imprimir.", null)
                         return@setMethodCallHandler
                     }
-                    val uri = "niustart://transact/?EXTCALLER=appTercera&EXTOP=30&EXTMONTO=0&EXTBODY=$texto"
+                    val installedPackage = getInstalledNiubizPackage()
+
+                    val uri = if (installedPackage == "com.niubiz.app_financiera") {
+                        // 🔹 v1 usa posweb://
+                        "posweb://transact/?EXTCALLER=appTercera&EXTOP=30&EXTMONTO=0&EXTBODY=$texto"
+                    } else {
+                        // 🔹 v2 usa niustart://
+                        "niustart://transact/?EXTCALLER=appTercera&EXTOP=30&EXTMONTO=0&EXTBODY=$texto"
+                    }
+
                     launchIntent(uri, result)
                 }
 
@@ -135,31 +144,66 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // Método para detectar qué paquete está instalado
+    private fun getInstalledNiubizPackage(): String? {
+        val pm = packageManager
+        val packages = listOf(
+            "pe.com.niubiz.app.payment",   // v2
+            "pe.com.niubiz.app.start",     // v2
+            "com.niubiz.app_financiera"    // v1
+        )
+        for (pkg in packages) {
+            try {
+                pm.getPackageInfo(pkg, 0)
+                return pkg
+            } catch (_: Exception) {}
+        }
+        return null
+    }
+
+
     // 🔹 Método para lanzar Intents con paquetes correctos
     private fun launchIntent(uriString: String, result: MethodChannel.Result) {
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse(uriString)
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        data = Uri.parse(uriString)
 
-            // Mapear paquete correcto
-            when {
-                uriString.startsWith("niustart://") -> {
-                    // Inicialización, multicomercio, impresión
-                    setPackage("pe.com.niubiz.app.start")
-                }
-                uriString.startsWith("posweb://") -> {
-                    // Ventas, anulaciones, reversos, reportes
-                    setPackage("pe.com.niubiz.app.payment")
-                }
-                uriString.startsWith("posservices://") -> {
-                    // POS Servicios
-                    setPackage("pe.com.niubiz.app.payment")
-                }
-                else -> {
-                    // Fallback a payment
-                    setPackage("pe.com.niubiz.app.payment")
-                }
+        val pm = packageManager
+
+        // Lista de posibles paquetes por prioridad
+        val possiblePackages = when {
+            uriString.startsWith("niustart://") -> listOf(
+                "pe.com.niubiz.app.start",
+                "com.niubiz.app_financiera" // fallback v1
+            )
+            uriString.startsWith("posweb://") -> listOf(
+                "pe.com.niubiz.app.payment",
+                "com.niubiz.app_financiera" // fallback v1
+            )
+            uriString.startsWith("posservices://") -> listOf(
+                "pe.com.niubiz.app.payment",
+                "com.niubiz.app_financiera"
+            )
+            else -> listOf("pe.com.niubiz.app.payment", "com.niubiz.app_financiera")
+        }
+
+        // Verifica cuál de los paquetes existe en el dispositivo
+        var packageSet = false
+        for (pkg in possiblePackages) {
+            try {
+                pm.getPackageInfo(pkg, 0)
+                setPackage(pkg)
+                packageSet = true
+                break
+            } catch (_: Exception) {
+                // sigue buscando
             }
         }
+
+        if (!packageSet) {
+            // último fallback, aunque no debería llegar aquí
+            setPackage("pe.com.niubiz.app.payment")
+        }
+    }
 
         try {
             startActivityForResult(intent, REQUEST_NIUBIZ)
@@ -168,6 +212,7 @@ class MainActivity : FlutterActivity() {
             result.error("INTENT_ERROR", "No se pudo lanzar el intent: ${e.message}", null)
         }
     }
+
 
     // 🔹 Manejo de resultados
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

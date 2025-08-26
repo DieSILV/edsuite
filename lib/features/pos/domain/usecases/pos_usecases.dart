@@ -66,7 +66,10 @@ class PosUsecases {
       final result = await posRepository.pingServer(baseUrl: baseUrl);
 
       if (result.isSuccess) {
-        await keyValueStorageService.setKeyValue<String>("base_url", baseUrl);
+        await keyValueStorageService.setKeyValue<String>(
+          "base_url",
+          "${baseUrl}",
+        );
         return Success(null);
       } else {
         return Err(result.errorValue!);

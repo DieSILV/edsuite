@@ -19,7 +19,7 @@ class DispenserRepository implements IDispenserRepository {
       final response = await http
           .post(
             //TODO: apipts
-            Uri.parse('$baseUrl/apipts/pts/status'),
+            Uri.parse('$baseUrl/pts/status'),
             //Uri.parse('$baseUrl/pts/status'),
             headers: {'Content-Type': 'application/json'},
             body: json.encode({"pts_pumps": sideIds}),
@@ -52,8 +52,7 @@ class DispenserRepository implements IDispenserRepository {
   }) async {
     try {
       final response = await http.post(
-        //TODO: apipts
-        Uri.parse('$baseUrl/apipts/pts/config'),
+        Uri.parse('$baseUrl/pts/config'),
         //Uri.parse('$baseUrl/pts/config'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -85,14 +84,13 @@ class DispenserRepository implements IDispenserRepository {
   }) async {
     try {
       final response = await http.post(
-        //TODO: apipts
-        Uri.parse("${baseUrl}/apipts/clientes/obtener"),
+        Uri.parse("${baseUrl}/clientes/obtener"),
         //Uri.parse("${baseUrl}/clientes/obtener"),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({"numero_doc": documento}),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return Success(ClienteModel.fromJson(jsonDecode(response.body)));
       } else {
         return Err(Failure(statusCode: response.statusCode));
@@ -118,8 +116,7 @@ class DispenserRepository implements IDispenserRepository {
   }) async {
     try {
       final result = await http.post(
-        //TODO: apipts
-        Uri.parse('$baseUrl/apipts/pts/information'),
+        Uri.parse('$baseUrl/pts/information'),
         //Uri.parse('$baseUrl/pts/information'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
