@@ -34,7 +34,7 @@ class UserView extends StatelessWidget {
       {
         'label': context.l10n.marketOption,
         'icon': FontAwesomeIcons.calendarDays,
-        'screen': '/ventas',
+        'screen': '/market',
       },
     ];
     return SingleChildScrollView(

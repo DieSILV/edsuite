@@ -5,6 +5,7 @@ import 'package:edsuite/features/punto_venta/presentation/screens/free_sales_scr
 import 'package:edsuite/features/punto_venta/presentation/screens/home_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/invoice_screen_old.dart';
+import 'package:edsuite/features/punto_venta/presentation/screens/market_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/niubiz_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/sales_screen.dart';
 import 'package:edsuite/features/punto_venta/presentation/screens/scheduled_sales_screen.dart';
@@ -96,6 +97,7 @@ final appRouter = GoRouter(
       path: "/ventasLibres",
       builder: (context, state) => const FreeSalesScreen(),
     ),
+    GoRoute(path: "/market", builder: (context, state) => const MarketScreen()),
     GoRoute(
       path: "/configuracionPOS",
       builder: (context, state) {
