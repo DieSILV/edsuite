@@ -1,39 +1,39 @@
-# Configuración de Desarrollo
+# Development Setup
 
-## 📋 Prerequisitos
+## 📋 Prerequisites
 
-### Software Requerido
-- **Flutter SDK**: 3.x o superior
-- **Dart SDK**: 3.x o superior
-- **IDE**: Android Studio, VS Code, o IntelliJ IDEA
-- **Git**: Para control de versiones
+### Required Software
+- **Flutter SDK**: 3.x or higher
+- **Dart SDK**: 3.x or higher
+- **IDE**: Android Studio, VS Code, or IntelliJ IDEA
+- **Git**: For version control
 
-### Herramientas Adicionales
-- **Android Studio**: Para desarrollo Android
-- **Xcode**: Para desarrollo iOS (solo macOS)
-- **Chrome**: Para desarrollo web
+### Additional Tools
+- **Android Studio**: For Android development
+- **Xcode**: For iOS development (macOS only)
+- **Chrome**: For web development
 
-## ⚙️ Configuración Inicial
+## ⚙️ Initial Setup
 
-### 1. Clonar el Repositorio
+### 1. Clone the Repository
 ```bash
 git clone <repository-url>
 ```
 
-### 2. Instalar Dependencias
+### 2. Install Dependencies
 ```bash
-# Instalar dependencias de Flutter
+# Install Flutter dependencies
 flutter pub get
 
-# Verificar instalación
+# Verify installation
 flutter doctor
 ```
 
-### 3. Configurar Variables de Entorno
+### 3. Configure Environment Variables
 
-El proyecto utiliza archivos de configuración para diferentes ambientes:
+The project uses configuration files for different environments:
 
-#### Desarrollo (`env_dev.json`)
+#### Development (`env_dev.json`)
 ```json
 {
     "ENV": "dev",
@@ -41,7 +41,7 @@ El proyecto utiliza archivos de configuración para diferentes ambientes:
 }
 ```
 
-#### Producción (`env.json`)
+#### Production (`env.json`)
 ```json
 {
     "ENV": "prod",
@@ -49,81 +49,80 @@ El proyecto utiliza archivos de configuración para diferentes ambientes:
 }
 ```
 
-### 4. Configuración del IDE
+### 4. IDE Setup
 
 #### VS Code
-Extensiones recomendadas:
-- **Flutter**: Soporte completo para Flutter
-- **Dart**: Soporte para Dart
-- **Bloc**: Snippets para BLoC pattern
+Recommended extensions:
+- **Flutter**: Full support for Flutter
+- **Dart**: Support for Dart
+- **Bloc**: Snippets for BLoC pattern
 
 #### Android Studio
-Plugins recomendados:
+Recommended plugins:
 - **Flutter Plugin**
 - **Dart Plugin**
 - **Bloc Plugin**
 
-## 🏃‍♂️ Comandos de Desarrollo
+## 🏃‍♂️ Development Commands
 
-### Ejecutar la Aplicación
+### Run the Application
 ```bash
-# Desarrollo
+# Development
 flutter run --dart-define-from-file=env_dev.json
 
-# Producción
+# Production
 flutter run --dart-define-from-file=env.json
 
-# Con dispositivo específico
+# With specific device
 flutter run -d <device-id> --dart-define-from-file=env_dev.json
 
-# Hot reload automático
+# Automatic hot reload
 flutter run --hot
 ```
 
 ### Testing
 ```bash
-# Ejecutar todos los tests
+# Run all tests
 flutter test
 
-# Tests con coverage
+# Tests with coverage
 flutter test --coverage
 
-### Build y Deployment
+### Build and Deployment
 ```bash
-# Build para Android (APK)
+# Build for Android (APK)
 flutter build apk --dart-define-from-file=env.json
 
-# Build para Android (AAB)
+# Build for Android (AAB)
 flutter build appbundle --dart-define-from-file=env.json
 
-# Build para iOS
+# Build for iOS
 flutter build ios --dart-define-from-file=env.json
 
-# Build para Web
+# Build for Web
 flutter build web --dart-define-from-file=env.json
 ```
 
-### Análisis y Calidad de Código
+### Code Analysis and Quality
 ```bash
-# Análisis estático
+# Static analysis
 flutter analyze
 
-# Formatear código
+# Format code
 dart format .
 
-# Fix automático de problemas
+# Automatic fix of issues
 dart fix --apply
 ```
 
-## 🔧 Configuración de Debugging
+## 🔧 Debugging Setup
 
-### Debug en VS Code
-Crear archivo `.vscode/launch.json`:
+### Debug in VS Code
+Create a `.vscode/launch.json` file:
 ```json
 {
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "Launch development",
             "request": "launch",
@@ -148,102 +147,102 @@ Crear archivo `.vscode/launch.json`:
 }
 ```
 
-## 🎯 Flujo de Desarrollo
+## 🎯 Development Workflow
 
-### 1. Crear Nueva Feature
+### 1. Create New Feature
 ```bash
-# Crear rama para feature
-git checkout -b feature/nueva-funcionalidad
+# Create feature branch
+git checkout -b feature/new-feature
 
-# Crear estructura básica
-mkdir lib/features/nueva_funcionalidad
-mkdir lib/features/nueva_funcionalidad/presentation
-mkdir lib/features/nueva_funcionalidad/domain
-mkdir lib/features/nueva_funcionalidad/data
+# Create basic structure
+mkdir lib/features/new_feature
+mkdir lib/features/new_feature/presentation
+mkdir lib/features/new_feature/domain
+mkdir lib/features/new_feature/data
 ```
 
-### 2. Implementar según Clean Architecture
-1. **Domain**: Entidades, use cases, repositorios (interfaces)
-2. **Data**: Implementación de repositorios, modelos, datasources
-3. **Presentation**: BLoCs, páginas, widgets
+### 2. Implement according to Clean Architecture
+1. **Domain**: Entities, use cases, repositories (interfaces)
+2. **Data**: Repository implementations, models, datasources
+3. **Presentation**: BLoCs, pages, widgets
 
 ### 3. Testing
-1. Escribir tests unitarios para use cases
-2. Tests de integración para repositorios
-3. Tests de widgets para UI
+1. Write unit tests for use cases
+2. Integration tests for repositories
+3. Widget tests for UI
 
 ### 4. Documentation
-1. Actualizar documentación de feature
-2. Agregar comentarios JSDoc/DartDoc
-3. Actualizar README si es necesario
+1. Update feature documentation
+2. Add JSDoc/DartDoc comments
+3. Update README if necessary
 
 ## 🐛 Troubleshooting
 
-### Problemas Comunes
+### Common Issues
 
-#### Error de Dependencias
+#### Dependency Errors
 ```bash
-# Limpiar caché
+# Clean cache
 flutter clean
 flutter pub get
 
-# Actualizar dependencias
+# Update dependencies
 flutter pub upgrade
 ```
 
-#### Problemas de Build
+#### Build Issues
 ```bash
-# Limpiar build
+# Clean build
 flutter clean
 
-# Rebuild completo
+# Full rebuild
 flutter pub get
 flutter build <platform>
 ```
 
-#### Problemas de Hot Reload
+#### Hot Reload Issues
 ```bash
-# Restart completo
+# Full restart
 flutter run --hot
-# Presionar 'R' para hot restart
+# Press 'R' for hot restart
 ```
 
-### Variables de Debug
+### Debug Variables
 ```bash
 # Verbose output
 flutter run --verbose
 
-# Debug de performance
+# Performance debug
 flutter run --profile
 
-# Análisis de memoria
+# Memory analysis
 flutter run --enable-memory-profiling
 ```
 
-## 🔒 Configuración de Seguridad
+## 🔒 Security Setup
 
-### Manejo de Secrets
-- Nunca commitear archivos de configuración con datos sensibles
-- Usar variables de entorno para API keys
-- Implementar obfuscación para builds de producción
+### Secrets Management
+- Never commit configuration files with sensitive data
+- Use environment variables for API keys
+- Implement obfuscation for production builds
 
 
-## 🤝 Mejores Prácticas
+## 🤝 Best Practices
 
-### Código
-1. Seguir las convenciones de Dart/Flutter
-2. Usar análisis estático (flutter analyze)
-3. Mantener cobertura de tests > 80%
-4. Documentar APIs públicas
+### Code
+1. Follow Dart/Flutter conventions
+2. Use static analysis (flutter analyze)
+3. Maintain test coverage > 80%
+4. Document public APIs
 
 ### Git
-1. Commits descriptivos y atómicos
-2. Usar conventional commits
-3. Review obligatorio antes de merge
-4. Tests passing antes de merge
+1. Descriptive and atomic commits
+2. Use conventional commits
+3. Mandatory review before merge
+4. Tests passing before merge
 
 ### Performance
-1. Usar `const` constructors cuando sea posible
-2. Evitar rebuilds innecesarios
-3. Optimizar imágenes y assets
-4. Monitorear memoria y CPU
+1. Use `const` constructors when possible
+2. Avoid unnecessary rebuilds
+3. Optimize images and assets
+4. Monitor memory and CPU

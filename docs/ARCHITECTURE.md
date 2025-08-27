@@ -1,13 +1,13 @@
-# Arquitectura del Sistema
+# System Architecture
 
-## 🏗️ Visión General
+## 🏗️ Overview
 
-Escienza Boletas está construido siguiendo los principios de **Domain Driven Design (DDD)** combinado con el patrón **BLoC** para la gestión de estado, proporcionando una arquitectura robusta, escalable y mantenible centrada en el dominio del negocio.
+Escienza Boletas is built following the principles of **Domain Driven Design (DDD)** combined with the **BLoC** pattern for state management, providing a robust, scalable, and maintainable architecture focused on business domain.
 
-## 📐 Principios Arquitectónicos
+## 📐 Architectural Principles
 
 ### Domain Driven Design (DDD)
-La aplicación está organizada en capas que respetan la separación entre dominio y aplicación:
+The application is organized in layers that respect the separation between domain and application:
 
 ```
 ┌─────────────────────────────────────┐
@@ -17,143 +17,143 @@ La aplicación está organizada en capas que respetan la separación entre domin
 ├─────────────────────────────────────┤
 │            Domain                   │  ← Entities, Value Objects, Domain Services
 ├─────────────────────────────────────┤
-│         Infrastructure              │  ← Repositories Impl, External Services
+│         Infrastructure              │  ← Repository Implementations, External Services
 └─────────────────────────────────────┘
 ```
 
-### Elementos DDD Implementados
+### Implemented DDD Elements
 
 #### 1. **Domain Entities**
-- Entidades centrales del negocio (Turno, Document, Transaction, etc.)
-- Lógica de negocio encapsulada
-- Identidad única y comportamientos propios
+- Core business entities (Shift, Document, Transaction, etc.)
+- Encapsulated business logic
+- Unique identity and own behaviors
 
 #### 2. **Value Objects**
-- Objetos inmutables que describen aspectos del dominio
-- Validaciones de dominio incorporadas
+- Immutable objects describing domain aspects
+- Built-in domain validations
 - Email, Password, DocumentId, etc.
 
 #### 3. **Repository Pattern**
-- Abstracción del acceso a datos
-- Contrato definido en el dominio
-- Implementación en infraestructura
+- Data access abstraction
+- Contract defined in domain
+- Implementation in infrastructure
 
 #### 4. **Application Services (Use Cases)**
-- Orquestación de operaciones de dominio
-- Casos de uso específicos del negocio
-- Coordinación entre entidades y repositorios
+- Orchestration of domain operations
+- Business-specific use cases
+- Coordination between entities and repositories
 
-### Patrones de Diseño Implementados
+### Implemented Design Patterns
 
 #### 1. **BLoC Pattern (Business Logic Component)**
-- Separación completa entre UI y lógica de aplicación
-- Gestión de estado predecible y testeable
-- Manejo de eventos y estados reactivos
+- Complete separation between UI and application logic
+- Predictable and testable state management
+- Reactive event and state handling
 
 #### 2. **Repository Pattern**
-- Abstracción de fuentes de datos definida en el dominio
-- Implementación en la capa de infraestructura
-- Facilita testing con mocks
+- Data source abstraction defined in domain
+- Implementation in infrastructure layer
+- Facilitates testing with mocks
 
 #### 3. **Dependency Injection**
-- Inversión de control usando RepositoryProvider
-- Facilita testing y mantenimiento
-- Desacoplamiento entre capas
+- Inversion of control using RepositoryProvider
+- Facilitates testing and maintenance
+- Decoupling between layers
 
 #### 4. **Use Cases (Application Services)**
-- Encapsulan lógica de aplicación específica
-- Coordinan operaciones entre dominio e infraestructura
-- Un use case por operación de negocio
+- Encapsulate specific application logic
+- Coordinate operations between domain and infrastructure
+- One use case per business operation
 
-## 📦 Estructura de Packages
+## 📦 Package Structure
 
 ### Utility Packages
 
 #### `edsuite_common/`
 ```
 lib/
-├── edsuite_common.dart   # Export principal
+├── edsuite_common.dart   # Main export
 └── src/
-    ├── src.dart          # Exports internos
-    ├── helpers/          # Utilidades y helpers
-    ├── dialogs/          # Diálogos reutilizables
-    └── widgets/          # Widgets reutilizables
+  ├── src.dart          # Internal exports
+  ├── helpers/          # Utilities and helpers
+  ├── dialogs/          # Reusable dialogs
+  └── widgets/          # Reusable widgets
 ```
 
-**Responsabilidades:**
-- Widgets reutilizables across features
-- Utilidades y helpers generales
-- Diálogos y componentes UI comunes
-- Funcionalidades transversales de la aplicación
+**Responsibilities:**
+- Reusable widgets across features
+- General utilities and helpers
+- Common UI dialogs and components
+- Cross-cutting application functionalities
 
-## 🔄 Flujo de Datos DDD
+## 🔄 DDD Data Flow
 
-### 1. Flujo Típico en DDD
+### 1. Typical DDD Flow
 
 ```mermaid
 graph TD
-    A[UI Widget] --> B[BLoC Event]
-    B --> C[BLoC Business Logic]
-    C --> D[Use Case/Application Service]
-    D --> E[Domain Entity]
-    E --> F[Repository Interface]
-    F --> G[Repository Implementation]
-    G --> H[Data Source/API]
-    H --> G
-    G --> F
-    F --> E
-    E --> D
-    D --> C
-    C --> I[BLoC State]
-    I --> A
+  A[UI Widget] --> B[BLoC Event]
+  B --> C[BLoC Business Logic]
+  C --> D[Use Case/Application Service]
+  D --> E[Domain Entity]
+  E --> F[Repository Interface]
+  F --> G[Repository Implementation]
+  G --> H[Data Source/API]
+  H --> G
+  G --> F
+  F --> E
+  E --> D
+  D --> C
+  C --> I[BLoC State]
+  I --> A
 ```
 
 
-## 📈 Beneficios de la Arquitectura DDD
+## 📈 Benefits of DDD Architecture
 
-### ✅ Enfoque en el Dominio
-- Código que refleja el lenguaje del negocio
-- Lógica de negocio centralizada y protegida
-- Colaboración efectiva con domain experts
+### ✅ Domain Focus
+- Code that reflects business language
+- Centralized and protected business logic
+- Effective collaboration with domain experts
 
-### ✅ Mantenibilidad
-- Separación clara entre capas
-- Cambios en infraestructura no afectan el dominio
-- Evolución independiente de cada bounded context
+### ✅ Maintainability
+- Clear separation between layers
+- Infrastructure changes do not affect domain
+- Independent evolution of each bounded context
 
-### ✅ Testabilidad
-- Domain logic aislada y testeable
-- Mocking sencillo de dependencias externas
-- Tests unitarios focalizados en reglas de negocio
+### ✅ Testability
+- Isolated and testable domain logic
+- Easy mocking of external dependencies
+- Unit tests focused on business rules
 
-### ✅ Escalabilidad
-- Nuevos bounded contexts independientes
-- Microservicios preparados por contexto
-- Crecimiento modular y controlado
+### ✅ Scalability
+- New independent bounded contexts
+- Microservices prepared per context
+- Modular and controlled growth
 
 
-## 🎨 Convenciones de Naming DDD
+## 🎨 DDD Naming Conventions
 
-### Archivos y Carpetas
-- `snake_case` para archivos y carpetas
-- Sufijos que reflejan el patrón DDD:
-  - `_usecases.dart` para Application Services
-  - `_repository.dart` para implementaciones
-  - `i_[name]_repository.dart` para interfaces
-  - `_bloc.dart` para BLoCs de presentación
+### Files and Folders
+- `snake_case` for files and folders
+- Suffixes that reflect the DDD pattern:
+  - `_usecases.dart` for Application Services
+  - `_repository.dart` for implementations
+  - `i_[name]_repository.dart` for interfaces
+  - `_bloc.dart` for presentation BLoCs
 
-### Clases y Métodos
-- `PascalCase` para clases siguiendo ubiquitous language
-- `camelCase` para métodos que expresan acciones del dominio
-- Nombres que reflejan operaciones de negocio reales
-- Evitar términos técnicos en favor del lenguaje del dominio
+### Classes and Methods
+- `PascalCase` for classes following ubiquitous language
+- `camelCase` for methods expressing domain actions
+- Names that reflect real business operations
+- Avoid technical terms in favor of domain language
 
-### Use Cases y Application Services
-- `[Context]Usecases` para servicios de aplicación
-- Métodos que representan casos de uso específicos
+### Use Cases and Application Services
+- `[Context]Usecases` for application services
+- Methods representing specific use cases
 - `SignUsecases.signIn()`, `DocumentsUsecases.getMyCompanies()`
 
 ### Repository Pattern
-- `I[Name]Repository` para interfaces del dominio
-- `[Name]Repository` para implementaciones
-- Métodos que abstraen operaciones de persistencia
+- `I[Name]Repository` for domain interfaces
+- `[Name]Repository` for implementations
+- Methods that abstract persistence operations

@@ -68,7 +68,7 @@ class PosUsecases {
       if (result.isSuccess) {
         await keyValueStorageService.setKeyValue<String>(
           "base_url",
-          "${baseUrl}",
+          "${baseUrl}/apipts",
         );
         return Success(null);
       } else {

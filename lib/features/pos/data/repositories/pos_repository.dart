@@ -58,7 +58,7 @@ class PosRepository implements IPosRepository {
       final response = await http
           .get(Uri.parse('$baseUrl/status/ping'))
           //.get(Uri.parse('$baseUrl/status/ping'))
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         return Success(null);
